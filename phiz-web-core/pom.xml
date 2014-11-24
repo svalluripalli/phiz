@@ -160,7 +160,7 @@
                     <execution>
                         <id>default-test</id>
                         <configuration>
-                            <suiteXmlFiles>
+                            <suiteXmlFiles combine.self="override">
                                 <suiteXmlFile>${project.build.testngDirectory}/testng-phiz-web.xml</suiteXmlFile>
                             </suiteXmlFiles>
                         </configuration>
@@ -168,7 +168,7 @@
                     <execution>
                         <id>test-integration</id>
                         <configuration>
-                            <suiteXmlFiles>
+                            <suiteXmlFiles combine.self="override">
                                 <suiteXmlFile>${project.build.testngDirectory}/testng-phiz-web-it.xml</suiteXmlFile>
                             </suiteXmlFiles>
                         </configuration>

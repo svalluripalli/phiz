@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions
+    name="IISService"
+    targetNamespace="urn:cdc:iisb:2014"
+    xmlns="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:iis="urn:cdc:iisb:2014"
+    xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/"
+    xmlns:wsam="http://www.w3.org/2007/05/addressing/metadata"
+    xmlns:wsaw="http://www.w3.org/2006/05/addressing/wsdl"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+    xmlns:wsp="http://www.w3.org/ns/ws-policy"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    
+    <wsdl:documentation>CDC Immunization Information Systems (IIS) SOAP web service.</wsdl:documentation>
+    
+    <!--====================================================================================================
+    = TYPES
+    =====================================================================================================-->
+    <wsdl:types>
+        <xsd:schema>
+            <xsd:import namespace="urn:cdc:iisb:2014" schemaLocation="../schema/cdc-iis.xsd"/>
+        </xsd:schema>
+    </wsdl:types>
+    
+    <!--====================================================================================================
+    = OPERATION MESSAGES: CONNECTIVITY TEST
+    =====================================================================================================-->
+    <wsdl:message name="ConnectivityTestRequestMessage">
+        <wsdl:documentation>Connectivity test request message.</wsdl:documentation>
+        <wsdl:part name="requestParameters" element="iis:ConnectivityTestRequest"/>
+    </wsdl:message>
+    
+    <wsdl:message name="ConnectivityTestResponseMessage">
+        <wsdl:documentation>Connectivity test response message.</wsdl:documentation>
+        <wsdl:part name="responseParameters" element="iis:ConnectivityTestResponse"/>
+    </wsdl:message>
+    
+    <!--====================================================================================================
+    = OPERATION MESSAGES: SUBMIT SINGLE MESSAGE
+    =====================================================================================================-->
+    <wsdl:message name="SubmitSingleMessageRequestMessage">
+        <wsdl:documentation>Submit single message request message.</wsdl:documentation>
+        <wsdl:part name="requestParameters" element="iis:SubmitSingleMessageRequest"/>
+    </wsdl:message>
+    
+    <wsdl:message name="SubmitSingleMessageResponseMessage">
+        <wsdl:documentation>Submit single message response message.</wsdl:documentation>
+        <wsdl:part name="responseParameters" element="iis:SubmitSingleMessageResponse"/>
+    </wsdl:message>
+    
+    <!--====================================================================================================
+    = FAULT MESSAGES
+    =====================================================================================================-->
+    <wsdl:message name="MessageTooLargeFaultMessage">
+        <wsdl:part name="fault" element="iis:MessageTooLargeFault"/>
+    </wsdl:message>
+    
+    <wsdl:message name="SecurityFaultMessage">
+        <wsdl:part name="fault" element="iis:SecurityFault"/>
+    </wsdl:message>
+    
+    <wsdl:message name="UnsupportedOperationFaultMessage">
+        <wsdl:part name="fault" element="iis:UnsupportedOperationFault"/>
+    </wsdl:message>
+    
+    <!--====================================================================================================
+    = PORT TYPES
+    =====================================================================================================-->
+    <wsdl:portType name="IISPortType">
+        <wsdl:operation name="ConnectivityTest">
+            <wsdl:documentation>Connectivity test operation.</wsdl:documentation>
+            <wsdl:input name="ConnectivityTestRequest" message="iis:ConnectivityTestRequestMessage"
+                wsaw:Action="urn:cdc:iisb:2014:IISPortType:ConnectivityTestRequest"/>
+            <wsdl:output name="ConnectivityTestResponse" message="iis:ConnectivityTestResponseMessage"
+                wsaw:Action="urn:cdc:iisb:2014:IISPortType:ConnectivityTestResponse"/>
+            <wsdl:fault name="UnsupportedOperationFault" message="iis:UnsupportedOperationFaultMessage"
+                wsaw:Action="urn:cdc:iisb:2014:IISPortType:ConnectivityTest:Fault:UnsupportedOperationFault"/>
+        </wsdl:operation>
+        
+        <wsdl:operation name="SubmitSingleMessage">
+            <wsdl:documentation>Submit single message operation.</wsdl:documentation>
+            <wsdl:input name="SubmitSingleMessageRequest" message="iis:SubmitSingleMessageRequestMessage"
+                wsaw:Action="urn:cdc:iisb:2014:IISPortType:SubmitSingleMessageRequest"/>
+            <wsdl:output name="SubmitSingleMessageResponse" message="iis:SubmitSingleMessageResponseMessage"
+                wsaw:Action="urn:cdc:iisb:2014:IISPortType:SubmitSingleMessageResponse"/>
+            <wsdl:fault name="MessageTooLargeFault" message="iis:MessageTooLargeFaultMessage"
+                wsaw:Action="urn:cdc:iisb:2014:IISPortType:SubmitSingleMessage:Fault:MessageTooLargeFault"/>
+            <wsdl:fault name="SecurityFault" message="iis:SecurityFaultMessage"
+                wsaw:Action="urn:cdc:iisb:2014:IISPortType:SubmitSingleMessage:Fault:SecurityFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+    
+    <!--====================================================================================================
+    = BINDINGS
+    =====================================================================================================-->
+    <wsdl:binding name="IISBindingSoap12" type="iis:IISPortType">
+        <wsp:Policy>
+            <wsam:Addressing>
+                <wsp:Policy/>
+            </wsam:Addressing>
+        </wsp:Policy>
+        
+        <soap12:binding style="document" transport="http://www.w3.org/2003/05/soap/bindings/HTTP/"/>
+        
+        <wsdl:operation name="ConnectivityTest">
+            <soap12:operation style="document" soapAction="urn:cdc:iisb:2014:IISPortType:ConnectivityTestRequest"/>
+            <wsdl:input>
+                <soap12:body parts="requestParameters" use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body parts="responseParameters" use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="UnsupportedOperationFault">
+                <soap12:fault name="UnsupportedOperationFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+        
+        <wsdl:operation name="SubmitSingleMessage">
+            <soap12:operation style="document" soapAction="urn:cdc:iisb:2014:IISPortType:SubmitSingleMessageRequest"/>
+            <wsdl:input>
+                <soap12:body parts="requestParameters" use="literal"/>
+            </wsdl:input>
+            <wsdl:output>
+                <soap12:body parts="responseParameters" use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="MessageTooLargeFault">
+                <soap12:fault name="MessageTooLargeFault" use="literal"/>
+            </wsdl:fault>
+            <wsdl:fault name="SecurityFault">
+                <soap12:fault name="SecurityFault" use="literal"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    
+    <!--====================================================================================================
+    = SERVICES
+    =====================================================================================================-->
+    <wsdl:service name="IISService">
+        <wsdl:port name="IISPortSoap12" binding="iis:IISBindingSoap12">
+            <wsp:Policy>
+                <wsam:Addressing>
+                    <wsp:Policy/>
+                </wsam:Addressing>
+            </wsp:Policy>
+            
+            <soap12:address location="http://localhost/IISService"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

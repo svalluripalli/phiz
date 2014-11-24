@@ -158,19 +158,9 @@
                 <executions>
                     <execution>
                         <id>default-test</id>
-                        <configuration>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>${project.build.testngDirectory}/testng-phiz-tools.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                        </configuration>
                     </execution>
                     <execution>
                         <id>test-integration</id>
-                        <configuration>
-                            <suiteXmlFiles>
-                                <suiteXmlFile>${project.build.testngDirectory}/testng-phiz-tools-it.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

@@ -20,11 +20,18 @@
         <!-- Project properties -->
         <project.basedir.all>${project.basedir}/..</project.basedir.all>
         <!-- Project build CXF source properties -->
-        <project.build.cxfSourceDirectory>${project.build.directory}/generated-sources/cxf</project.build.cxfSourceDirectory>
-        <!-- Project build JAX-WS properties -->
-        <project.build.jaxwsDirectory>${project.build.directory}/jaxws</project.build.jaxwsDirectory>
+        <project.build.cxfSourceDirectory>${project.basedir}/src/main/cxf</project.build.cxfSourceDirectory>
+        <project.build.cxfGeneratedSourceDirectory>${project.build.directory}/generated-sources/cxf</project.build.cxfGeneratedSourceDirectory>
         <!-- Project build JAX-WS source properties -->
         <project.build.jaxwsSourceDirectory>${project.basedir}/src/main/jaxws</project.build.jaxwsSourceDirectory>
+        <!-- Project build XML schema properties -->
+        <project.build.schemaDirectory>${project.build.outputDirectory}/META-INF/phiz/schema</project.build.schemaDirectory>
+        <!-- Project build XML schema source properties -->
+        <project.build.schemaSourceDirectory>${project.basedir}/src/main/schema</project.build.schemaSourceDirectory>
+        <!-- Project build WSDL properties -->
+        <project.build.wsdlDirectory>${project.build.outputDirectory}/META-INF/phiz/wsdl</project.build.wsdlDirectory>
+        <!-- Project build WSDL source properties -->
+        <project.build.wsdlSourceDirectory>${project.basedir}/src/main/wsdl</project.build.wsdlSourceDirectory>
     </properties>
     
     <dependencies>
@@ -100,6 +107,10 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-policy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>
@@ -183,43 +194,116 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
+                <version>3.0.2</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.btmatthews.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-commons-lang3</artifactId>
+                        <version>1.0.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                        <version>2.2.11</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-xjc</artifactId>
+                        <version>2.2.11</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.sun.xml.ws</groupId>
+                        <artifactId>jaxws-tools</artifactId>
+                        <version>2.2.8</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.commons</groupId>
+                        <artifactId>commons-lang3</artifactId>
+                        <version>3.3.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.cxf.xjcplugins</groupId>
+                        <artifactId>cxf-xjc-dv</artifactId>
+                        <version>3.0.2</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jvnet.annox</groupId>
+                        <artifactId>annox</artifactId>
+                        <version>1.0.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-basics</artifactId>
+                        <version>0.9.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-basics-annotate</artifactId>
+                        <version>1.0.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                        <artifactId>jaxb2-value-constructor</artifactId>
+                        <version>3.0</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <goals>
                             <goal>wsdl2java</goal>
                         </goals>
-                        <!--
-                        TODO: Enable once web service components are in place.
-                        -->
-                        <phase>none</phase>
                         <configuration>
+                            <additionalJvmArgs>
+                                -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 \
+                                -XX:ConcGCThreads=4 -Djavax.xml.accessExternalSchema=all -Dorg.apache.cxf.Logger=org.apache.cxf.common.logging.Slf4jLogger \
+                                -Dlogback.configurationFile="${project.build.cxfSourceDirectory}/logback-phiz-cxf-codegen.xml"
+                            </additionalJvmArgs>
                             <defaultOptions>
                                 <bindingFiles>
-                                    <bindingFile>${project.build.jaxwsDirectory}/jaxb.xjb</bindingFile>
-                                    <bindingFile>${project.build.jaxwsDirectory}/jaxb-cdc-iis.xjb</bindingFile>
+                                    <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb.xjb</bindingFile>
+                                    <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb-cdc-iis.xjb</bindingFile>
                                 </bindingFiles>
+                                <extraargs>
+                                    <extraarg>-exceptionSuper</extraarg>
+                                    <extraarg>java.lang.RuntimeException</extraarg>
+                                    <extraarg>-faultSerialVersionUID</extraarg>
+                                    <extraarg>1</extraarg>
+                                    <extraarg>-mark-generated</extraarg>
+                                    <extraarg>-validate</extraarg>
+                                    <extraarg>-verbose</extraarg>
+                                    <extraarg>-xjc-Xannotate</extraarg>
+                                    <extraarg>-xjc-Xcommons-lang3</extraarg>
+                                    <extraarg>-xjc-Xcommons-lang3:ToStringStyle=DEFAULT_STYLE</extraarg>
+                                    <extraarg>-xjc-Xdv</extraarg>
+                                    <extraarg>-xjc-Xinheritance</extraarg>
+                                    <extraarg>-xjc-Xvalue-constructor</extraarg>
+                                </extraargs>
                             </defaultOptions>
+                            <disableDependencyScan>true</disableDependencyScan>
+                            <disableDirectoryScan>true</disableDirectoryScan>
+                            <fork>once</fork>
+                            <sourceRoot>${project.build.cxfGeneratedSourceDirectory}</sourceRoot>
                             <wsdlOptions>
                                 <wsdlOption>
                                     <bindingFiles>
-                                        <bindingFile>${project.build.jaxwsDirectory}/jaxws-cdc-iis.xjb</bindingFile>
+                                        <bindingFile>${project.build.jaxwsSourceDirectory}/jaxws-cdc-iis.xjb</bindingFile>
                                     </bindingFiles>
                                     <extraargs>
                                         <extraarg>-wsdlLocation</extraarg>
-                                        <extraarg>META-INF/wsdl/cdc-iis.wsdl</extraarg>
+                                        <extraarg>META-INF/phiz/wsdl/cdc-iis.wsdl</extraarg>
                                     </extraargs>
-                                    <wsdl>${project.basedir}/src/main/resources/META-INF/wsdl/cdc-iis.wsdl</wsdl>
+                                    <wsdl>${project.build.wsdlSourceDirectory}/cdc-iis.wsdl</wsdl>
                                 </wsdlOption>
                                 <wsdlOption>
                                     <bindingFiles>
-                                        <bindingFile>${project.build.jaxwsDirectory}/jaxb-cdc-iis-hub.xjb</bindingFile>
-                                        <bindingFile>${project.build.jaxwsDirectory}/jaxws-cdc-iis-hub.xjb</bindingFile>
+                                        <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb-cdc-iis-hub.xjb</bindingFile>
+                                        <bindingFile>${project.build.jaxwsSourceDirectory}/jaxws-cdc-iis-hub.xjb</bindingFile>
                                     </bindingFiles>
                                     <extraargs>
                                         <extraarg>-wsdlLocation</extraarg>
-                                        <extraarg>META-INF/wsdl/cdc-iis-hub.wsdl</extraarg>
+                                        <extraarg>META-INF/phiz/wsdl/cdc-iis-hub.wsdl</extraarg>
                                     </extraargs>
-                                    <wsdl>${project.basedir}/src/main/resources/META-INF/wsdl/cdc-iis-hub.wsdl</wsdl>
+                                    <wsdl>${project.build.wsdlSourceDirectory}/cdc-iis-hub.wsdl</wsdl>
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>
@@ -243,19 +327,36 @@
                         <id>copy-resources</id>
                     </execution>
                     <execution>
-                        <id>copy-resources-jaxws</id>
-                        <phase>process-resources</phase>
+                        <id>copy-resources-schema</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>copy-resources</goal>
                         </goals>
                         <configuration>
-                            <outputDirectory>${project.build.jaxwsDirectory}</outputDirectory>
+                            <outputDirectory>${project.build.schemaDirectory}</outputDirectory>
                             <resources>
                                 <resource>
-                                    <directory>${project.build.jaxwsSourceDirectory}</directory>
-                                    <filtering>true</filtering>
+                                    <directory>${project.build.schemaSourceDirectory}</directory>
                                     <includes>
-                                        <include>**/*.xjb</include>
+                                        <include>*.xsd</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-wsdl</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.wsdlDirectory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${project.build.wsdlSourceDirectory}</directory>
+                                    <includes>
+                                        <include>*.wsdl</include>
                                     </includes>
                                 </resource>
                             </resources>
@@ -288,7 +389,7 @@
                     <execution>
                         <id>default-test</id>
                         <configuration>
-                            <suiteXmlFiles>
+                            <suiteXmlFiles combine.self="override">
                                 <suiteXmlFile>${project.build.testngDirectory}/testng-phiz.xml</suiteXmlFile>
                             </suiteXmlFiles>
                         </configuration>
@@ -296,9 +397,25 @@
                     <execution>
                         <id>test-integration</id>
                         <configuration>
-                            <suiteXmlFiles>
+                            <suiteXmlFiles combine.self="override">
                                 <suiteXmlFile>${project.build.testngDirectory}/testng-phiz-it.xml</suiteXmlFile>
                             </suiteXmlFiles>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmaven</groupId>
+                <artifactId>groovy-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process-ws-sources</id>
+                        <phase>process-sources</phase>
+                        <goals>
+                            <goal>execute</goal>
+                        </goals>
+                        <configuration>
+                            <source>${project.build.groovyScriptSourceDirectory}/phiz-ws-process-sources.groovy</source>
                         </configuration>
                     </execution>
                 </executions>

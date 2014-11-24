@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration
+    debug="false"
+    xmlns="ch.qos.logback">
+    
+    <contextName>phiz-cxf-codegen</contextName>
+    
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+    
+    <appender name="console-cxf-codegen" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t] %p - %m%n%rEx</pattern>
+        </encoder>
+        <target>System.out</target>
+        <withJansi>true</withJansi>
+    </appender>
+    
+    <logger name="org.apache" level="info" additivity="false">
+        <appender-ref ref="console-cxf-codegen"/>
+    </logger>
+    <root level="warn">
+        <appender-ref ref="console-cxf-codegen"/>
+    </root>
+</configuration>

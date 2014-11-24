@@ -58,6 +58,9 @@
         <!-- Project build Debian source properties -->
         <project.build.debSourceDirectory>${project.basedir}/src/main/deb</project.build.debSourceDirectory>
         <project.build.debControlSourceDirectory>${project.build.debSourceDirectory}/control</project.build.debControlSourceDirectory>
+        <!-- Project build Groovy source properties -->
+        <project.build.groovyScriptSourceDirectory>${project.build.scriptSourceDirectory}/groovy</project.build.groovyScriptSourceDirectory>
+        <project.build.groovySourceDirectory>${project.basedir}/src/main/groovy</project.build.groovySourceDirectory>
         <!-- Project build source properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Project build TestNG properties -->
@@ -73,11 +76,13 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>1.1.2</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>1.1.2</version>
+                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.sebhoss</groupId>
@@ -192,6 +197,11 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-policy</artifactId>
                 <version>3.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy-all</artifactId>
+                <version>2.3.7</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
@@ -321,122 +331,6 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.cxf</groupId>
-                    <artifactId>cxf-codegen-plugin</artifactId>
-                    <version>3.0.2</version>
-                    <inherited>true</inherited>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.btmatthews.jaxb2_commons</groupId>
-                            <artifactId>jaxb2-commons-lang3</artifactId>
-                            <version>1.0.0</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.sun.xml.bind</groupId>
-                            <artifactId>jaxb-impl</artifactId>
-                            <version>2.2.11</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.sun.xml.bind</groupId>
-                            <artifactId>jaxb-xjc</artifactId>
-                            <version>2.2.11</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>com.sun.xml.ws</groupId>
-                            <artifactId>jaxws-tools</artifactId>
-                            <version>2.2.8</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.commons</groupId>
-                            <artifactId>commons-lang3</artifactId>
-                            <version>3.3.2</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.cxf.xjcplugins</groupId>
-                            <artifactId>cxf-xjc-dv</artifactId>
-                            <version>3.0.2</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.jvnet.annox</groupId>
-                            <artifactId>annox</artifactId>
-                            <version>1.0.1</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.jvnet.jaxb2_commons</groupId>
-                            <artifactId>jaxb2-basics</artifactId>
-                            <version>0.9.1</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.jvnet.jaxb2_commons</groupId>
-                            <artifactId>jaxb2-basics-annotate</artifactId>
-                            <version>1.0.1</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.jvnet.jaxb2_commons</groupId>
-                            <artifactId>jaxb2-value-constructor</artifactId>
-                            <version>3.0</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <additionalJvmArgs>
-                            -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 \
-                            -XX:ConcGCThreads=4 -Djavax.xml.accessExternalSchema=all
-                        </additionalJvmArgs>
-                        <defaultOptions>
-                            <extraargs combine.children="append">
-                                <extraarg>-exceptionSuper</extraarg>
-                                <extraarg>java.lang.RuntimeException</extraarg>
-                                <extraarg>-faultSerialVersionUID</extraarg>
-                                <extraarg>1</extraarg>
-                                <extraarg>-mark-generated</extraarg>
-                                <extraarg>-validate</extraarg>
-                                <extraarg>-xjc-Xannotate</extraarg>
-                                <extraarg>-xjc-Xcommons-lang3</extraarg>
-                                <extraarg>-xjc-Xcommons-lang3:ToStringStyle=DEFAULT_STYLE</extraarg>
-                                <extraarg>-xjc-Xdv</extraarg>
-                                <extraarg>-xjc-Xinheritance</extraarg>
-                                <extraarg>-xjc-Xvalue-constructor</extraarg>
-                            </extraargs>
-                        </defaultOptions>
-                        <disableDependencyScan>true</disableDependencyScan>
-                        <disableDirectoryScan>true</disableDirectoryScan>
-                        <fork>once</fork>
-                        <sourceRoot>${project.build.cxfSourceDirectory}</sourceRoot>
-                    </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.7</version>
-                    <inherited>true</inherited>
-                    <dependencies>
-                        <dependency>
-                            <groupId>ant-contrib</groupId>
-                            <artifactId>ant-contrib</artifactId>
-                            <version>1.0b3</version>
-                            <exclusions>
-                                <exclusion>
-                                    <groupId>ant</groupId>
-                                    <artifactId>ant</artifactId>
-                                </exclusion>
-                            </exclusions>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.apache.ant</groupId>
-                            <artifactId>ant</artifactId>
-                            <version>1.9.4</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>org.kuali.common</groupId>
-                            <artifactId>kuali-antprops</artifactId>
-                            <version>1.0.1-alpha</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <customTaskPrefix>mvn</customTaskPrefix>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.2</version>
@@ -534,7 +428,7 @@
                     <executions>
                         <execution>
                             <id>copy-resources</id>
-                            <phase>process-resources</phase>
+                            <phase>generate-resources</phase>
                             <goals>
                                 <goal>copy-resources</goal>
                             </goals>
@@ -565,7 +459,7 @@
                         </execution>
                         <execution>
                             <id>copy-test-resources</id>
-                            <phase>process-test-resources</phase>
+                            <phase>generate-test-resources</phase>
                             <goals>
                                 <goal>copy-resources</goal>
                             </goals>
@@ -596,7 +490,7 @@
                         </execution>
                         <execution>
                             <id>copy-test-resources-testng</id>
-                            <phase>process-test-resources</phase>
+                            <phase>generate-test-resources</phase>
                             <goals>
                                 <goal>copy-resources</goal>
                             </goals>
@@ -655,6 +549,9 @@
                         </argLine>
                         <parallel>all</parallel>
                         <reportFormat>plain</reportFormat>
+                        <suiteXmlFiles>
+                            <suiteXmlFile>${project.build.testngDirectory}/testng-${project.artifactId}.xml</suiteXmlFile>
+                        </suiteXmlFiles>
                         <systemPropertyVariables combine.children="append">
                             
                         </systemPropertyVariables>
@@ -679,6 +576,41 @@
                             </configuration>
                         </execution>
                     </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.gmaven</groupId>
+                    <artifactId>groovy-maven-plugin</artifactId>
+                    <version>2.0</version>
+                    <inherited>true</inherited>
+                    <dependencies>
+                        <dependency>
+                            <groupId>commons-io</groupId>
+                            <artifactId>commons-io</artifactId>
+                            <version>2.4</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.ant</groupId>
+                            <artifactId>ant</artifactId>
+                            <version>1.9.4</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.commons</groupId>
+                            <artifactId>commons-lang3</artifactId>
+                            <version>3.3.2</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.codehaus.groovy</groupId>
+                            <artifactId>groovy-all</artifactId>
+                            <version>2.3.7</version>
+                        </dependency>
+                    </dependencies>
+                    <configuration>
+                        <classpathScope>test</classpathScope>
+                        <scriptpath>
+                            <element>${project.build.groovySourceDirectory}</element>
+                            <element>${project.build.groovyScriptSourceDirectory}</element>
+                        </scriptpath>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
