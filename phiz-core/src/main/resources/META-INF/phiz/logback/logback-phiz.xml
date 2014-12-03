@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration
+    debug="false"
+    scan="true"
+    scanPeriod="30 seconds"
+    xmlns="ch.qos.logback">
+    
+    <!--====================================================================================================
+    = CONTEXT NAME
+    =====================================================================================================-->
+    <contextName>${phiz.log.context.name:-%{project.artifactId}}</contextName>
+    
+    <!--====================================================================================================
+    = INCLUDES
+    =====================================================================================================-->
+    <include resource="META-INF/phiz/logback/logback-phiz-include.xml"/>
+</configuration>

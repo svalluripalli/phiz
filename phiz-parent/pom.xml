@@ -49,18 +49,41 @@
         <!-- Java properties -->
         <java.version>1.8</java.version>
         <!-- Project properties -->
-        <project.basedir>${project.basedir}</project.basedir>
         <project.basedir.all>${project.basedir}/..</project.basedir.all>
         <project.basedir.parent>${project.basedir}/${project.parent.relativePath}</project.basedir.parent>
         <!-- Project build Debian properties -->
         <project.build.debDirectory>${project.build.directory}/deb</project.build.debDirectory>
         <project.build.debControlDirectory>${project.build.debDirectory}/control</project.build.debControlDirectory>
+        <project.build.debBinDataDirectoryPath>usr/bin</project.build.debBinDataDirectoryPath>
+        <project.build.debCacheDataDirectoryPath>var/cache/${project.artifactId}</project.build.debCacheDataDirectoryPath>
+        <project.build.debConfDataDirectoryPath>etc/${project.artifactId}</project.build.debConfDataDirectoryPath>
+        <project.build.debLogDataDirectoryPath>var/log/${project.artifactId}</project.build.debLogDataDirectoryPath>
+        <project.build.debRunDataDirectoryPath>var/run/${project.artifactId}</project.build.debRunDataDirectoryPath>
+        <project.build.debVarDataDirectoryPath>var/lib/${project.artifactId}</project.build.debVarDataDirectoryPath>
+        <project.build.debShareDataDirectoryPath>usr/share/${project.artifactId}</project.build.debShareDataDirectoryPath>
+        <project.build.debShareBinDataDirectoryPath>${project.build.debShareDataDirectoryPath}/bin</project.build.debShareBinDataDirectoryPath>
+        <project.build.debShareCacheDataDirectoryPath>${project.build.debShareDataDirectoryPath}/work</project.build.debShareCacheDataDirectoryPath>
+        <project.build.debShareConfDataDirectoryPath>${project.build.debShareDataDirectoryPath}/conf</project.build.debShareConfDataDirectoryPath>
+        <project.build.debShareLibDataDirectoryPath>${project.build.debShareDataDirectoryPath}/lib</project.build.debShareLibDataDirectoryPath>
+        <project.build.debShareLogDataDirectoryPath>${project.build.debShareDataDirectoryPath}/logs</project.build.debShareLogDataDirectoryPath>
+        <project.build.debShareRunDataDirectoryPath>${project.build.debShareDataDirectoryPath}/run</project.build.debShareRunDataDirectoryPath>
+        <project.build.debShareVarDataDirectoryPath>${project.build.debShareDataDirectoryPath}/var</project.build.debShareVarDataDirectoryPath>
+        <project.build.debDataDirectory>${project.build.debDirectory}/data</project.build.debDataDirectory>
+        <project.build.debConfDataDirectory>${project.build.debDataDirectory}/${project.build.debConfDataDirectoryPath}</project.build.debConfDataDirectory>
+        <project.build.debShareDataDirectory>${project.build.debDataDirectory}/${project.build.debShareDataDirectoryPath}</project.build.debShareDataDirectory>
+        <project.build.debShareBinDataDirectory>${project.build.debDataDirectory}/${project.build.debShareBinDataDirectoryPath}</project.build.debShareBinDataDirectory>
+        <project.build.debShareLibDataDirectory>${project.build.debDataDirectory}/${project.build.debShareLibDataDirectoryPath}</project.build.debShareLibDataDirectory>
         <!-- Project build Debian source properties -->
         <project.build.debSourceDirectory>${project.basedir}/src/main/deb</project.build.debSourceDirectory>
         <project.build.debControlSourceDirectory>${project.build.debSourceDirectory}/control</project.build.debControlSourceDirectory>
+        <project.build.debDataSourceDirectory>${project.build.debSourceDirectory}/data</project.build.debDataSourceDirectory>
         <!-- Project build Groovy source properties -->
         <project.build.groovyScriptSourceDirectory>${project.build.scriptSourceDirectory}/groovy</project.build.groovyScriptSourceDirectory>
         <project.build.groovySourceDirectory>${project.basedir}/src/main/groovy</project.build.groovySourceDirectory>
+        <!-- Project build integration test properties -->
+        <project.build.itDirectory>${project.build.directory}/it</project.build.itDirectory>
+        <!-- Project build integration test source properties -->
+        <project.build.itSourceDirectory>${project.basedir}/src/it</project.build.itSourceDirectory>
         <!-- Project build source properties -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Project build TestNG properties -->
@@ -71,18 +94,16 @@
     
     <dependencyManagement>
         <dependencies>
-            <!-- Runtime dependencies -->
+            <!-- Compile dependencies -->
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>1.1.2</version>
-                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
                 <version>1.1.2</version>
-                <scope>runtime</scope>
             </dependency>
             <dependency>
                 <groupId>com.github.sebhoss</groupId>
@@ -95,24 +116,33 @@
                 <version>3.0.0</version>
             </dependency>
             <dependency>
-                <groupId>com.sun.xml.bind</groupId>
-                <artifactId>jaxb-impl</artifactId>
-                <version>2.2.11</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.sun.istack</groupId>
-                        <artifactId>istack-commons-runtime</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>com.sun.xml.ws</groupId>
                 <artifactId>jaxws-rt</artifactId>
                 <version>2.2.8</version>
                 <exclusions>
                     <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.fastinfoset</groupId>
+                        <artifactId>FastInfoset</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.messaging.saaj</groupId>
+                        <artifactId>saaj-impl</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>com.sun.xml.stream.buffer</groupId>
                         <artifactId>streambuffer</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jaxb-api</artifactId>
                     </exclusion>
                     <exclusion>
                         <groupId>javax.xml.stream</groupId>
@@ -141,6 +171,11 @@
                 <groupId>javax.inject</groupId>
                 <artifactId>javax.inject</artifactId>
                 <version>1</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.2.12</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -172,6 +207,16 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-bindings-soap</artifactId>
                 <version>3.0.2</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
@@ -212,6 +257,25 @@
                 <groupId>org.fusesource.jansi</groupId>
                 <artifactId>jansi</artifactId>
                 <version>1.11</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>2.2.11</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.istack</groupId>
+                        <artifactId>istack-commons-runtime</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.sun.xml.fastinfoset</groupId>
+                        <artifactId>FastInfoset</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.jvnet.staxex</groupId>
+                        <artifactId>stax-ex</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -290,14 +354,27 @@
                 <groupId>org.springframework.amqp</groupId>
                 <artifactId>spring-rabbit</artifactId>
                 <version>1.4.0.RELEASE</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>1.1.9.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>tanukisoft</groupId>
+                <artifactId>wrapper</artifactId>
+                <version>3.2.3</version>
+                <scope>provided</scope>
             </dependency>
             <!-- Test dependencies -->
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-test</artifactId>
-                <version>4.1.2.RELEASE</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>org.testng</groupId>
                 <artifactId>testng</artifactId>
@@ -366,6 +443,34 @@
                     <configuration>
                         <silent>true</silent>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <id>copy-dependencies-deb-provided</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <includeScope>provided</includeScope>
+                                <includeTypes>jar</includeTypes>
+                                <outputDirectory>${project.build.debShareLibDataDirectory}</outputDirectory>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>copy-dependencies-deb-runtime</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <includeScope>runtime</includeScope>
+                                <includeTypes>jar</includeTypes>
+                                <outputDirectory>${project.build.debShareLibDataDirectory}</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -403,6 +508,10 @@
                     <executions>
                         <execution>
                             <id>default-jar</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            <inherited>true</inherited>
                         </execution>
                         <execution>
                             <id>test-jar</id>
@@ -443,15 +552,82 @@
                                             <include>**/*.properties</include>
                                             <include>**/*.xml</include>
                                         </includes>
-                                        <excludes>
-                                            <exclude>spring/**</exclude>
-                                        </excludes>
                                     </resource>
                                     <resource>
                                         <directory>${project.basedir}/src/main/resources/META-INF</directory>
                                         <excludes>
                                             <exclude>**/*.properties</exclude>
                                             <exclude>**/*.xml</exclude>
+                                        </excludes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>copy-resources-deb-control</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <outputDirectory>${project.build.debControlDirectory}</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${project.build.debControlSourceDirectory}</directory>
+                                        <filtering>true</filtering>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>copy-resources-deb-data</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <outputDirectory>${project.build.debDataDirectory}</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${project.build.debDataSourceDirectory}</directory>
+                                        <filtering>true</filtering>
+                                        <includes>
+                                            <include>**/*.properties</include>
+                                            <include>**/*.xml</include>
+                                        </includes>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.debDataSourceDirectory}</directory>
+                                        <excludes>
+                                            <exclude>**/*.properties</exclude>
+                                            <exclude>**/*.xml</exclude>
+                                        </excludes>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.directory}/appassembler/daemons/jsw/${project.artifactId}/bin</directory>
+                                        <targetPath>${project.build.debShareBinDataDirectoryPath}</targetPath>
+                                        <excludes>
+                                            <exclude>*.bat</exclude>
+                                        </excludes>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.directory}/appassembler/daemons/jsw/${project.artifactId}/conf</directory>
+                                        <targetPath>${project.build.debConfDataDirectoryPath}</targetPath>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.directory}/appassembler/daemons/jsw/${project.artifactId}/lib</directory>
+                                        <targetPath>${project.build.debShareLibDataDirectoryPath}</targetPath>
+                                        <excludes>
+                                            <exclude>wrapper.jar</exclude>
+                                        </excludes>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.directory}/appassembler/programs/bin</directory>
+                                        <targetPath>${project.build.debShareBinDataDirectoryPath}</targetPath>
+                                        <excludes>
+                                            <exclude>*.bat</exclude>
                                         </excludes>
                                     </resource>
                                 </resources>
@@ -474,9 +650,6 @@
                                             <include>**/*.properties</include>
                                             <include>**/*.xml</include>
                                         </includes>
-                                        <excludes>
-                                            <exclude>spring/**</exclude>
-                                        </excludes>
                                     </resource>
                                     <resource>
                                         <directory>${project.basedir}/src/test/resources/META-INF</directory>
@@ -508,6 +681,34 @@
                                     <resource>
                                         <directory>${project.build.testngSourceDirectory}</directory>
                                         <excludes>
+                                            <exclude>**/*.xml</exclude>
+                                        </excludes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>copy-test-resources-it</id>
+                            <phase>generate-test-resources</phase>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <outputDirectory>${project.build.itDirectory}</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${project.build.itSourceDirectory}</directory>
+                                        <filtering>true</filtering>
+                                        <includes>
+                                            <include>**/*.properties</include>
+                                            <include>**/*.xml</include>
+                                        </includes>
+                                    </resource>
+                                    <resource>
+                                        <directory>${project.build.itSourceDirectory}</directory>
+                                        <excludes>
+                                            <exclude>**/*.properties</exclude>
                                             <exclude>**/*.xml</exclude>
                                         </excludes>
                                     </resource>
@@ -553,7 +754,11 @@
                             <suiteXmlFile>${project.build.testngDirectory}/testng-${project.artifactId}.xml</suiteXmlFile>
                         </suiteXmlFiles>
                         <systemPropertyVariables combine.children="append">
-                            
+                            <logback.configurationFile>META-INF/phiz/logback/logback-phiz.xml</logback.configurationFile>
+                            <phiz.log.console.tty>true</phiz.log.console.tty>
+                            <phiz.log.file.dir>${project.build.directory}/surefire-logs</phiz.log.file.dir>
+                            <phiz.log.file.name>${project.artifactId}-test</phiz.log.file.name>
+                            <phiz.mode>dev</phiz.mode>
                         </systemPropertyVariables>
                         <threadCount>8</threadCount>
                         <trimStackTrace>false</trimStackTrace>
@@ -573,6 +778,10 @@
                             <inherited>true</inherited>
                             <configuration>
                                 <reportNameSuffix>it</reportNameSuffix>
+                                <skip>true</skip>
+                                <systemPropertyVariables>
+                                    <phiz.log.file.name>${project.artifactId}-test-it</phiz.log.file.name>
+                                </systemPropertyVariables>
                             </configuration>
                         </execution>
                     </executions>
@@ -606,11 +815,150 @@
                     </dependencies>
                     <configuration>
                         <classpathScope>test</classpathScope>
-                        <scriptpath>
+                        <scriptpath combine.children="append">
                             <element>${project.build.groovySourceDirectory}</element>
                             <element>${project.build.groovyScriptSourceDirectory}</element>
                         </scriptpath>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>appassembler-maven-plugin</artifactId>
+                    <version>1.9</version>
+                    <inherited>true</inherited>
+                    <configuration>
+                        <configurationDirectory>conf</configurationDirectory>
+                        <environmentSetupFileName>setenv.sh</environmentSetupFileName>
+                        <generateRepository>false</generateRepository>
+                        <repositoryLayout>flat</repositoryLayout>
+                        <repositoryName>lib</repositoryName>
+                        <useTimestampInSnapshotFileName>false</useTimestampInSnapshotFileName>
+                        <useWildcardClassPath>true</useWildcardClassPath>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>assemble-programs</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>assemble</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <assembleDirectory>${project.build.directory}/appassembler/programs</assembleDirectory>
+                                <extraJvmArguments>
+                                    -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50
+                                    -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -Djava.net.preferIPv4Addresses=true -Djava.net.preferIPv4Stack=true
+                                    -Dloader.main=gov.hhs.onc.phiz.context.impl.PhizApplication
+                                    -Dlogback.configurationFile=META-INF/phiz/logback/logback-phiz.xml -Dphiz.log.console.tty=true
+                                    -Dphiz.log.file.name=${project.artifactId} -Dphiz.mode=dev
+                                </extraJvmArguments>
+                                <platforms>
+                                    <platform>unix</platform>
+                                </platforms>
+                                <programs combine.children="append"/>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>generate-daemons</id>
+                            <phase>generate-resources</phase>
+                            <goals>
+                                <goal>generate-daemons</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <daemons>
+                                    <daemon>
+                                        <id>${project.artifactId}</id>
+                                        <generatorConfigurations>
+                                            <generatorConfiguration>
+                                                <configuration combine.children="append">
+                                                    <property>
+                                                        <name>configuration.directory.in.classpath.first</name>
+                                                        <value>conf</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>set.APP_BASE</name>
+                                                        <value>..</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.java.classpath.1</name>
+                                                        <value>%REPO_DIR%/wrapper-*.jar</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.java.classpath.3</name>
+                                                        <value>%REPO_DIR%/*.jar</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.console.format</name>
+                                                        <value>LPTM</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.description</name>
+                                                        <value>${project.artifactId}</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.displayname</name>
+                                                        <value>${project.artifactId}</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.logfile</name>
+                                                        <value>logs/wrapper-${project.artifactId}.log</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.name</name>
+                                                        <value>${project.artifactId}</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.pidfile</name>
+                                                        <value>../run</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.pidfile.strict</name>
+                                                        <value>true</value>
+                                                    </property>
+                                                    <property>
+                                                        <name>wrapper.statusfile</name>
+                                                        <value>run/${project.artifactId}.status</value>
+                                                    </property>
+                                                </configuration>
+                                                <generator>jsw</generator>
+                                                <includes>
+                                                    <include>linux-x86-64</include>
+                                                </includes>
+                                            </generatorConfiguration>
+                                        </generatorConfigurations>
+                                        <jvmSettings>
+                                            <extraArguments>
+                                                <extraArgument>-XX:+UseG1GC</extraArgument>
+                                                <extraArgument>-XX:MaxGCPauseMillis=50</extraArgument>
+                                                <extraArgument>-XX:ParallelGCThreads=4</extraArgument>
+                                                <extraArgument>-XX:ConcGCThreads=4</extraArgument>
+                                            </extraArguments>
+                                            <systemProperties combine.children="append">
+                                                <systemProperty>java.net.preferIPv4Addresses=true</systemProperty>
+                                                <systemProperty>java.net.preferIPv4Stack=true</systemProperty>
+                                                <systemProperty>loader.main=gov.hhs.onc.phiz.context.impl.PhizApplication</systemProperty>
+                                                <systemProperty>logback.configurationFile=META-INF/phiz/logback/logback-phiz.xml</systemProperty>
+                                                <systemProperty>phiz.log.file.name=${project.artifactId}</systemProperty>
+                                            </systemProperties>
+                                        </jvmSettings>
+                                        <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
+                                        <platforms>
+                                            <platform>jsw</platform>
+                                        </platforms>
+                                    </daemon>
+                                </daemons>
+                                <target>${project.build.directory}/appassembler/daemons</target>
+                                <useDaemonIdAsWrapperConfName>true</useDaemonIdAsWrapperConfName>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.9.1</version>
+                    <inherited>true</inherited>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -645,11 +993,87 @@
                     <artifactId>jdeb</artifactId>
                     <version>1.3</version>
                     <inherited>true</inherited>
-                    <configuration>
-                        <controlDir>${project.build.debControlDirectory}</controlDir>
-                        <snapshotExpand>true</snapshotExpand>
-                        <verbose>true</verbose>
-                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>jdeb</id>
+                            <goals>
+                                <goal>jdeb</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <controlDir>${project.build.debControlDirectory}</controlDir>
+                                <dataSet combine.children="append">
+                                    <data>
+                                        <src>${project.build.debConfDataDirectory}</src>
+                                        <type>directory</type>
+                                        <conffile>true</conffile>
+                                        <missingSrc>ignore</missingSrc>
+                                        <mapper>
+                                            <type>perm</type>
+                                            <prefix>/${project.build.debConfDataDirectoryPath}</prefix>
+                                        </mapper>
+                                    </data>
+                                    <data>
+                                        <src>${project.build.debShareBinDataDirectory}</src>
+                                        <type>directory</type>
+                                        <mapper>
+                                            <type>perm</type>
+                                            <prefix>/${project.build.debShareBinDataDirectoryPath}</prefix>
+                                            <filemode>755</filemode>
+                                        </mapper>
+                                    </data>
+                                    <data>
+                                        <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                        <dst>/${project.build.debShareLibDataDirectoryPath}/${project.build.finalName}.jar</dst>
+                                        <type>file</type>
+                                    </data>
+                                    <data>
+                                        <src>${project.build.debDataDirectory}</src>
+                                        <type>directory</type>
+                                        <excludes>${project.build.debConfDataDirectoryPath}/**,${project.build.debShareBinDataDirectoryPath}/**</excludes>
+                                    </data>
+                                    <data>
+                                        <type>template</type>
+                                        <paths>
+                                            <path>${project.build.debCacheDataDirectoryPath}</path>
+                                            <path>${project.build.debLogDataDirectoryPath}</path>
+                                            <path>${project.build.debRunDataDirectoryPath}</path>
+                                            <path>${project.build.debVarDataDirectoryPath}</path>
+                                        </paths>
+                                    </data>
+                                    <data>
+                                        <type>link</type>
+                                        <linkName>/${project.build.debShareCacheDataDirectoryPath}</linkName>
+                                        <linkTarget>../../../${project.build.debCacheDataDirectoryPath}</linkTarget>
+                                    </data>
+                                    <data>
+                                        <type>link</type>
+                                        <linkName>/${project.build.debShareConfDataDirectoryPath}</linkName>
+                                        <linkTarget>../../../${project.build.debConfDataDirectoryPath}</linkTarget>
+                                    </data>
+                                    <data>
+                                        <type>link</type>
+                                        <linkName>/${project.build.debShareLogDataDirectoryPath}</linkName>
+                                        <linkTarget>../../../${project.build.debLogDataDirectoryPath}</linkTarget>
+                                    </data>
+                                    <data>
+                                        <type>link</type>
+                                        <linkName>/${project.build.debShareRunDataDirectoryPath}</linkName>
+                                        <linkTarget>../../../${project.build.debRunDataDirectoryPath}</linkTarget>
+                                    </data>
+                                    <data>
+                                        <type>link</type>
+                                        <linkName>/${project.build.debShareVarDataDirectoryPath}</linkName>
+                                        <linkTarget>../../../${project.build.debVarDataDirectoryPath}</linkTarget>
+                                    </data>
+                                </dataSet>
+                                <signCfgPrefix>jdeb.sign.</signCfgPrefix>
+                                <signMethod>dpkg-sig</signMethod>
+                                <signPackage>${jdeb.sign.pkg}</signPackage>
+                                <snapshotExpand>true</snapshotExpand>
+                            </configuration>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -684,4 +1108,73 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>integration-test-invoke</id>
+            <activation>
+                <property>
+                    <name>!skipTests</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-invoker-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>integration-test-invoke</id>
+                                <!--
+                                TEMP: dev
+                                -->
+                                <phase>none</phase>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                </goals>
+                                <inherited>true</inherited>
+                                <configuration>
+                                    <addTestClassPath>true</addTestClassPath>
+                                    <goals>
+                                        <goal>install</goal>
+                                    </goals>
+                                    <mavenOpts>
+                                        -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 \
+                                        -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4
+                                    </mavenOpts>
+                                    <noLog>true</noLog>
+                                    <pomIncludes>
+                                        <pomInclude>pom.xml</pomInclude>
+                                    </pomIncludes>
+                                    <projectsDirectory>${project.build.itDirectory}</projectsDirectory>
+                                    <showErrors>true</showErrors>
+                                    <streamLogs>true</streamLogs>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>verify-invoke</id>
+                                <goals>
+                                    <goal>verify</goal>
+                                </goals>
+                                <inherited>true</inherited>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>jdeb-sign-default</id>
+            <activation>
+                <property>
+                    <name>!jdeb.sign.pkg</name>
+                </property>
+            </activation>
+            <properties>
+                <jdeb.sign.key/>
+                <jdeb.sign.passphrase/>
+                <jdeb.sign.pkg>false</jdeb.sign.pkg>
+            </properties>
+        </profile>
+    </profiles>
 </project>

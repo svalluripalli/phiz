@@ -22,13 +22,13 @@
     </properties>
     
     <dependencies>
-        <!-- Runtime dependencies (project) -->
+        <!-- Compile dependencies (project) -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>phiz-core</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Runtime dependencies (inherited) -->
+        <!-- Compile dependencies (inherited) -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -66,6 +66,10 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
         </dependency>
@@ -91,6 +95,14 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
@@ -101,10 +113,28 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-loader</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Test dependencies (project) -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>phiz-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
         <!-- Test dependencies (inherited) -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -118,10 +148,34 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies-deb-provided</id>
+                    </execution>
+                    <execution>
+                        <id>copy-dependencies-deb-runtime</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>enforce-java-version</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                    </execution>
+                    <execution>
+                        <id>test-jar</id>
                     </execution>
                 </executions>
             </plugin>
@@ -133,10 +187,19 @@
                         <id>copy-resources</id>
                     </execution>
                     <execution>
+                        <id>copy-resources-deb-control</id>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-deb-data</id>
+                    </execution>
+                    <execution>
                         <id>copy-test-resources</id>
                     </execution>
                     <execution>
                         <id>copy-test-resources-testng</id>
+                    </execution>
+                    <execution>
+                        <id>copy-test-resources-it</id>
                     </execution>
                 </executions>
             </plugin>
@@ -165,11 +228,56 @@
                 </executions>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assemble-programs</id>
+                        <configuration>
+                            <programs>
+                                <program>
+                                    <id>${project.artifactId}-tls-params</id>
+                                    <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>
+                                </program>
+                            </programs>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-daemons</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.kuali.maven.plugins</groupId>
                 <artifactId>properties-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>read-pom-properties</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.vafer</groupId>
+                <artifactId>jdeb</artifactId>
+                <executions>
+                    <execution>
+                        <id>jdeb</id>
+                        <configuration>
+                            <dataSet>
+                                <data>
+                                    <type>template</type>
+                                    <paths>
+                                        <path>${project.build.debConfDataDirectoryPath}</path>
+                                    </paths>
+                                </data>
+                                <data>
+                                    <type>link</type>
+                                    <linkName>/${project.build.debBinDataDirectoryPath}/${project.artifactId}-tls-params</linkName>
+                                    <linkTarget>../../../${project.build.debShareBinDataDirectoryPath}/${project.artifactId}-tls-params</linkTarget>
+                                </data>
+                            </dataSet>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

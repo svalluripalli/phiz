@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    abort-deconfigure|abort-remove|abort-upgrade|configure)
+        #service "%{project.artifactId}-tomcat" "status" &>"/dev/null" || { service "%{project.artifactId}-tomcat" "start" || true; }
+        ;;
+esac
+
+exit 0

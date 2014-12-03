@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included
+    debug="false"
+    xmlns="ch.qos.logback">
+    
+    <!--====================================================================================================
+    = PROPERTIES: CONSOLE
+    =====================================================================================================-->
+    <if condition='!isDefined("phiz.log.console.tty") &amp;&amp; (System.console() != null)'>
+        <then>
+            <property name="phiz.log.console.tty" value="true" scope="context"/>
+        </then>
+    </if>
+    
+    <!--====================================================================================================
+    = PROPERTIES: FILE
+    =====================================================================================================-->
+    <if condition='!isDefined("hub.log.file.dir")'>
+        <then>
+            <property name="hub.log.file.dir" value="logs" scope="context"/>
+        </then>
+    </if>
+    
+    <property name="phiz.log.file.name" value="${phiz.log.file.name:-${CONTEXT_NAME}}" scope="context"/>
+    
+    <property name="phiz.log.file.name.ext" value="${phiz.log.file.name.ext:-.log}" scope="context"/>
+    
+    <!--====================================================================================================
+    = STATUS LISTENERS
+    =====================================================================================================-->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    
+    <!--====================================================================================================
+    = CONTEXT LISTENERS
+    =====================================================================================================-->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+    
+    <!--====================================================================================================
+    = CONVERSION RULES
+    =====================================================================================================-->
+    <conversionRule conversionWord="pColor" converterClass="gov.hhs.onc.phiz.logging.logback.impl.PriorityColorCompositeConverter"/>
+    
+    <!--====================================================================================================
+    = APPENDERS: CONSOLE
+    =====================================================================================================-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%pColor(%p){${phiz.log.console.tty:-false}} - %m%n%rEx</pattern>
+        </encoder>
+        <target>System.out</target>
+        <withJansi>true</withJansi>
+    </appender>
+    
+    <!--====================================================================================================
+    = APPENDERS: FILE
+    =====================================================================================================-->
+    <if condition='isDefined("phiz.log.file.dir") &amp;&amp; !new java.io.File(p("phiz.log.file.dir")).isFile()'>
+        <then>
+            <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+                <file>${phiz.log.file.dir}/${phiz.log.file.name}${phiz.log.file.name.ext}</file>
+                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+                    <fileNamePattern>${phiz.log.file.dir}/${phiz.log.file.name}.%d{yyyy-MM-dd}.%i${phiz.log.file.name.ext}</fileNamePattern>
+                    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                        <maxFileSize>100MB</maxFileSize>
+                    </timeBasedFileNamingAndTriggeringPolicy>
+                </rollingPolicy>
+                <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t] %p - %m%n%rEx</pattern>
+                </encoder>
+            </appender>
+        </then>
+        <else>
+            <appender name="file" class="ch.qos.logback.core.helpers.NOPAppender"/>
+        </else>
+    </if>
+    
+    <!--====================================================================================================
+    = LOGGERS: PROJECT
+    =====================================================================================================-->
+    <logger name="gov.hhs.onc.phiz" level="all" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <!--====================================================================================================
+    = LOGGERS: APACHE
+    =====================================================================================================-->
+    <logger name="org.apache" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <!--====================================================================================================
+    = LOGGERS: APACHE CXF
+    =====================================================================================================-->
+    <logger name="org.apache.cxf" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <logger name="org.apache.cxf.configuration.jsse" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <logger name="org.apache.cxf.transport.http" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <logger name="org.apache.cxf.transport.https" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <!--====================================================================================================
+    = LOGGERS: HIBERNATE
+    =====================================================================================================-->
+    <logger name="org.hibernate" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <logger name="org.hibernate.SQL" level="debug" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <!--====================================================================================================
+    = LOGGERS: SPRING FRAMEWORK
+    =====================================================================================================-->
+    <logger name="org.springframework" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="warn" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </logger>
+    
+    <!--====================================================================================================
+    = ROOT LOGGER
+    =====================================================================================================-->
+    <root level="warn">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+    </root>
+</included>

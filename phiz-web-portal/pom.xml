@@ -23,7 +23,7 @@
     </properties>
     
     <dependencies>
-        <!-- Runtime dependencies (project) -->
+        <!-- Compile dependencies (project) -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>phiz-core</artifactId>
@@ -33,7 +33,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>phiz-web-core</artifactId>
             <version>${project.version}</version>
-            <classifier>classes</classifier>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -41,7 +40,7 @@
             <version>${project.version}</version>
             <type>war</type>
         </dependency>
-        <!-- Runtime dependencies (inherited) -->
+        <!-- Compile dependencies (inherited) -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
@@ -98,6 +97,25 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-el</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-logging-log4j</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.janino</groupId>
             <artifactId>janino</artifactId>
         </dependency>
@@ -128,6 +146,14 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
@@ -147,6 +173,16 @@
             <artifactId>spring-webmvc</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-loader</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
         </dependency>
@@ -154,10 +190,43 @@
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>tanukisoft</groupId>
+            <artifactId>wrapper</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Test dependencies (project) -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>phiz-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>phiz-web-core</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>phiz-web-core</artifactId>
+            <version>${project.version}</version>
+            <type>war</type>
+            <classifier>test</classifier>
+            <scope>test</scope>
+        </dependency>
         <!-- Test dependencies (inherited) -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -171,10 +240,37 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies-deb-provided</id>
+                    </execution>
+                    <execution>
+                        <id>copy-dependencies-deb-runtime</id>
+                    </execution>
+                    <execution>
+                        <id>copy-test-dependencies-web</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>enforce-java-version</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                    </execution>
+                    <execution>
+                        <id>test-jar</id>
                     </execution>
                 </executions>
             </plugin>
@@ -186,10 +282,19 @@
                         <id>copy-resources</id>
                     </execution>
                     <execution>
+                        <id>copy-resources-deb-control</id>
+                    </execution>
+                    <execution>
+                        <id>copy-resources-deb-data</id>
+                    </execution>
+                    <execution>
                         <id>copy-test-resources</id>
                     </execution>
                     <execution>
                         <id>copy-test-resources-testng</id>
+                    </execution>
+                    <execution>
+                        <id>copy-test-resources-it</id>
                     </execution>
                 </executions>
             </plugin>
@@ -220,23 +325,52 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <overlays>
+                        <overlay>
+                            <groupId>${project.groupId}</groupId>
+                            <artifactId>phiz-web-core</artifactId>
+                            <excludes>
+                                <exclude>META-INF/**</exclude>
+                            </excludes>
+                        </overlay>
+                    </overlays>
+                </configuration>
                 <executions>
                     <execution>
                         <id>default-war</id>
+                    </execution>
+                    <execution>
+                        <id>war-test</id>
                         <configuration>
                             <overlays>
                                 <overlay>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>phiz-web-core</artifactId>
-                                    <includes>
-                                        <include>static/**</include>
-                                    </includes>
+                                    <classifier>test</classifier>
                                 </overlay>
                             </overlays>
                         </configuration>
                     </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <executions>
                     <execution>
-                        <id>war-test</id>
+                        <id>assemble-programs</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>generate-daemons</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifact-jar</id>
                     </execution>
                 </executions>
             </plugin>
@@ -246,6 +380,15 @@
                 <executions>
                     <execution>
                         <id>read-pom-properties</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.vafer</groupId>
+                <artifactId>jdeb</artifactId>
+                <executions>
+                    <execution>
+                        <id>jdeb</id>
                     </execution>
                 </executions>
             </plugin>

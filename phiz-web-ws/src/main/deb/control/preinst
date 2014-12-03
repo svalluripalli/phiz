@@ -1,0 +1,11 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    abort-upgrade|install|upgrade)
+        #! service "%{project.artifactId}-tomcat" "status" &>"/dev/null" || { service "%{project.artifactId}-tomcat" "stop" || true; }
+        ;;
+esac
+
+exit 0

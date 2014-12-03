@@ -20,15 +20,18 @@
     <properties>
         <!-- Project properties -->
         <project.basedir.all>${project.basedir}/..</project.basedir.all>
+        <!-- Project build Debian properties -->
+        <project.build.debShareWebappDataDirectoryPath>${project.build.debShareDataDirectoryPath}/webapp</project.build.debShareWebappDataDirectoryPath>
+        <project.build.debShareWebappDataDirectory>${project.build.debDataDirectory}/${project.build.debShareWebappDataDirectoryPath}</project.build.debShareWebappDataDirectory>
     </properties>
     
     <dependencyManagement>
         <dependencies>
-            <!-- Runtime dependencies -->
+            <!-- Compile dependencies -->
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.9</version>
+                <version>1.10</version>
             </dependency>
             <dependency>
                 <groupId>commons-net</groupId>
@@ -59,6 +62,24 @@
                 <version>1.2.1</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>8.0.15</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>8.0.15</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-logging-log4j</artifactId>
+                <version>8.0.15</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.el</artifactId>
                 <version>3.0.0</version>
@@ -80,18 +101,35 @@
                 </exclusions>
             </dependency>
             <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-tomcat</artifactId>
+                <version>1.1.9.RELEASE</version>
+                <scope>provided</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.tomcat.embed</groupId>
+                        <artifactId>tomcat-embed-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.tomcat.embed</groupId>
+                        <artifactId>tomcat-embed-el</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.tomcat.embed</groupId>
+                        <artifactId>tomcat-embed-logging-juli</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.tomcat.embed</groupId>
+                        <artifactId>tomcat-embed-websocket</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-bom</artifactId>
                 <version>3.2.5.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <!-- Test dependencies -->
-            <dependency>
-                <groupId>org.codehaus.groovy</groupId>
-                <artifactId>groovy-all</artifactId>
-                <version>2.3.4</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -101,12 +139,46 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>copy-test-dependencies-web</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <excludeScope>provided</excludeScope>
+                                <includeTypes>jar,test-jar</includeTypes>
+                                <outputDirectory>${project.build.directory}/${project.artifactId}-test/WEB-INF/lib</outputDirectory>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>default-jar</id>
+                            <phase>prepare-package</phase>
+                        </execution>
+                        <execution>
+                            <id>test-jar</id>
+                            <phase>prepare-package</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.5</version>
                     <inherited>true</inherited>
                     <configuration>
                         <archiveClasses>true</archiveClasses>
-                        <attachClasses>true</attachClasses>
+                        <failOnMissingWebXml>false</failOnMissingWebXml>
+                        <packagingExcludes>WEB-INF/classes/**</packagingExcludes>
                     </configuration>
                     <executions>
                         <execution>
@@ -114,8 +186,16 @@
                             <inherited>true</inherited>
                             <configuration>
                                 <warSourceDirectory>${project.basedir}/src/main/webapp</warSourceDirectory>
-                                <warSourceExcludes>WEB-INF/classes/**</warSourceExcludes>
                                 <webappDirectory>${project.build.directory}/${project.artifactId}</webappDirectory>
+                                <webResources>
+                                    <resource>
+                                        <directory>${project.build.directory}</directory>
+                                        <includes>
+                                            <include>${project.build.finalName}.jar</include>
+                                        </includes>
+                                        <targetPath>WEB-INF/lib</targetPath>
+                                    </resource>
+                                </webResources>
                             </configuration>
                         </execution>
                         <execution>
@@ -125,11 +205,72 @@
                             </goals>
                             <inherited>true</inherited>
                             <configuration>
-                                <classesClassifier>test-classes</classesClassifier>
                                 <classifier>test</classifier>
                                 <primaryArtifact>false</primaryArtifact>
                                 <warSourceDirectory>${project.build.directory}/${project.artifactId}</warSourceDirectory>
                                 <webappDirectory>${project.build.directory}/${project.artifactId}-test</webappDirectory>
+                                <webResources>
+                                    <resource>
+                                        <directory>${project.build.directory}</directory>
+                                        <includes>
+                                            <include>${project.build.finalName}-tests.jar</include>
+                                        </includes>
+                                        <targetPath>WEB-INF/lib</targetPath>
+                                    </resource>
+                                </webResources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>appassembler-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>generate-daemons</id>
+                            <configuration>
+                                <daemons>
+                                    <daemon>
+                                        <id>${project.artifactId}</id>
+                                        <generatorConfigurations>
+                                            <generatorConfiguration>
+                                                <configuration>
+                                                    <property>
+                                                        <name>set.LD_PRELOAD</name>
+                                                        <value>/usr/lib/authbind/libauthbind.so.1</value>
+                                                    </property>
+                                                </configuration>
+                                            </generatorConfiguration>
+                                        </generatorConfigurations>
+                                        <jvmSettings>
+                                            <initialMemorySize>1024M</initialMemorySize>
+                                            <maxMemorySize>2048M</maxMemorySize>
+                                            <maxStackSize>512M</maxStackSize>
+                                        </jvmSettings>
+                                    </daemon>
+                                </daemons>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-artifact-jar</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>attach-artifact</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <artifacts>
+                                    <artifact>
+                                        <file>${project.build.directory}/${project.build.finalName}.jar</file>
+                                        <type>jar</type>
+                                    </artifact>
+                                </artifacts>
                             </configuration>
                         </execution>
                     </executions>
@@ -146,6 +287,28 @@
                                     <location>${project.basedir.parent}/pom.properties</location>
                                     <location>${project.basedir}/pom.properties</location>
                                 </locations>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.vafer</groupId>
+                    <artifactId>jdeb</artifactId>
+                    <executions>
+                        <execution>
+                            <id>jdeb</id>
+                            <configuration>
+                                <dataSet>
+                                    <data>
+                                        <src>${project.build.directory}/${project.artifactId}</src>
+                                        <type>directory</type>
+                                        <excludes>WEB-INF/classes/**,WEB-INF/lib/**</excludes>
+                                        <mapper>
+                                            <type>perm</type>
+                                            <prefix>/${project.build.debShareWebappDataDirectoryPath}</prefix>
+                                        </mapper>
+                                    </data>
+                                </dataSet>
                             </configuration>
                         </execution>
                     </executions>
