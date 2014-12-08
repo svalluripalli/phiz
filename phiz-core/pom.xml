@@ -69,8 +69,16 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.sf.jopt-simple</groupId>
+            <artifactId>jopt-simple</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -443,8 +451,8 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.gmaven</groupId>
-                <artifactId>groovy-maven-plugin</artifactId>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
                 <executions>
                     <execution>
                         <id>process-ws-sources</id>
@@ -453,8 +461,18 @@
                             <goal>execute</goal>
                         </goals>
                         <configuration>
-                            <source>${project.build.groovyScriptSourceDirectory}/phiz-ws-process-sources.groovy</source>
+                            <scripts>
+                                <script>file://${project.build.groovyScriptSourceDirectory}/phiz-ws-process-sources.groovy</script>
+                            </scripts>
                         </configuration>
+                    </execution>
+                    <execution>
+                        <id>process-app-scripts</id>
+                        <phase>none</phase>
+                    </execution>
+                    <execution>
+                        <id>pre-integration-test-process-deb</id>
+                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>

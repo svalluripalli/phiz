@@ -4,9 +4,12 @@ import gov.hhs.onc.phiz.context.impl.PhizApplication;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.test.SpringApplicationContextLoader;
 
-public class PhizApplicationContextLoader extends SpringApplicationContextLoader {
+public class PhizApplicationTestContextLoader extends SpringApplicationContextLoader {
     @Override
     protected SpringApplication getSpringApplication() {
-        return PhizApplication.buildApplication();
+        SpringApplication app = PhizApplication.buildApplication();
+        app.setWebEnvironment(false);
+
+        return app;
     }
 }

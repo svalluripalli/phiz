@@ -1,7 +1,11 @@
-package gov.hhs.onc.phiz.context.config;
+package gov.hhs.onc.phiz.context;
 
 public final class PhizProperties {
     private final static String PREFIX = "phiz.";
+    private final static String APP_PREFIX = PREFIX + "app.";
+
+    public final static String APP_NAME_NAME = APP_PREFIX + "name";
+    public final static String APP_PID_NAME = APP_PREFIX + "pid";
 
     public final static String MODE_NAME = PREFIX + "mode";
     public final static String DEV_MODE_VALUE = "dev";

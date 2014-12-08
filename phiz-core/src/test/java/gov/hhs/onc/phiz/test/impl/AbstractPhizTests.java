@@ -9,7 +9,7 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 import org.testng.annotations.Test;
 
-@ContextConfiguration(classes = { PhizApplication.class }, loader = PhizApplicationContextLoader.class)
+@ContextConfiguration(classes = { PhizApplication.class }, loader = PhizApplicationTestContextLoader.class)
 @Test(groups = { "phiz.test.all" })
 @TestExecutionListeners(listeners = { DependencyInjectionTestExecutionListener.class, DirtiesContextTestExecutionListener.class,
     TransactionalTestExecutionListener.class }, inheritListeners = false)

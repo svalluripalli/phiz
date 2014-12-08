@@ -15,5 +15,11 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
-    
+    <!--
+    TODO: Temporary placeholder for the sake of successful Spring application context startup.
+    -->
+    <beans:bean id="embeddedServletContainerFactoryTomcat" class="org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory"
+        c:port="-1"
+        p:baseDirectory="#{ T(org.apache.commons.lang3.SystemUtils).userDir }"
+        p:documentRoot="webapp"/>
 </beans:beans>

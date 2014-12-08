@@ -23,6 +23,8 @@
         <!-- Project build Debian properties -->
         <project.build.debShareWebappDataDirectoryPath>${project.build.debShareDataDirectoryPath}/webapp</project.build.debShareWebappDataDirectoryPath>
         <project.build.debShareWebappDataDirectory>${project.build.debDataDirectory}/${project.build.debShareWebappDataDirectoryPath}</project.build.debShareWebappDataDirectory>
+        <!-- Project build test Debian properties -->
+        <project.build.testDebShareWebappDataDirectory>${project.build.testDebDataDirectory}/${project.build.debShareWebappDataDirectoryPath}</project.build.testDebShareWebappDataDirectory>
     </properties>
     
     <dependencyManagement>
