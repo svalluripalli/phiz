@@ -30,6 +30,10 @@
         </dependency>
         <!-- Compile dependencies (inherited) -->
         <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
@@ -172,6 +176,18 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-test-invoke</id>
+                    </execution>
+                    <execution>
+                        <id>verify-invoke</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
@@ -241,7 +257,7 @@
                         <id>process-app-scripts</id>
                     </execution>
                     <execution>
-                        <id>pre-integration-test-process-deb</id>
+                        <id>pre-integration-test-process-components</id>
                     </execution>
                 </executions>
             </plugin>

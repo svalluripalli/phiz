@@ -1,14 +1,15 @@
 package gov.hhs.onc.phiz.env;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
+import org.kohsuke.args4j.CmdLineParser;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.EnvironmentAware;
+import org.springframework.context.ApplicationContextAware;
 
-public interface PhizCommandLineOptions extends EnvironmentAware, InitializingBean {
+public interface PhizCommandLineOptions extends ApplicationContextAware, InitializingBean {
     public String[] getArguments();
 
-    public OptionParser getParser();
+    public boolean isHelp();
 
-    public OptionSet getSet();
+    public void setHelp(boolean help);
+
+    public CmdLineParser getParser();
 }

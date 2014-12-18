@@ -1,8 +1,5 @@
 package gov.hhs.onc.phiz.ws;
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.cxf.interceptor.Fault;
-
 public final class PhizWsNames {
     private final static String HUB_PREFIX = "Hub";
     private final static String IIS_PREFIX = "IIS";
@@ -17,8 +14,6 @@ public final class PhizWsNames {
     private final static String MSG_SUFFIX = "Message";
     private final static String SERVICE_SUFFIX = "Service";
     private final static String PORT_SUFFIX = "PortSoap12";
-
-    public final static String CXF_FAULT_ROOT_STACK_TRACE = "root" + StringUtils.capitalize(Fault.STACKTRACE);
 
     public final static String PORT_TYPE = IIS_PREFIX + PORT_TYPE_SUFFIX;
     public final static String PORT_TYPE_HUB = IIS_HUB_PREFIX + PORT_TYPE_SUFFIX;

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = SERVICES: IIS
+    =====================================================================================================-->
+    <beans:bean id="serviceIis" class="gov.hhs.onc.phiz.web.ws.IisService" abstract="true"/>
+    
+    <!--====================================================================================================
+    = SERVICES: IIS HUB
+    =====================================================================================================-->
+    <beans:bean id="serviceIisHub" class="gov.hhs.onc.phiz.web.ws.hub.IisHubService" parent="serviceIis" abstract="true"/>
+    
+    <beans:bean id="serviceIisHubImpl" class="gov.hhs.onc.phiz.web.ws.hub.impl.IisHubServiceImpl" parent="serviceIisHub"/>
+    
+    <!--====================================================================================================
+    = SERVERS
+    =====================================================================================================-->
+    <beans:bean id="server" class="org.apache.cxf.endpoint.Server" abstract="true"/>
+    
+    <beans:bean id="serverJaxWs" class="gov.hhs.onc.phiz.web.ws.jaxws.impl.PhizJaxWsServerFactoryBean" parent="server" abstract="true"
+        p:bindingConfig-ref="soapBinding12"
+        p:bus-ref="busPhiz"
+        p:dataBinding-ref="dataBindingJaxb"/>
+    
+    <!--====================================================================================================
+    = SERVERS: IIS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="serverIis" parent="serverJaxWs" abstract="true"
+        p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT }"
+        p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE }"
+        p:wsdlLocation="${phiz.ws.iis.wsdl.loc}"/>
+    
+    <!--====================================================================================================
+    = SERVERS: IIS HUB
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="serverIisHub" parent="serverJaxWs"
+        p:address="${phiz.ws.iis.hub.path}"
+        p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT_HUB }"
+        p:serviceBean-ref="serviceIisHubImpl"
+        p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE_HUB }"
+        p:wsdlLocation="${phiz.ws.iis.hub.wsdl.loc}"/>
+</beans:beans>

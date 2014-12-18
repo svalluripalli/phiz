@@ -1,0 +1,9 @@
+#====================================================================================================
+# JAVA OPTIONS
+#====================================================================================================
+JAVA_OPTS="${JAVA_OPTS} -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m"
+JAVA_OPTS="${JAVA_OPTS} -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4"
+JAVA_OPTS="${JAVA_OPTS} -Djava.net.preferIPv4Addresses=true -Djava.net.preferIPv4Stack=true"
+JAVA_OPTS="${JAVA_OPTS} -Dloader.main=gov.hhs.onc.phiz.context.impl.PhizApplication"
+JAVA_OPTS="${JAVA_OPTS} -Dlogback.configurationFile=META-INF/phiz/logback/logback-phiz.xml"
+JAVA_OPTS="${JAVA_OPTS} -Dphiz.log.console.tty=true -Dphiz.log.file.name=${APP_NAME} -Dphiz.mode=dev"

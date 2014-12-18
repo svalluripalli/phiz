@@ -38,15 +38,17 @@
     </beans:bean>
     
     <!--====================================================================================================
-    = PROPERTY SOURCES PLACEHOLDER CONFIGURER
+    = PROPERTY SOURCES PLACEHOLDER CONFIGURERS
     =====================================================================================================-->
-    <beans:bean id="propSourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
+    <beans:bean id="propSourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" abstract="true"
         p:fileEncoding="#{ charsetUtf8.name() }"
-        p:ignoreUnresolvablePlaceholders="true">
+        p:ignoreUnresolvablePlaceholders="true"/>
+    
+    <beans:bean id="propSourcesPlaceholderConfigurerMain" parent="propSourcesPlaceholderConfigurer"
+        p:order="#{ T(org.springframework.core.Ordered).LOWEST_PRECEDENCE }">
         <beans:property name="locations">
             <beans:array>
-                <beans:value>classpath*:META-INF/phiz/phiz.properties</beans:value>
-                <beans:value>classpath*:META-INF/phiz/phiz-*.properties</beans:value>
+                <beans:value>classpath*:META-INF/phiz/phiz*.properties</beans:value>
             </beans:array>
         </beans:property>
     </beans:bean>

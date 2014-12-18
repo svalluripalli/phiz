@@ -1,0 +1,63 @@
+<project
+    xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>%{project.parent.groupId}</groupId>
+        <artifactId>%{project.parent.artifactId}</artifactId>
+        <version>%{project.parent.version}</version>
+        <relativePath>../../../%{project.parent.artifactId}</relativePath>
+    </parent>
+    
+    <artifactId>%{project.artifactId}-it</artifactId>
+    <packaging>pom</packaging>
+    
+    <description>Public Health Immunization Data Exchange (PHIZ) portal web application integration testing Maven project.</description>
+    
+    <properties>
+        <!-- Project properties -->
+        <project.basedir.all>${project.basedir}/../../..</project.basedir.all>
+    </properties>
+    
+    <dependencies/>
+    
+    <build>
+        <directory>${project.basedir}/..</directory>
+        
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <configuration>
+                    <skipInvocation>true</skipInvocation>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>test-integration</id>
+                        <configuration>
+                            <skip>false</skip>
+                            <workingDirectory>%{project.build.testDebShareDataDirectory}</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.kuali.maven.plugins</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>read-pom-properties</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

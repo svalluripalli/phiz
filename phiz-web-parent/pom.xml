@@ -17,12 +17,66 @@
     
     <description>Public Health Immunization Data Exchange (PHIZ) web application parent Maven project.</description>
     
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Repository Switchboard</name>
+            <url>https://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </repository>
+        <repository>
+            <id>eviware</id>
+            <name>SoapUI Repository</name>
+            <url>http://www.eviware.com/repository/maven2/</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <checksumPolicy>ignore</checksumPolicy>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </repository>
+    </repositories>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Maven Plugin Repository</name>
+            <url>https://repo1.maven.org/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+        <pluginRepository>
+            <id>eviware</id>
+            <name>SoapUI Plugin Repository</name>
+            <url>http://www.soapui.org/repository/maven2</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <checksumPolicy>ignore</checksumPolicy>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+    
     <properties>
         <!-- Project properties -->
         <project.basedir.all>${project.basedir}/..</project.basedir.all>
         <!-- Project build Debian properties -->
         <project.build.debShareWebappDataDirectoryPath>${project.build.debShareDataDirectoryPath}/webapp</project.build.debShareWebappDataDirectoryPath>
         <project.build.debShareWebappDataDirectory>${project.build.debDataDirectory}/${project.build.debShareWebappDataDirectoryPath}</project.build.debShareWebappDataDirectory>
+        <!-- Project build integration test SoapUI properties -->
+        <project.build.itSoapUiDirectory>${project.build.itDirectory}/soapui</project.build.itSoapUiDirectory>
         <!-- Project build test Debian properties -->
         <project.build.testDebShareWebappDataDirectory>${project.build.testDebDataDirectory}/${project.build.debShareWebappDataDirectoryPath}</project.build.testDebShareWebappDataDirectory>
     </properties>
@@ -105,7 +159,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-tomcat</artifactId>
-                <version>1.1.9.RELEASE</version>
+                <version>1.2.0.RELEASE</version>
                 <scope>provided</scope>
                 <exclusions>
                     <exclusion>
@@ -132,6 +186,89 @@
                 <version>3.2.5.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- Test dependencies -->
+            <dependency>
+                <groupId>com.smartbear.soapui</groupId>
+                <artifactId>soapui</artifactId>
+                <version>5.1.2</version>
+                <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>bouncycastle</groupId>
+                        <artifactId>bcprov-jdk15</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.activation</groupId>
+                        <artifactId>activation</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>javax.xml.bind</groupId>
+                        <artifactId>jsr173_api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jetty</groupId>
+                        <artifactId>jetty-util</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>jetty</groupId>
+                        <artifactId>servlet-api</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.sourceforge.htmlunit</groupId>
+                        <artifactId>htmlunit</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>net.sourceforge.htmlunit</groupId>
+                        <artifactId>htmlunit-core-js</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.ws.security</groupId>
+                        <artifactId>wss4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>rhino</groupId>
+                        <artifactId>js</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xmlParserAPIs</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.smartbear.soapui</groupId>
+                <artifactId>soapui-pro</artifactId>
+                <version>5.1.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.3.3</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.reflections</groupId>
+                <artifactId>reflections</artifactId>
+                <version>0.9.9</version>
+                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

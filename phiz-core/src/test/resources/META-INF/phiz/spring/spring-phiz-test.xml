@@ -15,5 +15,15 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
-    
+    <!--====================================================================================================
+    = PROPERTY SOURCES PLACEHOLDER CONFIGURERS
+    =====================================================================================================-->
+    <beans:bean id="propSourcesPlaceholderConfigurerTest" parent="propSourcesPlaceholderConfigurer"
+        p:order="#{ propSourcesPlaceholderConfigurerMain.order - 1 }">
+        <beans:property name="locations">
+            <beans:array>
+                <beans:value>classpath*:META-INF/phiz/phiz*-test.properties</beans:value>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
 </beans:beans>

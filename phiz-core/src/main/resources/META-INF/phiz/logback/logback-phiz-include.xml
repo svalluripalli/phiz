@@ -6,7 +6,7 @@
     <!--====================================================================================================
     = PROPERTIES: CONSOLE
     =====================================================================================================-->
-    <if condition='!isDefined("phiz.log.console.tty") &amp;&amp; (System.console() != null)'>
+    <if condition='!isDefined("phiz.log.console.tty") &amp;&amp; ((isDefined("wrapper.daemonize") &amp;&amp; !org.apache.commons.lang3.BooleanUtils.toBoolean(p("wrapper.daemonize"))) || (System.console() != null))'>
         <then>
             <property name="phiz.log.console.tty" value="true" scope="context"/>
         </then>

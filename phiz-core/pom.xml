@@ -37,6 +37,10 @@
     <dependencies>
         <!-- Compile dependencies (inherited) -->
         <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
@@ -67,10 +71,6 @@
         <dependency>
             <groupId>javax.xml.bind</groupId>
             <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.jopt-simple</groupId>
-            <artifactId>jopt-simple</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -115,6 +115,14 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-ws-policy</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk15on</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk15on</artifactId>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
@@ -223,7 +231,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.btmatthews.jaxb2_commons</groupId>
@@ -253,7 +261,7 @@
                     <dependency>
                         <groupId>org.apache.cxf.xjcplugins</groupId>
                         <artifactId>cxf-xjc-dv</artifactId>
-                        <version>3.0.2</version>
+                        <version>3.0.3</version>
                     </dependency>
                     <dependency>
                         <groupId>org.glassfish.jaxb</groupId>
@@ -355,6 +363,18 @@
                 <executions>
                     <execution>
                         <id>enforce-java-version</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-test-invoke</id>
+                    </execution>
+                    <execution>
+                        <id>verify-invoke</id>
                     </execution>
                 </executions>
             </plugin>
@@ -471,7 +491,7 @@
                         <phase>none</phase>
                     </execution>
                     <execution>
-                        <id>pre-integration-test-process-deb</id>
+                        <id>pre-integration-test-process-components</id>
                         <phase>none</phase>
                     </execution>
                 </executions>

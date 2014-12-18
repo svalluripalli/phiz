@@ -161,6 +161,16 @@
         </dependency>
         <!-- Test dependencies (inherited) -->
         <dependency>
+            <groupId>com.smartbear.soapui</groupId>
+            <artifactId>soapui</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.smartbear.soapui</groupId>
+            <artifactId>soapui-pro</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
@@ -185,6 +195,18 @@
                 <executions>
                     <execution>
                         <id>enforce-java-version</id>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>integration-test-invoke</id>
+                    </execution>
+                    <execution>
+                        <id>verify-invoke</id>
                     </execution>
                 </executions>
             </plugin>

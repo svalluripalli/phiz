@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
 @Configuration
-@ImportResource({ "classpath*:META-INF/phiz/spring/spring-phiz.xml", "classpath*:META-INF/phiz/spring/spring-phiz-*.xml" })
+@ImportResource({ "classpath*:META-INF/phiz/spring/spring-phiz*.xml" })
 public abstract class PhizApplication {
     public static void main(String ... args) {
         buildApplication().run(args);

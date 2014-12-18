@@ -111,6 +111,11 @@
         <dependencies>
             <!-- Compile dependencies -->
             <dependency>
+                <groupId>args4j</groupId>
+                <artifactId>args4j</artifactId>
+                <version>2.0.29</version>
+            </dependency>
+            <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>1.1.2</version>
@@ -193,11 +198,6 @@
                 <version>2.2.12</version>
             </dependency>
             <dependency>
-                <groupId>net.sf.jopt-simple</groupId>
-                <artifactId>jopt-simple</artifactId>
-                <version>4.8</version>
-            </dependency>
-            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>4.0</version>
@@ -226,12 +226,12 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-core</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-bindings-soap</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
@@ -246,27 +246,37 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-local</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-addr</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-policy</artifactId>
-                <version>3.0.2</version>
+                <version>3.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcpkix-jdk15on</artifactId>
+                <version>1.51</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk15on</artifactId>
+                <version>1.51</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
@@ -276,7 +286,7 @@
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
                 <artifactId>janino</artifactId>
-                <version>2.7.6</version>
+                <version>2.7.7</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.jansi</groupId>
@@ -288,10 +298,6 @@
                 <artifactId>jaxb-runtime</artifactId>
                 <version>2.2.11</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>com.sun.istack</groupId>
-                        <artifactId>istack-commons-runtime</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>com.sun.xml.fastinfoset</groupId>
                         <artifactId>FastInfoset</artifactId>
@@ -331,27 +337,27 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.7</version>
+                <version>1.7.9</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.7</version>
+                <version>1.7.9</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>1.7.7</version>
+                <version>1.7.9</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.7</version>
+                <version>1.7.9</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>4.1.2.RELEASE</version>
+                <version>4.1.3.RELEASE</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -366,19 +372,19 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-framework-bom</artifactId>
-                <version>4.1.2.RELEASE</version>
+                <version>4.1.3.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.amqp</groupId>
                 <artifactId>spring-amqp</artifactId>
-                <version>1.4.0.RELEASE</version>
+                <version>1.4.1.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.amqp</groupId>
                 <artifactId>spring-rabbit</artifactId>
-                <version>1.4.0.RELEASE</version>
+                <version>1.4.1.RELEASE</version>
                 <exclusions>
                     <exclusion>
                         <groupId>log4j</groupId>
@@ -389,7 +395,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>1.1.9.RELEASE</version>
+                <version>1.2.0.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -809,6 +815,7 @@
                                         <filtering>true</filtering>
                                         <includes>
                                             <include>**/*.properties</include>
+                                            <include>**/*.sql</include>
                                             <include>**/*.xml</include>
                                         </includes>
                                     </resource>
@@ -816,6 +823,7 @@
                                         <directory>${project.build.itSourceDirectory}</directory>
                                         <excludes>
                                             <exclude>**/*.properties</exclude>
+                                            <exclude>**/*.sql</exclude>
                                             <exclude>**/*.xml</exclude>
                                         </excludes>
                                     </resource>
@@ -944,7 +952,7 @@
                             </configuration>
                         </execution>
                         <execution>
-                            <id>pre-integration-test-process-deb</id>
+                            <id>pre-integration-test-process-components</id>
                             <phase>pre-integration-test</phase>
                             <goals>
                                 <goal>execute</goal>
@@ -953,6 +961,7 @@
                             <configuration>
                                 <scripts>
                                     <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-test-pre-it-process-deb.groovy</script>
+                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-test-pre-it-process-files.groovy</script>
                                 </scripts>
                             </configuration>
                         </execution>
@@ -1044,12 +1053,14 @@
                                         </generatorConfigurations>
                                         <jvmSettings>
                                             <extraArguments>
+                                                <extraArgument>-XX:MetaspaceSize=256m</extraArgument>
                                                 <extraArgument>-XX:+UseG1GC</extraArgument>
                                                 <extraArgument>-XX:MaxGCPauseMillis=50</extraArgument>
                                                 <extraArgument>-XX:ParallelGCThreads=4</extraArgument>
                                                 <extraArgument>-XX:ConcGCThreads=4</extraArgument>
                                             </extraArguments>
-                                            <systemProperties combine.children="append">
+                                            <maxStackSize>512m</maxStackSize>
+                                            <systemProperties>
                                                 <systemProperty>java.net.preferIPv4Addresses=true</systemProperty>
                                                 <systemProperty>java.net.preferIPv4Stack=true</systemProperty>
                                                 <systemProperty>loader.main=gov.hhs.onc.phiz.context.impl.PhizApplication</systemProperty>
@@ -1077,13 +1088,6 @@
                             <inherited>true</inherited>
                             <configuration>
                                 <assembleDirectory>${project.build.appassemblerProgramsDirectory}</assembleDirectory>
-                                <extraJvmArguments>
-                                    -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50
-                                    -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -Djava.net.preferIPv4Addresses=true -Djava.net.preferIPv4Stack=true
-                                    -Dloader.main=gov.hhs.onc.phiz.context.impl.PhizApplication
-                                    -Dlogback.configurationFile=META-INF/phiz/logback/logback-phiz.xml -Dphiz.log.console.tty=true
-                                    -Dphiz.log.file.name=${project.artifactId} -Dphiz.mode=dev
-                                </extraJvmArguments>
                                 <platforms>
                                     <platform>unix</platform>
                                 </platforms>
@@ -1154,10 +1158,20 @@
                                     <data>
                                         <src>${project.build.debShareBinDataDirectory}</src>
                                         <type>directory</type>
+                                        <excludes>*.sh</excludes>
                                         <mapper>
                                             <type>perm</type>
                                             <prefix>/${project.build.debShareBinDataDirectoryPath}</prefix>
                                             <filemode>755</filemode>
+                                        </mapper>
+                                    </data>
+                                    <data>
+                                        <src>${project.build.debShareBinDataDirectory}</src>
+                                        <type>directory</type>
+                                        <includes>*.sh</includes>
+                                        <mapper>
+                                            <type>perm</type>
+                                            <prefix>/${project.build.debShareBinDataDirectoryPath}</prefix>
                                         </mapper>
                                     </data>
                                     <data>
