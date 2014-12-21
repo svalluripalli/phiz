@@ -16,12 +16,15 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = TLS PARAMETERS: CLIENT
+    = EMBEDDED SERVLET CONTAINER FACTORIES
     =====================================================================================================-->
-    <beans:bean id="tlsParamsClient" class="org.apache.cxf.configuration.jsse.TLSClientParameters" parent="tlsParams" abstract="true"
-        p:disableCNCheck="true"/>
-    
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="tlsParamsClientHub" parent="tlsParamsClient"
-        p:certAlias="${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.alias}"/>
+    <beans:bean id="embeddedServletContainerFactoryTomcatWebWs" parent="embeddedServletContainerFactoryTomcatWeb">
+        <beans:property name="ssl">
+            <!--suppress SpringPlaceholdersInspection -->
+            <beans:bean parent="sslTomcat"
+                p:clientAuth="WANT"
+                p:keyAlias="${phiz.web.server.tomcat.crypto.manager.key.store.key.entry.iis.hub.alias}"
+                p:keyPassword="${phiz.web.server.tomcat.crypto.manager.key.store.key.entry.iis.hub.pass}"/>
+        </beans:property>
+    </beans:bean>
 </beans:beans>

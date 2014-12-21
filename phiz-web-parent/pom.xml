@@ -199,6 +199,10 @@
                         <artifactId>bcprov-jdk15</artifactId>
                     </exclusion>
                     <exclusion>
+                        <groupId>com.smartbear.utils.analytics</groupId>
+                        <artifactId>out-app-analytics-provider</artifactId>
+                    </exclusion>
+                    <exclusion>
                         <groupId>commons-logging</groupId>
                         <artifactId>commons-logging</artifactId>
                     </exclusion>

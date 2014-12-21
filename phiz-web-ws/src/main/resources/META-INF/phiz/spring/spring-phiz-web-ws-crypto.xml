@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = TLS PARAMETERS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="tlsParams" class="org.apache.cxf.configuration.jsse.TLSParameterBase" abstract="true"
+        p:cipherSuites="${phiz.web.server.tomcat.crypto.cipher.suites}"
+        p:jsseProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:secureRandom-ref="secureRandomSha1"
+        p:secureSocketProtocol="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }">
+        <beans:property name="keyManagers">
+            <beans:array>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:bean parent="keyManagerNewSunX509">
+                    <beans:property name="factoryParameters">
+                        <beans:bean parent="keyStoreBuilderParams">
+                            <beans:constructor-arg index="0" type="java.security.KeyStore$Builder">
+                                <beans:bean parent="keyStoreBuilder" factory-method="newInstance">
+                                    <beans:constructor-arg index="0" type="java.security.KeyStore">
+                                        <!--suppress SpringPlaceholdersInspection -->
+                                        <beans:bean parent="keyStoreJks"
+                                            p:password="${phiz.web.server.tomcat.crypto.manager.key.store.key.pass}"
+                                            p:resource="file:${phiz.web.server.tomcat.crypto.manager.key.store.key.file}"/>
+                                    </beans:constructor-arg>
+                                    <beans:constructor-arg index="1" type="java.security.KeyStore$ProtectionParameter">
+                                        <!--suppress SpringPlaceholdersInspection -->
+                                        <beans:bean parent="keyStoreProtectionParamPass">
+                                            <beans:constructor-arg index="0" type="char[]"
+                                                value="#{ '${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.pass}'.toCharArray() }"/>
+                                        </beans:bean>
+                                    </beans:constructor-arg>
+                                </beans:bean>
+                            </beans:constructor-arg>
+                        </beans:bean>
+                    </beans:property>
+                </beans:bean>
+            </beans:array>
+        </beans:property>
+        <beans:property name="trustManagers">
+            <beans:array>
+                <beans:bean parent="trustManagerPkix">
+                    <beans:property name="factoryParameters">
+                        <beans:bean parent="certPathTrustManagerParams">
+                            <beans:constructor-arg index="0" type="java.security.cert.CertPathParameters">
+                                <beans:bean parent="certPathParamsPkixBuilder">
+                                    <beans:constructor-arg index="0" type="java.security.KeyStore">
+                                        <!--suppress SpringPlaceholdersInspection -->
+                                        <beans:bean parent="keyStoreJks"
+                                            p:password="${phiz.web.server.tomcat.crypto.manager.trust.store.key.pass}"
+                                            p:resource="file:${phiz.web.server.tomcat.crypto.manager.trust.store.key.file}"/>
+                                    </beans:constructor-arg>
+                                    <beans:constructor-arg index="1" type="java.security.cert.CertSelector">
+                                        <beans:bean parent="certSelectorX509"/>
+                                    </beans:constructor-arg>
+                                </beans:bean>
+                            </beans:constructor-arg>
+                        </beans:bean>
+                    </beans:property>
+                </beans:bean>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
+</beans:beans>

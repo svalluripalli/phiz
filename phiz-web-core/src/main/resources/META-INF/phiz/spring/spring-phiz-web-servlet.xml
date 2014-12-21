@@ -16,12 +16,14 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = TLS PARAMETERS: CLIENT
+    = SERVLETS
     =====================================================================================================-->
-    <beans:bean id="tlsParamsClient" class="org.apache.cxf.configuration.jsse.TLSClientParameters" parent="tlsParams" abstract="true"
-        p:disableCNCheck="true"/>
+    <beans:bean id="servlet" class="javax.servlet.Servlet" abstract="true"/>
     
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="tlsParamsClientHub" parent="tlsParamsClient"
-        p:certAlias="${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.alias}"/>
+    <beans:bean id="servletHttp" class="javax.servlet.http.HttpServlet" parent="servlet" abstract="true"/>
+    
+    <!--====================================================================================================
+    = REGISTRATION BEANS: SERVLET
+    =====================================================================================================-->
+    <beans:bean id="regBeanServlet" class="org.springframework.boot.context.embedded.ServletRegistrationBean" parent="regBean" abstract="true"/>
 </beans:beans>

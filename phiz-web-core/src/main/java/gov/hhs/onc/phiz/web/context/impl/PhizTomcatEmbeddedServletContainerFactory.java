@@ -8,10 +8,6 @@ import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletCon
 public class PhizTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedServletContainerFactory {
     private Class<? extends SSLImplementation> sslImplClass;
 
-    public PhizTomcatEmbeddedServletContainerFactory(String contextPath, int port) {
-        super(contextPath, port);
-    }
-
     @Override
     protected void configureSsl(AbstractHttp11JsseProtocol<?> protocol, Ssl ssl) {
         // TEMP: dev

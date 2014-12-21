@@ -16,9 +16,9 @@
     = SETTINGS: SSL
     =====================================================================================================-->
     <!--
-    <con:setting id="SSLSettings@keyStore">${hub.crypto.mgr.key.store.file}</con:setting>
-    <con:setting id="SSLSettings@keyStorePassword">${hub.crypto.mgr.key.store.pass}</con:setting>
-    <con:setting id="SSLSettings@needClientAuthentication">${hub.crypto.client.auth}</con:setting>
+    <con:setting id="SSLSettings@keyStore">${phiz.web.server.tomcat.crypto.manager.key.store.key.file}</con:setting>
+    <con:setting id="SSLSettings@keyStorePassword">${phiz.web.server.tomcat.crypto.manager.key.store.key.pass}</con:setting>
+    <con:setting id="SSLSettings@needClientAuthentication">true</con:setting>
     -->
     
     <!--====================================================================================================

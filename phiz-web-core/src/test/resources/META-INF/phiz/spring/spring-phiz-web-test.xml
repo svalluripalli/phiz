@@ -16,12 +16,17 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = SECURE SOCKETS LAYER SOCKET FACTORIES
+    =====================================================================================================-->
+    
+    
+    <!--====================================================================================================
     = SOAPUI TESTCASE RUNNERS
     =====================================================================================================-->
-    <beans:bean id="soapUiTestCaseRunner" class="gov.hhs.onc.phiz.web.test.impl.PhizSoapUiTestCaseRunner" abstract="true"
+    <beans:bean id="soapUiTestCaseRunner" class="com.eviware.soapui.SoapUIProTestCaseRunner" abstract="true"
         p:exportAll="true"
-        p:ignoreErrors="true"
         p:JUnitReport="true"
+        p:maxErrors="#{ T(java.lang.Integer).MAX_VALUE }"
         p:printAlertSiteReport="true"
         p:printReport="true">
         <beans:property name="reportFormats">
@@ -32,7 +37,7 @@
     </beans:bean>
     
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="soapUiTestCaseRunnerWeb" parent="soapUiTestCaseRunner" abstract="true"
+    <beans:bean id="soapUiTestCaseRunnerWeb" class="gov.hhs.onc.phiz.web.test.impl.PhizSoapUiTestCaseRunner" parent="soapUiTestCaseRunner" abstract="true"
         p:outputFolder="${phiz.test.it.web.soapui.output.dir}"
         p:projectFile="${phiz.test.it.web.soapui.project.file}"
         p:settingsFile="${phiz.test.it.web.soapui.settings.file}"/>

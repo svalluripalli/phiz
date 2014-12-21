@@ -43,6 +43,9 @@
                         <id>test-integration</id>
                         <configuration>
                             <skip>false</skip>
+                            <systemPropertyVariables>
+                                <phiz.log.file.name>%{project.artifactId}-test-it</phiz.log.file.name>
+                            </systemPropertyVariables>
                             <workingDirectory>%{project.build.testDebShareDataDirectory}</workingDirectory>
                         </configuration>
                     </execution>

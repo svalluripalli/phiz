@@ -16,41 +16,8 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = SECURE SOCKETS LAYER
-    =====================================================================================================-->
-    <beans:bean id="ssl" class="org.springframework.boot.context.embedded.Ssl" abstract="true"/>
-    
-    <!--====================================================================================================
-    = EMBEDDED SERVLET CONTAINER FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="embeddedServletContainerFactory" class="org.springframework.boot.context.embedded.EmbeddedServletContainerFactory" abstract="true"/>
-    
-    <beans:bean id="embeddedServletContainerFactoryTomcat" class="org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory"
-        parent="embeddedServletContainerFactory" abstract="true"/>
-    
-    <!--suppress SpringModelInspection SpringPlaceholdersInspection -->
-    <beans:bean id="embeddedServletContainerFactoryTomcatPhiz" class="gov.hhs.onc.phiz.web.context.impl.PhizTomcatEmbeddedServletContainerFactory"
-        parent="embeddedServletContainerFactoryTomcat"
-        c:contextPath="${phiz.server.tomcat.context.path}"
-        c:port="${phiz.server.tomcat.port.https}"
-        p:baseDirectory="#{ T(org.apache.commons.lang3.SystemUtils).userDir }"
-        p:documentRoot="webapp"
-        p:sslImplementationClass="#{ T(gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation).class }"/>
-    
-    <!--====================================================================================================
-    = SERVLETS
-    =====================================================================================================-->
-    <beans:bean id="servlet" class="javax.servlet.Servlet" abstract="true"/>
-    
-    <beans:bean id="servletHttp" class="javax.servlet.http.HttpServlet" parent="servlet" abstract="true"/>
-    
-    <!--====================================================================================================
     = REGISTRATION BEANS
     =====================================================================================================-->
-    <beans:bean id="regBean" class="org.springframework.boot.context.embedded.RegistrationBean" abstract="true"/>
-    
-    <!--====================================================================================================
-    = REGISTRATION BEANS: SERVLET
-    =====================================================================================================-->
-    <beans:bean id="regBeanServlet" class="org.springframework.boot.context.embedded.ServletRegistrationBean" parent="regBean" abstract="true"/>
+    <beans:bean id="regBean" class="org.springframework.boot.context.embedded.RegistrationBean" abstract="true"
+        p:order="#{ T(org.springframework.core.Ordered).LOWEST_PRECEDENCE }"/>
 </beans:beans>

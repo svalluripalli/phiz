@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="sslTomcat" class="org.springframework.boot.context.embedded.Ssl" abstract="true"
+        p:ciphers="${phiz.web.server.tomcat.crypto.cipher.suites}"
+        p:keyStore="${phiz.web.server.tomcat.crypto.manager.key.store.key.file}"
+        p:keyStorePassword="${phiz.web.server.tomcat.crypto.manager.key.store.key.pass}"
+        p:keyStoreProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
+        p:keyStoreType="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"
+        p:protocol="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }"
+        p:trustStore="${phiz.web.server.tomcat.crypto.manager.trust.store.key.file}"
+        p:trustStorePassword="${phiz.web.server.tomcat.crypto.manager.trust.store.key.pass}"
+        p:trustStoreProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
+        p:trustStoreType="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"/>
+    
+    <!--====================================================================================================
+    = EMBEDDED SERVLET CONTAINER FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="embeddedServletContainerFactory" class="org.springframework.boot.context.embedded.EmbeddedServletContainerFactory" abstract="true"/>
+    
+    <beans:bean id="embeddedServletContainerFactoryTomcat" class="org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory"
+        parent="embeddedServletContainerFactory" abstract="true"/>
+    
+    <!--suppress SpringModelInspection SpringPlaceholdersInspection -->
+    <beans:bean id="embeddedServletContainerFactoryTomcatWeb" class="gov.hhs.onc.phiz.web.context.impl.PhizTomcatEmbeddedServletContainerFactory"
+        parent="embeddedServletContainerFactoryTomcat" abstract="true"
+        p:baseDirectory="#{ T(org.apache.commons.lang3.SystemUtils).userDir }"
+        p:contextPath="${phiz.web.server.tomcat.context.path}"
+        p:documentRoot="webapp"
+        p:port="${phiz.web.server.tomcat.port.https}"
+        p:sslImplementationClass="#{ T(gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation) }"/>
+</beans:beans>

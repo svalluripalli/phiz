@@ -9,5 +9,8 @@
         <packages>
             <package name="gov.hhs.onc.phiz.web.ws.*"/>
         </packages>
+        <classes>
+            <class name="gov.hhs.onc.phiz.web.ws.impl.PhizWebWsSoapUiIntegrationTests$PhizWebWsSoapUiTestCaseIntegrationTestsFactory"/>
+        </classes>
     </test>
 </suite>

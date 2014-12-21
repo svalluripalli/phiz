@@ -106,23 +106,6 @@
     <beans:bean id="portTypeIisHub" class="gov.hhs.onc.phiz.ws.hub.IisHubPortType" abstract="true"/>
     
     <!--====================================================================================================
-    = REGISTRATION BEANS: SERVLET
-    =====================================================================================================-->
-    <beans:bean id="regBeanServletCxf" parent="regBeanServlet"
-        p:loadOnStartup="1"
-        p:name="servletCxf">
-        <beans:constructor-arg name="servlet">
-            <beans:bean class="gov.hhs.onc.phiz.web.ws.servlet.impl.PhizCxfServlet" parent="servletHttp"
-                p:bus-ref="busPhiz"/>
-        </beans:constructor-arg>
-        <beans:constructor-arg name="urlMappings">
-            <beans:array>
-                <beans:value>/*</beans:value>
-            </beans:array>
-        </beans:constructor-arg>
-    </beans:bean>
-    
-    <!--====================================================================================================
     = PROFILE: DEVELOPMENT MODE
     =====================================================================================================-->
     <beans:beans profile="phiz.profile.mode.dev">

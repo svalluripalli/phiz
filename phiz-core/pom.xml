@@ -41,6 +41,14 @@
             <artifactId>args4j</artifactId>
         </dependency>
         <dependency>
+            <groupId>br.net.woodstock.rockframework</groupId>
+            <artifactId>rockframework-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>br.net.woodstock.rockframework</groupId>
+            <artifactId>rockframework-security</artifactId>
+        </dependency>
+        <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
         </dependency>
@@ -55,6 +63,10 @@
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
             <artifactId>annotations</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.spring-crypto-utils</groupId>
+            <artifactId>spring-crypto-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>com.sun.xml.ws</groupId>
@@ -207,6 +219,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.ws</groupId>
+            <artifactId>spring-ws-security</artifactId>
         </dependency>
         <!-- Test dependencies (inherited) -->
         <dependency>
