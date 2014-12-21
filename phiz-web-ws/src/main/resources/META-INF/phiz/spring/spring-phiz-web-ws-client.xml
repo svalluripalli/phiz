@@ -23,5 +23,6 @@
     
     <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="tlsParamsClientHub" parent="tlsParamsClient"
-        p:certAlias="${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.alias}"/>
+        p:certAlias="${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.alias}"
+        p:SSLSocketFactory-ref="sslSocketFactoryTomcatWebWs"/>
 </beans:beans>

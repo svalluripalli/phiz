@@ -4,7 +4,6 @@
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
     xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:lang="http://www.springframework.org/schema/lang"
     xmlns:p="http://www.springframework.org/schema/p"
     xmlns:task="http://www.springframework.org/schema/task"
     xmlns:util="http://www.springframework.org/schema/util"
@@ -13,59 +12,42 @@
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = ASPECT ORIENTED PROGRAMMING
+    = KEY STORES
     =====================================================================================================-->
-    <aop:aspectj-autoproxy/>
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreKeyManagerTomcatWeb" parent="keyStoreJks" abstract="true"
+        p:password="${phiz.web.server.tomcat.crypto.manager.key.store.key.pass}"
+        p:resource="file:${phiz.web.server.tomcat.crypto.manager.key.store.key.file}"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreTrustManagerTomcatWeb" parent="keyStoreJks" abstract="true"
+        p:password="${phiz.web.server.tomcat.crypto.manager.trust.store.key.pass}"
+        p:resource="file:${phiz.web.server.tomcat.crypto.manager.trust.store.key.file}"/>
     
     <!--====================================================================================================
-    = CONTEXT
+    = SECURE SOCKETS LAYER PARAMETERS
     =====================================================================================================-->
-    <context:component-scan base-package="gov.hhs.onc.phiz"/>
-    <context:spring-configured/>
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="sslParamsTomcatWeb" parent="sslParamsBase" abstract="true"
+        p:cipherSuites="${phiz.web.server.tomcat.crypto.cipher.suites}"/>
     
     <!--====================================================================================================
-    = CHARACTER SET
+    = SECURE SOCKETS LAYER CONTEXTS
     =====================================================================================================-->
-    <beans:bean id="charset" class="java.nio.charset.Charset" abstract="true"/>
-    
-    <beans:bean id="charsetUtf8" parent="charset" factory-method="forName">
-        <beans:constructor-arg index="0" value="UTF-8"/>
-    </beans:bean>
+    <beans:bean id="sslContextTomcatWeb" parent="sslContextBase" abstract="true"
+        p:secureRandom-ref="secureRandomSha1"/>
     
     <!--====================================================================================================
-    = PROPERTY SOURCES PLACEHOLDER CONFIGURERS
+    = SECURE SOCKETS LAYER SOCKET FACTORIES
     =====================================================================================================-->
-    <beans:bean id="propSourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" abstract="true"
-        p:fileEncoding="#{ charsetUtf8.name() }"
-        p:ignoreUnresolvablePlaceholders="true"/>
-    
-    <beans:bean id="propSourcesPlaceholderConfigurerMain" parent="propSourcesPlaceholderConfigurer"
-        p:order="#{ T(org.springframework.core.Ordered).LOWEST_PRECEDENCE }">
-        <beans:property name="locations">
-            <beans:array>
-                <beans:value>classpath*:META-INF/phiz/phiz*.properties</beans:value>
-            </beans:array>
-        </beans:property>
-    </beans:bean>
+    <beans:bean id="sslSocketFactoryTomcatWeb" parent="sslSocketFactoryBase" abstract="true"/>
     
     <!--====================================================================================================
-    = CONVERSION SERVICE
+    = SECURE SOCKETS LAYER SERVER SOCKET FACTORIES
     =====================================================================================================-->
-    <beans:bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean" primary="true">
-        <beans:property name="converters">
-            <beans:set>
-                <beans:bean class="org.springframework.boot.bind.StringToCharArrayConverter"/>
-            </beans:set>
-        </beans:property>
-    </beans:bean>
-    
-    <!--====================================================================================================
-    = EVENT LISTENERS
-    =====================================================================================================-->
-    <beans:bean id="eventListener" class="java.util.EventListener" abstract="true"/>
+    <beans:bean id="sslServerSocketFactoryTomcatWeb" parent="sslServerSocketFactoryBase" abstract="true"/>
 </beans:beans>

@@ -48,9 +48,6 @@
                                 <phiz.test.it.web.soapui.output.dir>${project.build.directory}/surefire-reports</phiz.test.it.web.soapui.output.dir>
                                 <phiz.test.it.web.soapui.project.file>${project.build.itSoapUiDirectory}/soapui-%{project.artifactId}.xml</phiz.test.it.web.soapui.project.file>
                                 <phiz.test.it.web.soapui.settings.file>${project.build.itSoapUiDirectory}/soapui-settings-%{project.artifactId}.xml</phiz.test.it.web.soapui.settings.file>
-                                <soapui.https.protocols>#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }</soapui.https.protocols>
-                                <soapui.https.session.invalidate>true</soapui.https.session.invalidate>
-                                <soapui.sslcontext.algorithm>#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }</soapui.sslcontext.algorithm>
                             </systemPropertyVariables>
                             <workingDirectory>%{project.build.testDebShareDataDirectory}</workingDirectory>
                         </configuration>

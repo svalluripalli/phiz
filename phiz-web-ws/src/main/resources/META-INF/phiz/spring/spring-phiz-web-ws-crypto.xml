@@ -16,64 +16,81 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = TLS PARAMETERS
+    = KEY STORES
     =====================================================================================================-->
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="tlsParams" class="org.apache.cxf.configuration.jsse.TLSParameterBase" abstract="true"
-        p:cipherSuites="${phiz.web.server.tomcat.crypto.cipher.suites}"
-        p:jsseProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
-        p:secureRandom-ref="secureRandomSha1"
-        p:secureSocketProtocol="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }">
-        <beans:property name="keyManagers">
-            <beans:array>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:bean parent="keyManagerNewSunX509">
-                    <beans:property name="factoryParameters">
-                        <beans:bean parent="keyStoreBuilderParams">
-                            <beans:constructor-arg index="0" type="java.security.KeyStore$Builder">
-                                <beans:bean parent="keyStoreBuilder" factory-method="newInstance">
-                                    <beans:constructor-arg index="0" type="java.security.KeyStore">
-                                        <!--suppress SpringPlaceholdersInspection -->
-                                        <beans:bean parent="keyStoreJks"
-                                            p:password="${phiz.web.server.tomcat.crypto.manager.key.store.key.pass}"
-                                            p:resource="file:${phiz.web.server.tomcat.crypto.manager.key.store.key.file}"/>
-                                    </beans:constructor-arg>
-                                    <beans:constructor-arg index="1" type="java.security.KeyStore$ProtectionParameter">
-                                        <!--suppress SpringPlaceholdersInspection -->
-                                        <beans:bean parent="keyStoreProtectionParamPass">
-                                            <beans:constructor-arg index="0" type="char[]"
-                                                value="#{ '${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.pass}'.toCharArray() }"/>
-                                        </beans:bean>
-                                    </beans:constructor-arg>
-                                </beans:bean>
-                            </beans:constructor-arg>
-                        </beans:bean>
-                    </beans:property>
-                </beans:bean>
-            </beans:array>
-        </beans:property>
-        <beans:property name="trustManagers">
-            <beans:array>
-                <beans:bean parent="trustManagerPkix">
-                    <beans:property name="factoryParameters">
-                        <beans:bean parent="certPathTrustManagerParams">
-                            <beans:constructor-arg index="0" type="java.security.cert.CertPathParameters">
-                                <beans:bean parent="certPathParamsPkixBuilder">
-                                    <beans:constructor-arg index="0" type="java.security.KeyStore">
-                                        <!--suppress SpringPlaceholdersInspection -->
-                                        <beans:bean parent="keyStoreJks"
-                                            p:password="${phiz.web.server.tomcat.crypto.manager.trust.store.key.pass}"
-                                            p:resource="file:${phiz.web.server.tomcat.crypto.manager.trust.store.key.file}"/>
-                                    </beans:constructor-arg>
-                                    <beans:constructor-arg index="1" type="java.security.cert.CertSelector">
-                                        <beans:bean parent="certSelectorX509"/>
-                                    </beans:constructor-arg>
-                                </beans:bean>
-                            </beans:constructor-arg>
-                        </beans:bean>
-                    </beans:property>
-                </beans:bean>
-            </beans:array>
+    <beans:bean id="keyStoreKeyManagerTomcatWebWs" parent="keyStoreKeyManagerTomcatWeb"/>
+    
+    <beans:bean id="keyStoreTrustManagerTomcatWebWs" parent="keyStoreTrustManagerTomcatWeb"/>
+    
+    <!--====================================================================================================
+    = KEY MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="keyManagerTomcatWebWs" parent="keyManagerNewSunX509">
+        <beans:property name="factoryParameters">
+            <beans:bean parent="keyStoreBuilderParams">
+                <beans:constructor-arg index="0" type="java.security.KeyStore$Builder">
+                    <beans:bean parent="keyStoreBuilder" factory-method="newInstance">
+                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreKeyManagerTomcatWebWs"/>
+                        <beans:constructor-arg index="1" type="java.security.KeyStore$ProtectionParameter">
+                            <beans:bean parent="keyStoreProtectionParamPass">
+                                <!--suppress SpringPlaceholdersInspection -->
+                                <beans:constructor-arg index="0" type="char[]"
+                                    value="${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.pass}"/>
+                            </beans:bean>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:constructor-arg>
+            </beans:bean>
         </beans:property>
     </beans:bean>
+    
+    <!--====================================================================================================
+    = TRUST MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="trustManagerTomcatWebWs" parent="trustManagerPkix">
+        <beans:property name="factoryParameters">
+            <beans:bean parent="certPathTrustManagerParams">
+                <beans:constructor-arg index="0" type="java.security.cert.CertPathParameters">
+                    <beans:bean parent="certPathParamsPkixBuilder">
+                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreTrustManagerTomcatWebWs"/>
+                        <beans:constructor-arg index="1" type="java.security.cert.CertSelector">
+                            <beans:bean parent="certSelectorX509"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:constructor-arg>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER PARAMETERS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="sslParamsTomcatWebWs" parent="sslParamsTomcatWeb"
+        p:needClientAuth="false"
+        p:wantClientAuth="true"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER CONTEXTS
+    =====================================================================================================-->
+    <beans:bean id="sslContextTomcatWebWs" parent="sslContextTomcatWeb"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER SOCKET FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="sslSocketFactoryTomcatWebWs" parent="sslSocketFactoryTomcatWeb"
+        p:sslContext-ref="sslContextTomcatWebWs"
+        p:sslParameters-ref="sslParamsTomcatWebWs"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER SERVER SOCKET FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="sslServerSocketFactoryTomcatWebWs" parent="sslServerSocketFactoryTomcatWeb"
+        p:sslContext-ref="sslContextTomcatWebWs"
+        p:sslParameters-ref="sslParamsTomcatWebWs"/>
+    
+    <!--====================================================================================================
+    = TLS PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="tlsParams" class="org.apache.cxf.configuration.jsse.TLSParameterBase" abstract="true"/>
 </beans:beans>

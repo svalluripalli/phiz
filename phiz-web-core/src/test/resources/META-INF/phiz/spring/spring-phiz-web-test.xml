@@ -16,9 +16,44 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = KEY STORES
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreKeyManagerTomcatWeb" parent="keyStoreJks" abstract="true"
+        p:password="${phiz.web.server.tomcat.crypto.manager.key.store.key.pass}">
+        <beans:property name="resource">
+            <beans:bean class="org.springframework.core.io.ByteArrayResource"
+                c:byteArray="#{ T(org.apache.commons.codec.binary.Base64).decodeBase64('${phiz.web.server.tomcat.crypto.manager.key.store.key.content}') }"/>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreTrustManagerTomcatWeb" parent="keyStoreJks" abstract="true"
+        p:password="${phiz.web.server.tomcat.crypto.manager.trust.store.key.pass}">
+        <beans:property name="resource">
+            <beans:bean class="org.springframework.core.io.ByteArrayResource"
+                c:byteArray="#{ T(org.apache.commons.codec.binary.Base64).decodeBase64('${phiz.web.server.tomcat.crypto.manager.trust.store.key.content}') }"/>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
     = SECURE SOCKETS LAYER SOCKET FACTORIES
     =====================================================================================================-->
-    
+    <beans:bean id="sslSocketFactorySoapUi" parent="sslSocketFactoryBase">
+        <beans:property name="sslContext">
+            <beans:bean parent="sslContextTomcatWeb">
+                <beans:property name="keyManagers">
+                    <beans:null/>
+                </beans:property>
+                <beans:property name="trustManagers">
+                    <beans:null/>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+        <beans:property name="sslParameters">
+            <beans:bean parent="sslParamsTomcatWeb"/>
+        </beans:property>
+    </beans:bean>
     
     <!--====================================================================================================
     = SOAPUI TESTCASE RUNNERS
@@ -40,5 +75,6 @@
     <beans:bean id="soapUiTestCaseRunnerWeb" class="gov.hhs.onc.phiz.web.test.impl.PhizSoapUiTestCaseRunner" parent="soapUiTestCaseRunner" abstract="true"
         p:outputFolder="${phiz.test.it.web.soapui.output.dir}"
         p:projectFile="${phiz.test.it.web.soapui.project.file}"
-        p:settingsFile="${phiz.test.it.web.soapui.settings.file}"/>
+        p:settingsFile="${phiz.test.it.web.soapui.settings.file}"
+        p:sslSocketFactory-ref="sslSocketFactorySoapUi"/>
 </beans:beans>

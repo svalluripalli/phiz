@@ -32,6 +32,11 @@
         p:trustStoreType="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"/>
     
     <!--====================================================================================================
+    = LIFECYCLE LISTENERS
+    =====================================================================================================-->
+    <beans:bean id="lifecycleListener" class="org.apache.catalina.LifecycleListener" abstract="true"/>
+    
+    <!--====================================================================================================
     = EMBEDDED SERVLET CONTAINER FACTORIES
     =====================================================================================================-->
     <beans:bean id="embeddedServletContainerFactory" class="org.springframework.boot.context.embedded.EmbeddedServletContainerFactory" abstract="true"/>
@@ -46,5 +51,12 @@
         p:contextPath="${phiz.web.server.tomcat.context.path}"
         p:documentRoot="webapp"
         p:port="${phiz.web.server.tomcat.port.https}"
-        p:sslImplementationClass="#{ T(gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation) }"/>
+        p:sslImplementationClass="#{ T(gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation) }">
+        <beans:property name="contextLifecycleListeners">
+            <beans:list>
+                <beans:bean class="org.apache.catalina.core.JreMemoryLeakPreventionListener" parent="lifecycleListener"/>
+                <beans:bean class="org.apache.catalina.core.ThreadLocalLeakPreventionListener" parent="lifecycleListener"/>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
 </beans:beans>

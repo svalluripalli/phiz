@@ -16,11 +16,9 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = SERVLET LISTENERS
+    = SERVLET CONTEXT LISTENERS
     =====================================================================================================-->
-    <beans:bean id="servletListener" class="java.util.EventListener" abstract="true"/>
-    
-    <beans:bean id="servletListenerContext" class="javax.servlet.ServletContextListener" parent="servletListener" abstract="true"/>
+    <beans:bean id="servletContextListener" class="javax.servlet.ServletContextListener" parent="eventListener" abstract="true"/>
     
     <!--====================================================================================================
     = REGISTRATION BEANS: SERVLET LISTENER

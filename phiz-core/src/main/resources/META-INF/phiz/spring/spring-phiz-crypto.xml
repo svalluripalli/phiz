@@ -94,4 +94,43 @@
     <beans:bean id="trustManagerPkix" class="gov.hhs.onc.phiz.crypto.impl.PhizTrustManagerFactoryBean" parent="trustManager" abstract="true"
         p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
         p:type="PKIX"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="sslParams" class="javax.net.ssl.SSLParameters" abstract="true"/>
+    
+    <beans:bean id="sslParamsBase" parent="sslParams" abstract="true"
+        p:useCipherSuitesOrder="true">
+        <beans:property name="protocols">
+            <beans:array>
+                <beans:value>#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }</beans:value>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER CONTEXTS
+    =====================================================================================================-->
+    <beans:bean id="sslContext" class="javax.net.ssl.SSLContext" abstract="true"/>
+    
+    <beans:bean id="sslContextBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslContextFactoryBean" parent="sslContext" abstract="true"
+        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:secureRandom-ref="secureRandomSha1"
+        p:type="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER SOCKET FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="sslSocketFactory" class="javax.net.ssl.SSLSocketFactory" abstract="true"/>
+    
+    <beans:bean id="sslSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslSocketFactoryFactoryBean" parent="sslSocketFactory" abstract="true"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER SERVER SOCKET FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="sslServerSocketFactory" class="javax.net.ssl.SSLServerSocketFactory" abstract="true"/>
+    
+    <beans:bean id="sslServerSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslServerSocketFactoryFactoryBean" parent="sslServerSocketFactory"
+        abstract="true"/>
 </beans:beans>
