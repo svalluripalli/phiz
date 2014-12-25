@@ -5,8 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.Lazy;
 
 @Configurable("sslImplJssePhiz")
+@Lazy
 public class PhizJsseImplementation extends JSSEImplementation implements InitializingBean {
     private final static String IMPL_NAME = "PHIZ JSSE";
 

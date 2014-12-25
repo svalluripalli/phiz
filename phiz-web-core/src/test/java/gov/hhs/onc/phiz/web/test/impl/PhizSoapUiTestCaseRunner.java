@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -38,6 +39,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
     @Autowired
     private AbstractBeanFactory beanFactory;
 
+    private SSLParameters sslParams;
     private SSLSocketFactory sslSocketFactory;
     private boolean projectInitialized;
     private CountDownLatch testCaseRunLatch;
@@ -73,9 +75,10 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
         org.apache.http.conn.scheme.SchemeRegistry httpSchemeReg = HttpClientSupport.getHttpClient().getConnectionManager().getSchemeRegistry();
         org.apache.http.conn.scheme.Scheme httpsScheme = httpSchemeReg.getScheme(RequestTransportRegistry.HTTPS);
 
-        if (httpsScheme.getSocketFactory() instanceof SoapUISSLSocketFactory) {
+        if (httpsScheme.getSchemeSocketFactory() instanceof SoapUISSLSocketFactory) {
             httpSchemeReg.register(new org.apache.http.conn.scheme.Scheme(httpsScheme.getName(), httpsScheme.getDefaultPort(),
-                new org.apache.http.conn.ssl.SSLSocketFactory(sslSocketFactory, SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)));
+                new org.apache.http.conn.ssl.SSLSocketFactory(this.sslSocketFactory, this.sslParams.getProtocols(), this.sslParams.getCipherSuites(),
+                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)));
         }
 
         super.initProject(wsdlProject);
@@ -119,6 +122,14 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
     @Override
     protected SoapUICore createSoapUICore() {
         return new DefaultSoapUICore();
+    }
+
+    public SSLParameters getSslParams() {
+        return this.sslParams;
+    }
+
+    public void setSslParams(SSLParameters sslParams) {
+        this.sslParams = sslParams;
     }
 
     public SSLSocketFactory getSslSocketFactory() {

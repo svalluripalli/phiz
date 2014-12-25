@@ -16,21 +16,125 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = PROVIDERS
+    =====================================================================================================-->
+    <beans:bean id="securityProv" class="java.security.Provider" abstract="true"/>
+    
+    <beans:bean id="securityProvBc" class="org.bouncycastle.jce.provider.BouncyCastleProvider" parent="securityProv"/>
+    
+    <beans:bean id="securityProvBcAdd" parent="methodInvoke"
+        p:targetClass="java.security.Security"
+        p:targetMethod="addProvider">
+        <beans:property name="arguments">
+            <beans:array>
+                <beans:ref bean="securityProvBc"/>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
     = SECURE RANDOMS
     =====================================================================================================-->
     <beans:bean id="secureRandom" class="java.security.SecureRandom" abstract="true"/>
     
-    <beans:bean id="secureRandomSha1" parent="secureRandom" factory-method="getInstance" lazy-init="true" scope="prototype">
-        <beans:constructor-arg index="0" type="java.lang.String" value="SHA1PRNG"/>
-        <beans:constructor-arg index="1" type="java.lang.String" value="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"/>
+    <beans:bean id="secureRandomSha1" class="gov.hhs.onc.phiz.crypto.impl.PhizSecureRandomFactoryBean" parent="secureRandom" lazy-init="true" scope="prototype"
+        p:prototype="true"
+        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
+        p:type="SHA1PRNG"/>
+    
+    <!--====================================================================================================
+    = KEY PAIRS
+    =====================================================================================================-->
+    <beans:bean id="keyPair" class="java.security.KeyPair" abstract="true"/>
+    
+    <!--====================================================================================================
+    = KEY PAIR GENERATORS
+    =====================================================================================================-->
+    <beans:bean id="keyPairGen" class="java.security.KeyPairGenerator" abstract="true"/>
+    
+    <beans:bean id="keyPairGenRsa" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyPairGeneratorFactoryBean" parent="keyPairGen" depends-on="securityProvBcAdd"
+        p:keySize="#{ T(br.net.woodstock.rockframework.security.cert.KeySizeType).KEYSIZE_2K.size }"
+        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).BOUNCY_CASTLE.type }"
+        p:secureRandom-ref="secureRandomSha1"
+        p:type="#{ T(br.net.woodstock.rockframework.security.crypt.KeyPairType).RSA.algorithm }"/>
+    
+    <!--====================================================================================================
+    = CERTIFICATES
+    =====================================================================================================-->
+    <beans:bean id="cert" class="java.security.cert.Certificate" abstract="true"/>
+    
+    <beans:bean id="certX509" class="java.security.cert.X509Certificate" parent="cert" abstract="true"/>
+    
+    <!--====================================================================================================
+    = DISTINGUISHED NAMES
+    =====================================================================================================-->
+    <beans:bean id="dn" class="br.net.woodstock.rockframework.security.DistinguishedName" abstract="true"/>
+    
+    <!--====================================================================================================
+    = CERTIFICATE REQUESTS
+    =====================================================================================================-->
+    <beans:bean id="certReq" class="br.net.woodstock.rockframework.security.cert.CertificateRequest" abstract="true" depends-on="securityProvBcAdd"
+        p:keyPair="#{ keyPairGenRsa.generateKeyPair() }"
+        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).BOUNCY_CASTLE.type }"
+        p:signType="SHA512_RSA"
+        p:version="V3"/>
+    
+    <beans:bean id="certReqCa" parent="certReq" abstract="true"
+        p:basicConstraintsCritical="true">
+        <beans:property name="keyUsage">
+            <beans:set>
+                <beans:value>DIGITAL_SIGNATURE</beans:value>
+                <beans:value>KEY_CERT_SIGN</beans:value>
+            </beans:set>
+        </beans:property>
+    </beans:bean>
+    
+    <beans:bean id="certReqLeaf" parent="certReq" abstract="true">
+        <beans:property name="keyUsage">
+            <beans:set>
+                <beans:value>DIGITAL_SIGNATURE</beans:value>
+            </beans:set>
+        </beans:property>
+        <beans:property name="extendedKeyUsage">
+            <beans:set>
+                <beans:value>CLIENT_AUTH</beans:value>
+                <beans:value>SERVER_AUTH</beans:value>
+            </beans:set>
+        </beans:property>
     </beans:bean>
     
     <!--====================================================================================================
-    = KEY STORE PROTECTION PARAMETERS
+    = CERTIFICATE GENERATORS
     =====================================================================================================-->
-    <beans:bean id="keyStoreProtectionParam" class="java.security.KeyStore$ProtectionParameter" abstract="true"/>
+    <beans:bean id="certGen" class="br.net.woodstock.rockframework.security.cert.CertificateGenerator" abstract="true"/>
     
-    <beans:bean id="keyStoreProtectionParamPass" class="java.security.KeyStore$PasswordProtection" abstract="true"/>
+    <beans:bean id="certGenBc" class="br.net.woodstock.rockframework.security.cert.impl.BouncyCastleCertificateGenerator" parent="certGen"
+        factory-method="getInstance"/>
+    
+    <!--====================================================================================================
+    = CREDENTIALS
+    =====================================================================================================-->
+    <beans:bean id="cred" class="gov.hhs.onc.phiz.crypto.PhizCredential" abstract="true"/>
+    
+    <beans:bean id="credImpl" class="gov.hhs.onc.phiz.crypto.impl.PhizCredentialImpl" parent="cred" abstract="true"/>
+    
+    <beans:bean id="credGen" class="gov.hhs.onc.phiz.crypto.impl.PhizGeneratedCredentialFactoryBean" parent="cred" abstract="true"/>
+    
+    <!--====================================================================================================
+    = KEY STORE PROTECTION
+    =====================================================================================================-->
+    <beans:bean id="keyStoreProtection" class="java.security.KeyStore$ProtectionParameter" abstract="true"/>
+    
+    <beans:bean id="keyStoreProtectionPass" class="java.security.KeyStore$PasswordProtection" parent="keyStoreProtection" abstract="true"/>
+    
+    <!--====================================================================================================
+    = KEY STORE ENTRIES
+    =====================================================================================================-->
+    <beans:bean id="keyStoreEntry" class="gov.hhs.onc.phiz.crypto.PhizKeyStoreEntry" abstract="true"/>
+    
+    <beans:bean id="keyStoreEntryTrustedCert" class="gov.hhs.onc.phiz.crypto.impl.TrustedCertificateKeyStoreEntry" parent="keyStoreEntry" abstract="true"/>
+    
+    <beans:bean id="keyStoreEntryPrivateKey" class="gov.hhs.onc.phiz.crypto.impl.PrivateKeyKeyStoreEntry" parent="keyStoreEntry" abstract="true"/>
     
     <!--====================================================================================================
     = KEY STORES
@@ -41,96 +145,5 @@
         p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
         p:type="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"/>
     
-    <!--====================================================================================================
-    = MANAGER FACTORY PARAMETERS
-    =====================================================================================================-->
-    <beans:bean id="managerFactoryParams" class="javax.net.ssl.ManagerFactoryParameters" abstract="true"/>
-    
-    <!--====================================================================================================
-    = KEY STORE BUILDERS
-    =====================================================================================================-->
-    <beans:bean id="keyStoreBuilder" class="java.security.KeyStore$Builder" abstract="true"/>
-    
-    <!--====================================================================================================
-    = KEY STORE BUILDER PARAMETERS
-    =====================================================================================================-->
-    <beans:bean id="keyStoreBuilderParams" class="javax.net.ssl.KeyStoreBuilderParameters" parent="managerFactoryParams" abstract="true"/>
-    
-    <!--====================================================================================================
-    = KEY MANAGERS
-    =====================================================================================================-->
-    <beans:bean id="keyManager" class="javax.net.ssl.KeyManager" abstract="true"/>
-    
-    <beans:bean id="keyManagerNewSunX509" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyManagerFactoryBean" parent="keyManager" abstract="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
-        p:type="NewSunX509"/>
-    
-    <!--====================================================================================================
-    = CERTIFICATE SELECTORS
-    =====================================================================================================-->
-    <beans:bean id="certSelector" class="java.security.cert.CertSelector" abstract="true"/>
-    
-    <beans:bean id="certSelectorX509" class="java.security.cert.X509CertSelector" parent="certSelector" abstract="true"/>
-    
-    <!--====================================================================================================
-    = CERTIFICATE PATH PARAMETERS
-    =====================================================================================================-->
-    <beans:bean id="certPathParams" class="java.security.cert.CertPathParameters" abstract="true"/>
-    
-    <beans:bean id="certPathParamsPkix" class="java.security.cert.PKIXParameters" parent="certPathParams" abstract="true"/>
-    
-    <beans:bean id="certPathParamsPkixBuilder" class="java.security.cert.PKIXBuilderParameters" parent="certPathParamsPkix" abstract="true"/>
-    
-    <!--====================================================================================================
-    = CERTIFICATE PATH TRUST MANAGER PARAMETERS
-    =====================================================================================================-->
-    <beans:bean id="certPathTrustManagerParams" class="javax.net.ssl.CertPathTrustManagerParameters" parent="managerFactoryParams" abstract="true"/>
-    
-    <!--====================================================================================================
-    = TRUST MANAGERS
-    =====================================================================================================-->
-    <beans:bean id="trustManager" class="javax.net.ssl.TrustManager" abstract="true"/>
-    
-    <beans:bean id="trustManagerPkix" class="gov.hhs.onc.phiz.crypto.impl.PhizTrustManagerFactoryBean" parent="trustManager" abstract="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
-        p:type="PKIX"/>
-    
-    <!--====================================================================================================
-    = SECURE SOCKETS LAYER PARAMETERS
-    =====================================================================================================-->
-    <beans:bean id="sslParams" class="javax.net.ssl.SSLParameters" abstract="true"/>
-    
-    <beans:bean id="sslParamsBase" parent="sslParams" abstract="true"
-        p:useCipherSuitesOrder="true">
-        <beans:property name="protocols">
-            <beans:array>
-                <beans:value>#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }</beans:value>
-            </beans:array>
-        </beans:property>
-    </beans:bean>
-    
-    <!--====================================================================================================
-    = SECURE SOCKETS LAYER CONTEXTS
-    =====================================================================================================-->
-    <beans:bean id="sslContext" class="javax.net.ssl.SSLContext" abstract="true"/>
-    
-    <beans:bean id="sslContextBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslContextFactoryBean" parent="sslContext" abstract="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
-        p:secureRandom-ref="secureRandomSha1"
-        p:type="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }"/>
-    
-    <!--====================================================================================================
-    = SECURE SOCKETS LAYER SOCKET FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="sslSocketFactory" class="javax.net.ssl.SSLSocketFactory" abstract="true"/>
-    
-    <beans:bean id="sslSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslSocketFactoryFactoryBean" parent="sslSocketFactory" abstract="true"/>
-    
-    <!--====================================================================================================
-    = SECURE SOCKETS LAYER SERVER SOCKET FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="sslServerSocketFactory" class="javax.net.ssl.SSLServerSocketFactory" abstract="true"/>
-    
-    <beans:bean id="sslServerSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslServerSocketFactoryFactoryBean" parent="sslServerSocketFactory"
-        abstract="true"/>
+    <beans:bean id="keyStoreGen" class="gov.hhs.onc.phiz.crypto.impl.PhizGeneratedKeyStoreFactoryBean" parent="keyStoreJks" abstract="true"/>
 </beans:beans>

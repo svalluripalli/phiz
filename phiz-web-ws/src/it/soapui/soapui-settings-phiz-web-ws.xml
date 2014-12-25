@@ -13,15 +13,6 @@
     <con:setting id="HttpSettings@include_response_in_time_taken">true</con:setting>
     
     <!--====================================================================================================
-    = SETTINGS: SSL
-    =====================================================================================================-->
-    <!--
-    <con:setting id="SSLSettings@keyStore">${phiz.web.server.tomcat.crypto.manager.key.store.key.file}</con:setting>
-    <con:setting id="SSLSettings@keyStorePassword">${phiz.web.server.tomcat.crypto.manager.key.store.key.pass}</con:setting>
-    <con:setting id="SSLSettings@needClientAuthentication">true</con:setting>
-    -->
-    
-    <!--====================================================================================================
     = SETTINGS: WS-ADDRESSING
     =====================================================================================================-->
     <con:setting id="WsaSettings@overrideExistingHeaders">true</con:setting>

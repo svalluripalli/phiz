@@ -45,9 +45,9 @@
                             <skip>false</skip>
                             <systemPropertyVariables>
                                 <phiz.log.file.name>%{project.artifactId}-test-it</phiz.log.file.name>
-                                <phiz.test.it.web.soapui.output.dir>${project.build.directory}/surefire-reports</phiz.test.it.web.soapui.output.dir>
-                                <phiz.test.it.web.soapui.project.file>${project.build.itSoapUiDirectory}/soapui-%{project.artifactId}.xml</phiz.test.it.web.soapui.project.file>
-                                <phiz.test.it.web.soapui.settings.file>${project.build.itSoapUiDirectory}/soapui-settings-%{project.artifactId}.xml</phiz.test.it.web.soapui.settings.file>
+                                <phiz.soapui.output.dir>${project.build.directory}/surefire-reports</phiz.soapui.output.dir>
+                                <phiz.soapui.project.file>${project.build.itSoapUiDirectory}/soapui-%{project.artifactId}.xml</phiz.soapui.project.file>
+                                <phiz.soapui.settings.file>${project.build.itSoapUiDirectory}/soapui-settings-%{project.artifactId}.xml</phiz.soapui.settings.file>
                             </systemPropertyVariables>
                             <workingDirectory>%{project.build.testDebShareDataDirectory}</workingDirectory>
                         </configuration>

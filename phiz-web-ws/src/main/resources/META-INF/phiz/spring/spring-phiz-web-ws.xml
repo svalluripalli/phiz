@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans
+    profile="phiz.profile.context.web"
     xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
@@ -104,6 +105,11 @@
     = PORT TYPES: IIS HUB
     =====================================================================================================-->
     <beans:bean id="portTypeIisHub" class="gov.hhs.onc.phiz.ws.hub.IisHubPortType" abstract="true"/>
+    
+    <!--====================================================================================================
+    = TLS PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="tlsParams" class="org.apache.cxf.configuration.jsse.TLSParameterBase" abstract="true"/>
     
     <!--====================================================================================================
     = PROFILE: DEVELOPMENT MODE

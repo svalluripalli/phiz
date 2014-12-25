@@ -1,11 +1,13 @@
 package gov.hhs.onc.phiz.crypto.impl;
 
+import java.io.InputStream;
 import java.security.KeyStore;
-import org.springframework.core.io.Resource;
+import javax.annotation.Nullable;
+import org.springframework.core.io.FileSystemResource;
 
 public class PhizKeyStoreFactoryBean extends AbstractPhizCryptoFactoryBean<KeyStore> {
-    private String pass;
-    private Resource resource;
+    protected String pass;
+    protected FileSystemResource resource;
 
     public PhizKeyStoreFactoryBean() {
         super(KeyStore.class);
@@ -13,8 +15,14 @@ public class PhizKeyStoreFactoryBean extends AbstractPhizCryptoFactoryBean<KeySt
 
     @Override
     public KeyStore getObject() throws Exception {
+        try (InputStream inStream = this.resource.getInputStream()) {
+            return this.getObjectInternal(inStream, this.pass);
+        }
+    }
+
+    protected KeyStore getObjectInternal(@Nullable InputStream inStream, @Nullable String pass) throws Exception {
         KeyStore keyStore = KeyStore.getInstance(this.type, this.prov);
-        keyStore.load(this.resource.getInputStream(), ((this.pass != null) ? this.pass.toCharArray() : null));
+        keyStore.load(inStream, ((pass != null) ? pass.toCharArray() : null));
 
         return keyStore;
     }
@@ -23,11 +31,11 @@ public class PhizKeyStoreFactoryBean extends AbstractPhizCryptoFactoryBean<KeySt
         this.pass = pass;
     }
 
-    public Resource getResource() {
+    public FileSystemResource getResource() {
         return this.resource;
     }
 
-    public void setResource(Resource resource) {
+    public void setResource(FileSystemResource resource) {
         this.resource = resource;
     }
 }

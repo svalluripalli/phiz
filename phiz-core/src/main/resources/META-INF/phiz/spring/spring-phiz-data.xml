@@ -16,15 +16,7 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = EMBEDDED SERVLET CONTAINER FACTORIES
+    = TRANSACTION MANAGERS
     =====================================================================================================-->
-    <beans:bean id="embeddedServletContainerFactoryTomcatWebWs" parent="embeddedServletContainerFactoryTomcatWeb">
-        <beans:property name="ssl">
-            <!--suppress SpringPlaceholdersInspection -->
-            <beans:bean parent="sslTomcat"
-                p:clientAuth="WANT"
-                p:keyAlias="${phiz.web.server.tomcat.crypto.manager.key.store.key.entry.iis.hub.alias}"
-                p:keyPassword="${phiz.web.server.tomcat.crypto.manager.key.store.key.entry.iis.hub.pass}"/>
-        </beans:property>
-    </beans:bean>
+    <beans:bean id="txManager" class="org.springframework.transaction.PlatformTransactionManager" abstract="true"/>
 </beans:beans>

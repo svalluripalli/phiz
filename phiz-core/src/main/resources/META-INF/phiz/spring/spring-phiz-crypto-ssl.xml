@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = MANAGER FACTORY PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="managerFactoryParams" class="javax.net.ssl.ManagerFactoryParameters" abstract="true"/>
+    
+    <!--====================================================================================================
+    = KEY STORE BUILDERS
+    =====================================================================================================-->
+    <beans:bean id="keyStoreBuilder" class="java.security.KeyStore$Builder" abstract="true"/>
+    
+    <!--====================================================================================================
+    = KEY STORE BUILDER PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="keyStoreBuilderParams" class="javax.net.ssl.KeyStoreBuilderParameters" parent="managerFactoryParams" abstract="true"/>
+    
+    <!--====================================================================================================
+    = KEY MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="keyManager" class="javax.net.ssl.KeyManager" abstract="true"/>
+    
+    <beans:bean id="keyManagerNewSunX509" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyManagerFactoryBean" parent="keyManager" abstract="true"
+        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:type="NewSunX509"/>
+    
+    <!--====================================================================================================
+    = CERTIFICATE SELECTORS
+    =====================================================================================================-->
+    <beans:bean id="certSelector" class="java.security.cert.CertSelector" abstract="true"/>
+    
+    <beans:bean id="certSelectorX509" class="java.security.cert.X509CertSelector" parent="certSelector" abstract="true"/>
+    
+    <!--====================================================================================================
+    = CERTIFICATE PATH PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="certPathParams" class="java.security.cert.CertPathParameters" abstract="true"/>
+    
+    <beans:bean id="certPathParamsPkix" class="java.security.cert.PKIXParameters" parent="certPathParams" abstract="true"/>
+    
+    <beans:bean id="certPathParamsPkixBuilder" class="java.security.cert.PKIXBuilderParameters" parent="certPathParamsPkix" abstract="true"
+        p:revocationEnabled="false"/>
+    
+    <!--====================================================================================================
+    = CERTIFICATE PATH TRUST MANAGER PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="certPathTrustManagerParams" class="javax.net.ssl.CertPathTrustManagerParameters" parent="managerFactoryParams" abstract="true"/>
+    
+    <!--====================================================================================================
+    = TRUST MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="trustManager" class="javax.net.ssl.TrustManager" abstract="true"/>
+    
+    <beans:bean id="trustManagerPkix" class="gov.hhs.onc.phiz.crypto.impl.PhizTrustManagerFactoryBean" parent="trustManager" abstract="true"
+        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:type="PKIX"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="sslParams" class="javax.net.ssl.SSLParameters" abstract="true"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="sslParamsBase" parent="sslParams" abstract="true"
+        p:cipherSuites="${phiz.crypto.cipher.suites}"
+        p:useCipherSuitesOrder="true">
+        <beans:property name="protocols">
+            <beans:array>
+                <beans:value>#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }</beans:value>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER CONTEXTS
+    =====================================================================================================-->
+    <beans:bean id="sslContext" class="javax.net.ssl.SSLContext" abstract="true"/>
+    
+    <beans:bean id="sslContextBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslContextFactoryBean" parent="sslContext" abstract="true"
+        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:secureRandom-ref="secureRandomSha1"
+        p:type="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER SOCKET FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="sslSocketFactory" class="javax.net.ssl.SSLSocketFactory" abstract="true"/>
+    
+    <beans:bean id="sslSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslSocketFactoryFactoryBean" parent="sslSocketFactory" abstract="true"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER SERVER SOCKET FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="sslServerSocketFactory" class="javax.net.ssl.SSLServerSocketFactory" abstract="true"/>
+    
+    <beans:bean id="sslServerSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslServerSocketFactoryFactoryBean" parent="sslServerSocketFactory"
+        abstract="true"/>
+</beans:beans>

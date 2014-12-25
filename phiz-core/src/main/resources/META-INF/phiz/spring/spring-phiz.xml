@@ -29,6 +29,11 @@
     <context:spring-configured/>
     
     <!--====================================================================================================
+    = METHOD INVOCATIONS
+    =====================================================================================================-->
+    <beans:bean id="methodInvoke" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" abstract="true"/>
+    
+    <!--====================================================================================================
     = CHARACTER SET
     =====================================================================================================-->
     <beans:bean id="charset" class="java.nio.charset.Charset" abstract="true"/>

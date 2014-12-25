@@ -49,3 +49,5 @@ try {
     debFileArchiveInStream?.close()
     debDataFileArchiveInStream?.close()
 }
+
+ant.mkdir(dir: "${project.build.directory}/surefire-ssl")

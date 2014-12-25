@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <beans:beans
-    profile="phiz.profile.context.web"
     xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
     xmlns:context="http://www.springframework.org/schema/context"
     xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:rabbit="http://www.springframework.org/schema/rabbit"
     xmlns:task="http://www.springframework.org/schema/task"
     xmlns:util="http://www.springframework.org/schema/util"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -13,6 +12,7 @@
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit.xsd
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
@@ -20,28 +20,28 @@
     = KEY STORES
     =====================================================================================================-->
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="keyStoreTomcatServerKey" parent="keyStoreJks" lazy-init="true"
-        p:password="${phiz.tomcat.crypto.server.store.key.pass}"
-        p:resource="${phiz.tomcat.crypto.server.store.key.file}"/>
+    <beans:bean id="keyStoreRabbitClientKey" parent="keyStoreJks" lazy-init="true"
+        p:password="${phiz.rabbitmq.crypto.client.store.key.pass}"
+        p:resource="${phiz.rabbitmq.crypto.client.store.key.file}"/>
     
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="keyStoreTomcatServerTrust" parent="keyStoreJks" lazy-init="true"
-        p:password="${phiz.tomcat.crypto.server.store.trust.pass}"
-        p:resource="${phiz.tomcat.crypto.server.store.trust.file}"/>
+    <beans:bean id="keyStoreRabbitClientTrust" parent="keyStoreJks" lazy-init="true"
+        p:password="${phiz.rabbitmq.crypto.client.store.trust.pass}"
+        p:resource="${phiz.rabbitmq.crypto.client.store.trust.file}"/>
     
     <!--====================================================================================================
     = KEY MANAGERS
     =====================================================================================================-->
-    <beans:bean id="keyManagerTomcatServer" parent="keyManagerNewSunX509" lazy-init="true">
+    <beans:bean id="keyManagerRabbitClient" parent="keyManagerNewSunX509" lazy-init="true">
         <beans:property name="factoryParameters">
             <beans:bean parent="keyStoreBuilderParams">
                 <beans:constructor-arg index="0" type="java.security.KeyStore$Builder">
                     <beans:bean parent="keyStoreBuilder" factory-method="newInstance">
-                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreTomcatServerKey"/>
+                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreRabbitClientKey"/>
                         <beans:constructor-arg index="1" type="java.security.KeyStore$ProtectionParameter">
                             <beans:bean parent="keyStoreProtectionPass">
                                 <!--suppress SpringPlaceholdersInspection -->
-                                <beans:constructor-arg index="0" type="char[]" value="${phiz.tomcat.crypto.server.store.key.entry.ssl.pass}"/>
+                                <beans:constructor-arg index="0" type="char[]" value="${phiz.rabbitmq.crypto.client.store.key.entry.ssl.pass}"/>
                             </beans:bean>
                         </beans:constructor-arg>
                     </beans:bean>
@@ -53,12 +53,12 @@
     <!--====================================================================================================
     = TRUST MANAGERS
     =====================================================================================================-->
-    <beans:bean id="trustManagerTomcatServer" parent="trustManagerPkix" lazy-init="true">
+    <beans:bean id="trustManagerRabbitClient" parent="trustManagerPkix" lazy-init="true">
         <beans:property name="factoryParameters">
             <beans:bean parent="certPathTrustManagerParams">
                 <beans:constructor-arg index="0" type="java.security.cert.CertPathParameters">
                     <beans:bean parent="certPathParamsPkixBuilder">
-                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreTomcatServerTrust"/>
+                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreRabbitClientTrust"/>
                         <beans:constructor-arg index="1" type="java.security.cert.CertSelector">
                             <beans:bean parent="certSelectorX509"/>
                         </beans:constructor-arg>
@@ -71,78 +71,80 @@
     <!--====================================================================================================
     = SECURE SOCKETS LAYER PARAMETERS
     =====================================================================================================-->
-    <beans:bean id="sslParamsTomcatServer" parent="sslParamsBase"
-        p:needClientAuth="true"/>
+    <beans:bean id="sslParamsRabbitClient" parent="sslParamsBase"/>
     
     <!--====================================================================================================
     = SECURE SOCKETS LAYER CONTEXTS
     =====================================================================================================-->
-    <beans:bean id="sslContextTomcatServer" parent="sslContextBase" lazy-init="true">
+    <beans:bean id="sslContextRabbitClient" parent="sslContextBase" lazy-init="true">
         <beans:property name="keyManagers">
             <beans:array>
-                <beans:ref bean="keyManagerTomcatServer"/>
+                <beans:ref bean="keyManagerRabbitClient"/>
             </beans:array>
         </beans:property>
         <beans:property name="trustManagers">
             <beans:array>
-                <beans:ref bean="trustManagerTomcatServer"/>
+                <beans:ref bean="trustManagerRabbitClient"/>
             </beans:array>
         </beans:property>
     </beans:bean>
     
     <!--====================================================================================================
-    = SECURE SOCKETS LAYER SERVER SOCKET FACTORIES
+    = SECURE SOCKETS LAYER SOCKET FACTORIES
     =====================================================================================================-->
-    <beans:bean id="sslServerSocketFactoryTomcatServer" parent="sslServerSocketFactoryBase" lazy-init="true"
-        p:sslContext-ref="sslContextTomcatServer"
-        p:sslParameters-ref="sslParamsTomcatServer"/>
+    <beans:bean id="sslSocketFactoryRabbitClient" parent="sslSocketFactoryBase" lazy-init="true"
+        p:sslContext-ref="sslContextRabbitClient"
+        p:sslParameters-ref="sslParamsRabbitClient"/>
     
     <!--====================================================================================================
-    = SECURE SOCKETS LAYER
+    = CONNECTION FACTORIES
     =====================================================================================================-->
+    <beans:bean id="connFactoryRabbit" class="com.rabbitmq.client.ConnectionFactory" abstract="true"/>
+    
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="sslTomcatServer" class="org.springframework.boot.context.embedded.Ssl" depends-on="sslServerSocketFactoryTomcatServer" lazy-init="true"
-        p:ciphers="#{ sslParamsTomcatServer.cipherSuites }"
-        p:clientAuth="NEED"
-        p:keyAlias="${phiz.tomcat.crypto.server.store.key.entry.ssl.alias}"
-        p:keyPassword="${phiz.tomcat.crypto.server.store.key.entry.ssl.pass}"
-        p:keyStore="${phiz.tomcat.crypto.server.store.key.file}"
-        p:keyStorePassword="${phiz.tomcat.crypto.server.store.key.pass}"
-        p:keyStoreProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
-        p:keyStoreType="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"
-        p:protocol="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }"
-        p:trustStore="${phiz.tomcat.crypto.server.store.trust.file}"
-        p:trustStorePassword="${phiz.tomcat.crypto.server.store.trust.pass}"
-        p:trustStoreProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
-        p:trustStoreType="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"/>
+    <beans:bean id="connFactoryRabbitClient" parent="connFactoryRabbit" lazy-init="true"
+        p:host="${phiz.rabbitmq.host.name}"
+        p:port="${phiz.rabbitmq.port.amqps}"
+        p:socketFactory-ref="sslSocketFactoryRabbitClient"/>
     
     <!--====================================================================================================
-    = LIFECYCLE LISTENERS
+    = CONNECTION FACTORIES: SPRING
     =====================================================================================================-->
-    <beans:bean id="lifecycleListener" class="org.apache.catalina.LifecycleListener" abstract="true"/>
+    <beans:bean id="connFactoryRabbitSpring" class="org.springframework.amqp.rabbit.connection.ConnectionFactory" abstract="true"/>
+    
+    <beans:bean id="connFactoryRabbitSpringCaching" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory" parent="connFactoryRabbitSpring"
+        abstract="true"/>
+    
+    <beans:bean id="connFactoryRabbitSpringClient" parent="connFactoryRabbitSpringCaching" lazy-init="true"
+        c:rabbitConnectionFactory-ref="connFactoryRabbitClient"/>
     
     <!--====================================================================================================
-    = EMBEDDED SERVLET CONTAINER FACTORIES
+    = TRANSACTION MANAGERS
     =====================================================================================================-->
-    <beans:bean id="embeddedServletContainerFactory" class="org.springframework.boot.context.embedded.EmbeddedServletContainerFactory" abstract="true"/>
+    <beans:bean id="txManagerRabbit" class="org.springframework.amqp.rabbit.transaction.RabbitTransactionManager" parent="txManager" abstract="true"
+        p:rollbackOnCommitFailure="true"
+        p:validateExistingTransaction="true"/>
     
-    <beans:bean id="embeddedServletContainerFactoryTomcat" class="org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory"
-        parent="embeddedServletContainerFactory" abstract="true"/>
+    <beans:bean id="txManagerRabbitClient" parent="txManagerRabbit" lazy-init="true"
+        c:connectionFactory-ref="connFactoryRabbitSpringClient"/>
     
-    <!--suppress SpringModelInspection SpringPlaceholdersInspection -->
-    <beans:bean id="embeddedServletContainerFactoryTomcatServer" class="gov.hhs.onc.phiz.web.context.impl.PhizTomcatEmbeddedServletContainerFactory"
-        parent="embeddedServletContainerFactoryTomcat" lazy-init="true"
-        p:baseDirectory="#{ T(org.apache.commons.lang3.SystemUtils).userDir }"
-        p:contextPath="${phiz.tomcat.context.path}"
-        p:documentRoot="webapp"
-        p:port="${phiz.tomcat.port.https}"
-        p:ssl-ref="sslTomcatServer"
-        p:sslImplementationClass="gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation">
-        <beans:property name="contextLifecycleListeners">
-            <beans:list>
-                <beans:bean class="org.apache.catalina.core.JreMemoryLeakPreventionListener" parent="lifecycleListener"/>
-                <beans:bean class="org.apache.catalina.core.ThreadLocalLeakPreventionListener" parent="lifecycleListener"/>
-            </beans:list>
-        </beans:property>
-    </beans:bean>
+    <!--====================================================================================================
+    = ADMINISTRATORS
+    =====================================================================================================-->
+    <beans:bean id="amqpAdmin" class="org.springframework.amqp.core.AmqpAdmin" abstract="true"/>
+    
+    <beans:bean id="rabbitAdmin" class="org.springframework.amqp.rabbit.core.RabbitAdmin" parent="amqpAdmin" lazy-init="true"
+        c:connectionFactory-ref="connFactoryRabbitSpringClient"/>
+    
+    <!--====================================================================================================
+    = TEMPLATES
+    =====================================================================================================-->
+    <beans:bean id="amqpTemplate" class="org.springframework.amqp.core.AmqpTemplate" abstract="true"/>
+    
+    <beans:bean id="rabbitTemplate" class="org.springframework.amqp.rabbit.core.RabbitTemplate" parent="amqpTemplate" abstract="true"/>
+    
+    <!--====================================================================================================
+    = QUEUES
+    =====================================================================================================-->
+    <beans:bean id="queue" class="org.springframework.amqp.core.Queue" abstract="true"/>
 </beans:beans>

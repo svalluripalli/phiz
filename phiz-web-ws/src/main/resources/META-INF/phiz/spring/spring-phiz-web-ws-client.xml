@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans
+    profile="phiz.profile.context.web"
     xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
@@ -16,13 +17,93 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = KEY STORES
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreWsClientKey" parent="keyStoreJks" lazy-init="true"
+        p:password="${phiz.ws.crypto.client.store.key.pass}"
+        p:resource="${phiz.ws.crypto.client.store.key.file}"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreWsClientTrust" parent="keyStoreJks" lazy-init="true"
+        p:password="${phiz.ws.crypto.client.store.trust.pass}"
+        p:resource="${phiz.ws.crypto.client.store.trust.file}"/>
+    
+    <!--====================================================================================================
+    = KEY MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="keyManagerWsClient" parent="keyManagerNewSunX509" lazy-init="true">
+        <beans:property name="factoryParameters">
+            <beans:bean parent="keyStoreBuilderParams">
+                <beans:constructor-arg index="0" type="java.security.KeyStore$Builder">
+                    <beans:bean parent="keyStoreBuilder" factory-method="newInstance">
+                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreWsClientKey"/>
+                        <beans:constructor-arg index="1" type="java.security.KeyStore$ProtectionParameter">
+                            <beans:bean parent="keyStoreProtectionPass">
+                                <!--suppress SpringPlaceholdersInspection -->
+                                <beans:constructor-arg index="0" type="char[]" value="${phiz.ws.crypto.client.store.key.entry.ssl.pass}"/>
+                            </beans:bean>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:constructor-arg>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = TRUST MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="trustManagerWsClient" parent="trustManagerPkix" lazy-init="true">
+        <beans:property name="factoryParameters">
+            <beans:bean parent="certPathTrustManagerParams">
+                <beans:constructor-arg index="0" type="java.security.cert.CertPathParameters">
+                    <beans:bean parent="certPathParamsPkixBuilder">
+                        <beans:constructor-arg index="0" type="java.security.KeyStore" ref="keyStoreWsClientTrust"/>
+                        <beans:constructor-arg index="1" type="java.security.cert.CertSelector">
+                            <beans:bean parent="certSelectorX509"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:constructor-arg>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="sslParamsWsClient" parent="sslParamsBase"/>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER CONTEXTS
+    =====================================================================================================-->
+    <beans:bean id="sslContextWsClient" parent="sslContextBase" lazy-init="true">
+        <beans:property name="keyManagers">
+            <beans:array>
+                <beans:ref bean="keyManagerWsClient"/>
+            </beans:array>
+        </beans:property>
+        <beans:property name="trustManagers">
+            <beans:array>
+                <beans:ref bean="trustManagerWsClient"/>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = SECURE SOCKETS LAYER SOCKET FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="sslSocketFactoryWsClient" parent="sslSocketFactoryBase" lazy-init="true"
+        p:sslContext-ref="sslContextWsClient"
+        p:sslParameters-ref="sslParamsWsClient"/>
+    
+    <!--====================================================================================================
     = TLS PARAMETERS: CLIENT
     =====================================================================================================-->
     <beans:bean id="tlsParamsClient" class="org.apache.cxf.configuration.jsse.TLSClientParameters" parent="tlsParams" abstract="true"
         p:disableCNCheck="true"/>
     
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="tlsParamsClientHub" parent="tlsParamsClient"
-        p:certAlias="${phiz.web.server.tomcat.crypto.manager.key.store.entry.iis.hub.alias}"
-        p:SSLSocketFactory-ref="sslSocketFactoryTomcatWebWs"/>
+    <beans:bean id="tlsParamsClientWs" parent="tlsParamsClient" lazy-init="true"
+        p:certAlias="${phiz.ws.crypto.client.store.key.entry.ssl.alias}"
+        p:SSLSocketFactory-ref="sslSocketFactoryWsClient"/>
 </beans:beans>

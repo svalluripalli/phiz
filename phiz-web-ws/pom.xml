@@ -284,68 +284,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.github.redfish4ktc.soapui</groupId>
-                <artifactId>maven-soapui-extension-plugin</artifactId>
-                <version>4.6.4.2</version>
-                <inherited>true</inherited>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.smartbear.soapui</groupId>
-                        <artifactId>soapui-pro-maven-plugin</artifactId>
-                        <version>5.1.2</version>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>jasperreports</groupId>
-                                <artifactId>jasperreports</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.commons</groupId>
-                        <artifactId>commons-lang3</artifactId>
-                        <version>3.3.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.apache.cxf</groupId>
-                        <artifactId>cxf-core</artifactId>
-                        <version>3.0.2</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-all</artifactId>
-                        <version>2.3.8</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.reflections</groupId>
-                        <artifactId>reflections</artifactId>
-                        <version>0.9.9-RC2</version>
-                    </dependency>
-                </dependencies>
-                <configuration>
-                    <coverage>true</coverage>
-                    <exportAll>true</exportAll>
-                    <junitHtmlReport>false</junitHtmlReport>
-                    <junitReport>true</junitReport>
-                    <printReport>true</printReport>
-                    <saveAfterRun>true</saveAfterRun>
-                    <soapuiProperties combine.children="append">
-                        <property>
-                            <name>soapui.ext.libraries</name>
-                            <value>${project.build.itSoapUiDirectory}/ext</value>
-                        </property>
-                        <property>
-                            <name>soapui.logroot</name>
-                            <value>${project.build.directory}/surefire-logs/</value>
-                        </property>
-                        <property>
-                            <name>soapui.scripting.library</name>
-                            <value>${project.build.itSoapUiDirectory}/groovy</value>
-                        </property>
-                    </soapuiProperties>
-                    <testFailIgnore>true</testFailIgnore>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
