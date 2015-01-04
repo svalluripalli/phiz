@@ -42,6 +42,8 @@
     =====================================================================================================-->
     <conversionRule conversionWord="pColor" converterClass="gov.hhs.onc.phiz.logging.logback.impl.PriorityColorCompositeConverter"/>
     
+    <conversionRule conversionWord="xReq" converterClass="gov.hhs.onc.phiz.logging.logback.impl.RequestMdcConverter"/>
+    
     <!--====================================================================================================
     = APPENDERS: CONSOLE
     =====================================================================================================-->
@@ -67,7 +69,7 @@
                     </timeBasedFileNamingAndTriggeringPolicy>
                 </rollingPolicy>
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-                    <pattern>%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t] %p - %m%n%rEx</pattern>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t]%xReq %p - %m%n%rEx</pattern>
                 </encoder>
             </appender>
         </then>

@@ -1,5 +1,6 @@
-package gov.hhs.onc.phiz.crypto.impl;
+package gov.hhs.onc.phiz.crypto.ssl.impl;
 
+import gov.hhs.onc.phiz.crypto.impl.AbstractPhizCryptoFactoryBean;
 import java.io.Closeable;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;

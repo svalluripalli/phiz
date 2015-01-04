@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.crypto.impl;
+package gov.hhs.onc.phiz.crypto.ssl.impl;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;

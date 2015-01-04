@@ -1,0 +1,4 @@
+[
+    rabbitmq_auth_mechanism_ssl,
+    rabbitmq_management
+].

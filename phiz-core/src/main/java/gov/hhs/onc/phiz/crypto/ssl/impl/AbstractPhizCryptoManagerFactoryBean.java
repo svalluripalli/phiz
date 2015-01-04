@@ -1,5 +1,6 @@
-package gov.hhs.onc.phiz.crypto.impl;
+package gov.hhs.onc.phiz.crypto.ssl.impl;
 
+import gov.hhs.onc.phiz.crypto.impl.AbstractPhizCryptoFactoryBean;
 import javax.net.ssl.ManagerFactoryParameters;
 
 public abstract class AbstractPhizCryptoManagerFactoryBean<T, U extends ManagerFactoryParameters> extends AbstractPhizCryptoFactoryBean<T> {

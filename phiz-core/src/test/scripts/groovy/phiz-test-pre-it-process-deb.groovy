@@ -50,4 +50,8 @@ try {
     debDataFileArchiveInStream?.close()
 }
 
-ant.mkdir(dir: "${project.build.directory}/surefire-ssl")
+def testConfSslDirPath = Paths.get(project.build.directory, "surefire-ssl")
+
+ant.mkdir(dir: testConfSslDirPath.toFile())
+
+Files.createSymbolicLink(Paths.get(project.properties["project.build.testDebConfDataDirectory"], "ssl"), testConfSslDirPath)

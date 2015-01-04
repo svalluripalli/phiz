@@ -12,7 +12,7 @@ import org.bouncycastle.util.io.pem.PemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 
-public class PhizGeneratedCredentialFactoryBean extends AbstractPhizCryptoFactoryBean<PhizCredential> {
+public class GeneratedCredentialFactoryBean extends AbstractPhizCryptoFactoryBean<PhizCredential> {
     @Autowired
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private CertificateGenerator certGen;
@@ -21,7 +21,7 @@ public class PhizGeneratedCredentialFactoryBean extends AbstractPhizCryptoFactor
     private FileSystemResource privateKeyResource;
     private FileSystemResource certResource;
 
-    public PhizGeneratedCredentialFactoryBean() {
+    public GeneratedCredentialFactoryBean() {
         super(PhizCredential.class);
     }
 

@@ -98,25 +98,6 @@
         p:sslParameters-ref="sslParamsTomcatServer"/>
     
     <!--====================================================================================================
-    = SECURE SOCKETS LAYER
-    =====================================================================================================-->
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="sslTomcatServer" class="org.springframework.boot.context.embedded.Ssl" depends-on="sslServerSocketFactoryTomcatServer" lazy-init="true"
-        p:ciphers="#{ sslParamsTomcatServer.cipherSuites }"
-        p:clientAuth="NEED"
-        p:keyAlias="${phiz.tomcat.crypto.server.store.key.entry.ssl.alias}"
-        p:keyPassword="${phiz.tomcat.crypto.server.store.key.entry.ssl.pass}"
-        p:keyStore="${phiz.tomcat.crypto.server.store.key.file}"
-        p:keyStorePassword="${phiz.tomcat.crypto.server.store.key.pass}"
-        p:keyStoreProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
-        p:keyStoreType="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"
-        p:protocol="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }"
-        p:trustStore="${phiz.tomcat.crypto.server.store.trust.file}"
-        p:trustStorePassword="${phiz.tomcat.crypto.server.store.trust.pass}"
-        p:trustStoreProvider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
-        p:trustStoreType="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"/>
-    
-    <!--====================================================================================================
     = LIFECYCLE LISTENERS
     =====================================================================================================-->
     <beans:bean id="lifecycleListener" class="org.apache.catalina.LifecycleListener" abstract="true"/>
@@ -136,7 +117,6 @@
         p:contextPath="${phiz.tomcat.context.path}"
         p:documentRoot="webapp"
         p:port="${phiz.tomcat.port.https}"
-        p:ssl-ref="sslTomcatServer"
         p:sslImplementationClass="gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation">
         <beans:property name="contextLifecycleListeners">
             <beans:list>

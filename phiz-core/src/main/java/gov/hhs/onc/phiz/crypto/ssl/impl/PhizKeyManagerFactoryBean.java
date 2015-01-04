@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.crypto.impl;
+package gov.hhs.onc.phiz.crypto.ssl.impl;
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;

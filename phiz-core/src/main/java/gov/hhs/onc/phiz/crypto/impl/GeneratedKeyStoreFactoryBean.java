@@ -7,7 +7,7 @@ import java.security.KeyStore.Entry;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class PhizGeneratedKeyStoreFactoryBean extends PhizKeyStoreFactoryBean {
+public class GeneratedKeyStoreFactoryBean extends PhizKeyStoreFactoryBean {
     private Map<String, PhizKeyStoreEntry<? extends Entry>> entryMap = new LinkedHashMap<>();
 
     @Override

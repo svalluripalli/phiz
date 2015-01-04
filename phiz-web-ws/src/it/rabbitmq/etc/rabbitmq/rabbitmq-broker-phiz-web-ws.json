@@ -1,0 +1,80 @@
+{
+    "rabbit_version": "3.4.2",
+    
+    "vhosts": [
+        {
+            "name": "@{phiz.rabbitmq.vhost.path}"
+        }
+    ],
+    
+    "users": [
+        {
+            "name": "@{phiz.rabbitmq.user.ws.name}",
+            "password_hash": "",
+            "tags": ""
+        }
+    ],
+    
+    "permissions": [
+        {
+            "user": "@{phiz.rabbitmq.user.ws.name}",
+            "vhost": "@{phiz.rabbitmq.vhost.path}",
+            "configure": "@{phiz.rabbitmq.user.ws.perm.config}",
+            "read": "@{phiz.rabbitmq.user.ws.perm.read}",
+            "write": "@{phiz.rabbitmq.user.ws.perm.write}"
+            
+        }
+    ],
+    
+    "exchanges": [
+        {
+            "name": "@{phiz.rabbitmq.exchange.ws.name}",
+            "vhost": "@{phiz.rabbitmq.vhost.path}",
+            "type": "direct",
+            "durable": true,
+            "auto_delete": false,
+            "internal": false,
+            "arguments": {}
+        }
+    ],
+    
+    "queues": [
+        {
+            "name": "@{phiz.rabbitmq.queue.ws.req.name}",
+            "vhost": "@{phiz.rabbitmq.vhost.path}",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        },
+        {
+            "name": "@{phiz.rabbitmq.queue.ws.resp.name}",
+            "vhost": "@{phiz.rabbitmq.vhost.path}",
+            "durable": true,
+            "auto_delete": false,
+            "arguments": {}
+        }
+    ],
+    
+    "bindings": [
+        {
+            "vhost": "@{phiz.rabbitmq.vhost.path}",
+            "source": "@{phiz.rabbitmq.exchange.ws.name}",
+            "destination": "@{phiz.rabbitmq.queue.ws.req.name}",
+            "destination_type": "queue",
+            "routing_key": "@{phiz.rabbitmq.queue.ws.req.key.routing}",
+            "arguments": {}
+        },
+        {
+            "vhost": "@{phiz.rabbitmq.vhost.path}",
+            "source": "@{phiz.rabbitmq.exchange.ws.name}",
+            "destination": "@{phiz.rabbitmq.queue.ws.resp.name}",
+            "destination_type": "queue",
+            "routing_key": "@{phiz.rabbitmq.queue.ws.resp.key.routing}",
+            "arguments": {}
+        }
+    ],
+    
+    "policies": [],
+    
+    "parameters": []
+}

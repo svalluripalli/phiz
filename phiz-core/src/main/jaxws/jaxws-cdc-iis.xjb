@@ -16,14 +16,14 @@
     =====================================================================================================-->
     <jaxws:bindings node="wsdl:definitions">
         <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
-        <jaxws:package name="gov.hhs.onc.phiz.ws"/>
+        <jaxws:package name="gov.hhs.onc.phiz.ws.iis"/>
     </jaxws:bindings>
     
     <!--====================================================================================================
     = PORT TYPES
     =====================================================================================================-->
     <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IISPortType']">
-        <jaxws:class name="gov.hhs.onc.phiz.ws.IisPortType"/>
+        <jaxws:class name="gov.hhs.onc.phiz.ws.iis.IisPortType"/>
     </jaxws:bindings>
     
     <!--====================================================================================================
@@ -44,14 +44,14 @@
     = FAULTS
     =====================================================================================================-->
     <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IISPortType']/wsdl:operation/wsdl:fault[@name='MessageTooLargeFault']">
-        <jaxws:class name="gov.hhs.onc.phiz.ws.MessageTooLargeFault"/>
+        <jaxws:class name="gov.hhs.onc.phiz.ws.iis.MessageTooLargeFault"/>
     </jaxws:bindings>
     
     <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IISPortType']/wsdl:operation/wsdl:fault[@name='SecurityFault']">
-        <jaxws:class name="gov.hhs.onc.phiz.ws.SecurityFault"/>
+        <jaxws:class name="gov.hhs.onc.phiz.ws.iis.SecurityFault"/>
     </jaxws:bindings>
     
     <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IISPortType']/wsdl:operation/wsdl:fault[@name='UnsupportedOperationFault']">
-        <jaxws:class name="gov.hhs.onc.phiz.ws.UnsupportedOperationFault"/>
+        <jaxws:class name="gov.hhs.onc.phiz.ws.iis.UnsupportedOperationFault"/>
     </jaxws:bindings>
 </jaxws:bindings>

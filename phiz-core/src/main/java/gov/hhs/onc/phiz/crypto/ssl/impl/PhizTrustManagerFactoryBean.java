@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.crypto.impl;
+package gov.hhs.onc.phiz.crypto.ssl.impl;
 
 import javax.net.ssl.CertPathTrustManagerParameters;
 import javax.net.ssl.TrustManager;

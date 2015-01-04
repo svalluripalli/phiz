@@ -136,6 +136,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.8.4</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.el</artifactId>
                 <version>3.0.0</version>
@@ -155,6 +161,18 @@
                         <artifactId>jsp-api</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-instrument</artifactId>
+                <version>4.1.4.RELEASE</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-instrument-tomcat</artifactId>
+                <version>4.1.4.RELEASE</version>
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -315,6 +333,20 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>test-integration</id>
+                            <configuration>
+                                <argLine combine.self="override">
+                                    -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -javaagent:lib/aspectjweaver-1.8.4.jar -javaagent:lib/spring-instrument-4.1.4.RELEASE.jar
+                                </argLine>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-war-plugin</artifactId>
                     <version>2.5</version>
                     <inherited>true</inherited>
@@ -386,6 +418,10 @@
                                             </generatorConfiguration>
                                         </generatorConfigurations>
                                         <jvmSettings>
+                                            <extraArguments>
+                                                <extraArgument>-javaagent:lib/aspectjweaver-1.8.4.jar</extraArgument>
+                                                <extraArgument>-javaagent:lib/spring-instrument-4.1.4.RELEASE.jar</extraArgument>
+                                            </extraArguments>
                                             <initialMemorySize>1024M</initialMemorySize>
                                             <maxMemorySize>2048M</maxMemorySize>
                                             <maxStackSize>512M</maxStackSize>

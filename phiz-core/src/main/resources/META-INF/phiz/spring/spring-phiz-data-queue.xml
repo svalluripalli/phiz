@@ -99,13 +99,13 @@
     <!--====================================================================================================
     = CONNECTION FACTORIES
     =====================================================================================================-->
-    <beans:bean id="connFactoryRabbit" class="com.rabbitmq.client.ConnectionFactory" abstract="true"/>
-    
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="connFactoryRabbitClient" parent="connFactoryRabbit" lazy-init="true"
+    <beans:bean id="connFactoryRabbit" class="com.rabbitmq.client.ConnectionFactory" abstract="true"
         p:host="${phiz.rabbitmq.host.name}"
         p:port="${phiz.rabbitmq.port.amqps}"
-        p:socketFactory-ref="sslSocketFactoryRabbitClient"/>
+        p:saslConfig="#{ T(com.rabbitmq.client.DefaultSaslConfig).EXTERNAL }"
+        p:socketFactory-ref="sslSocketFactoryRabbitClient"
+        p:virtualHost="${phiz.rabbitmq.vhost.path}"/>
     
     <!--====================================================================================================
     = CONNECTION FACTORIES: SPRING
@@ -115,26 +115,19 @@
     <beans:bean id="connFactoryRabbitSpringCaching" class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory" parent="connFactoryRabbitSpring"
         abstract="true"/>
     
-    <beans:bean id="connFactoryRabbitSpringClient" parent="connFactoryRabbitSpringCaching" lazy-init="true"
-        c:rabbitConnectionFactory-ref="connFactoryRabbitClient"/>
-    
     <!--====================================================================================================
     = TRANSACTION MANAGERS
     =====================================================================================================-->
     <beans:bean id="txManagerRabbit" class="org.springframework.amqp.rabbit.transaction.RabbitTransactionManager" parent="txManager" abstract="true"
-        p:rollbackOnCommitFailure="true"
+        p:nestedTransactionAllowed="true"
         p:validateExistingTransaction="true"/>
-    
-    <beans:bean id="txManagerRabbitClient" parent="txManagerRabbit" lazy-init="true"
-        c:connectionFactory-ref="connFactoryRabbitSpringClient"/>
     
     <!--====================================================================================================
     = ADMINISTRATORS
     =====================================================================================================-->
     <beans:bean id="amqpAdmin" class="org.springframework.amqp.core.AmqpAdmin" abstract="true"/>
     
-    <beans:bean id="rabbitAdmin" class="org.springframework.amqp.rabbit.core.RabbitAdmin" parent="amqpAdmin" lazy-init="true"
-        c:connectionFactory-ref="connFactoryRabbitSpringClient"/>
+    <beans:bean id="rabbitAdmin" class="org.springframework.amqp.rabbit.core.RabbitAdmin" parent="amqpAdmin" abstract="true"/>
     
     <!--====================================================================================================
     = TEMPLATES
@@ -144,7 +137,30 @@
     <beans:bean id="rabbitTemplate" class="org.springframework.amqp.rabbit.core.RabbitTemplate" parent="amqpTemplate" abstract="true"/>
     
     <!--====================================================================================================
-    = QUEUES
+    = MESSAGE ADDRESSES
     =====================================================================================================-->
-    <beans:bean id="queue" class="org.springframework.amqp.core.Queue" abstract="true"/>
+    <beans:bean id="msgAddr" class="org.springframework.amqp.core.Address" abstract="true"/>
+    
+    <!--====================================================================================================
+    = MESSAGE HANDLERS
+    =====================================================================================================-->
+    <beans:bean id="msgHandler" class="gov.hhs.onc.phiz.data.queue.PhizMessageHandler" abstract="true"/>
+    
+    <!--====================================================================================================
+    = MESSAGE LISTENERS
+    =====================================================================================================-->
+    <beans:bean id="msgListener" class="org.springframework.amqp.rabbit.core.ChannelAwareMessageListener" abstract="true"/>
+    
+    <beans:bean id="msgListenerAdapter" class="org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter" parent="msgListener" abstract="true"
+        p:encoding="#{ charsetUtf8.name() }"/>
+    
+    <!--====================================================================================================
+    = MESSAGE LISTENER CONTAINERS
+    =====================================================================================================-->
+    <beans:bean id="msgListenerContainer" class="org.springframework.amqp.rabbit.listener.MessageListenerContainer" abstract="true"/>
+    
+    <beans:bean id="msgListenerContainerSimple" class="org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer" parent="msgListenerContainer"
+        abstract="true"
+        p:autoDeclare="false"
+        p:channelTransacted="true"/>
 </beans:beans>

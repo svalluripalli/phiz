@@ -2,11 +2,11 @@
 <con:soapui-project activeEnvironment="Default" name="soapui-phiz-web-ws" resourceRoot="${projectDir}" soapui-version="5.1.2" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config">
   <con:description>Public Health Immunization Data Exchange (PHIZ) web services web application SoapUI project.</con:description>
   <con:settings/>
-  <con:interface xsi:type="con:WsdlInterface" wsaVersion="200508" name="IISHubBindingSoap12" type="wsdl" bindingName="{urn:cdc:iisb:hub:2014}IISHubBindingSoap12" soapVersion="1_2" anonymous="optional" definition="${#Project#phiz.tomcat.ws.iis.hub.wsdl.url}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <con:interface xsi:type="con:WsdlInterface" wsaVersion="200508" name="IISHubBindingSoap12" type="wsdl" bindingName="{urn:cdc:iisb:hub:2014}IISHubBindingSoap12" soapVersion="1_2" anonymous="optional" definition="${#Spring#phiz.tomcat.ws.iis.hub.wsdl.url}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <con:description/>
     <con:settings/>
     <con:endpoints>
-      <con:endpoint>${#Project#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+      <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
     </con:endpoints>
     <con:operation isOneWay="false" action="urn:cdc:iisb:hub:2014:IISHubPortType:ConnectivityTest" name="ConnectivityTest" bindingOperationName="ConnectivityTest" type="Request-Response" inputName="" receivesAttachments="false" sendsAttachments="false" anonymous="optional">
       <con:settings/>
@@ -31,7 +31,7 @@
             <con:description/>
             <con:settings/>
             <con:encoding>UTF-8</con:encoding>
-            <con:endpoint>${#Project#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
             <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014">
    <soap:Header/>
    <soap:Body>

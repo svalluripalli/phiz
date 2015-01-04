@@ -118,7 +118,7 @@
     
     <beans:bean id="credImpl" class="gov.hhs.onc.phiz.crypto.impl.PhizCredentialImpl" parent="cred" abstract="true"/>
     
-    <beans:bean id="credGen" class="gov.hhs.onc.phiz.crypto.impl.PhizGeneratedCredentialFactoryBean" parent="cred" abstract="true"/>
+    <beans:bean id="credGen" class="gov.hhs.onc.phiz.crypto.impl.GeneratedCredentialFactoryBean" parent="cred" abstract="true"/>
     
     <!--====================================================================================================
     = KEY STORE PROTECTION
@@ -145,5 +145,5 @@
         p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
         p:type="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"/>
     
-    <beans:bean id="keyStoreGen" class="gov.hhs.onc.phiz.crypto.impl.PhizGeneratedKeyStoreFactoryBean" parent="keyStoreJks" abstract="true"/>
+    <beans:bean id="keyStoreGen" class="gov.hhs.onc.phiz.crypto.impl.GeneratedKeyStoreFactoryBean" parent="keyStoreJks" abstract="true"/>
 </beans:beans>

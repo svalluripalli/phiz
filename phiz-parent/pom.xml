@@ -213,6 +213,36 @@
                 <version>2.2.12</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-core</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-cxf</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-rabbitmq</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-soap</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-spring</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.camel</groupId>
+                <artifactId>camel-spring-security</artifactId>
+                <version>2.14.1</version>
+            </dependency>
+            <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-collections4</artifactId>
                 <version>4.0</version>
@@ -382,7 +412,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>4.1.3.RELEASE</version>
+                <version>4.1.4.RELEASE</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -397,7 +427,7 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-framework-bom</artifactId>
-                <version>4.1.3.RELEASE</version>
+                <version>4.1.4.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -423,6 +453,11 @@
                 <version>1.2.0.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.retry</groupId>
+                <artifactId>spring-retry</artifactId>
+                <version>1.1.2.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.ws</groupId>
@@ -487,6 +522,7 @@
                             <arg>-J-XX:MaxGCPauseMillis=50</arg>
                             <arg>-J-XX:ParallelGCThreads=4</arg>
                             <arg>-J-XX:ConcGCThreads=4</arg>
+                            <arg>-parameters</arg>
                             <arg>-proc:none</arg>
                             <arg>-Werror</arg>
                             <arg>-Xlint</arg>
@@ -850,6 +886,8 @@
                                         <directory>${project.build.itSourceDirectory}</directory>
                                         <filtering>true</filtering>
                                         <includes>
+                                            <include>**/*.conf</include>
+                                            <include>**/*.config</include>
                                             <include>**/*.properties</include>
                                             <include>**/*.sql</include>
                                             <include>**/*.xml</include>
@@ -858,6 +896,8 @@
                                     <resource>
                                         <directory>${project.build.itSourceDirectory}</directory>
                                         <excludes>
+                                            <exclude>**/*.conf</exclude>
+                                            <exclude>**/*.config</exclude>
                                             <exclude>**/*.properties</exclude>
                                             <exclude>**/*.sql</exclude>
                                             <exclude>**/*.xml</exclude>
@@ -908,6 +948,7 @@
                             <!-- TEMP: dev -->
                             <javax.net.debug>ssl,handshake</javax.net.debug>
                             
+                            <javax.net.ssl.trustStore/>
                             <logback.configurationFile>META-INF/phiz/logback/logback-phiz.xml</logback.configurationFile>
                             <phiz.conf.ssl.dir>${project.build.directory}/surefire-ssl</phiz.conf.ssl.dir>
                             <phiz.log.console.tty>true</phiz.log.console.tty>
@@ -1095,7 +1136,7 @@
                                             </generatorConfiguration>
                                         </generatorConfigurations>
                                         <jvmSettings>
-                                            <extraArguments>
+                                            <extraArguments combine.children="append">
                                                 <extraArgument>-XX:MetaspaceSize=256m</extraArgument>
                                                 <extraArgument>-XX:+UseG1GC</extraArgument>
                                                 <extraArgument>-XX:MaxGCPauseMillis=50</extraArgument>
@@ -1103,7 +1144,7 @@
                                                 <extraArgument>-XX:ConcGCThreads=4</extraArgument>
                                             </extraArguments>
                                             <maxStackSize>512m</maxStackSize>
-                                            <systemProperties>
+                                            <systemProperties combine.children="append">
                                                 <systemProperty>java.net.preferIPv4Addresses=true</systemProperty>
                                                 <systemProperty>java.net.preferIPv4Stack=true</systemProperty>
                                                 <systemProperty>loader.main=gov.hhs.onc.phiz.context.impl.PhizApplication</systemProperty>

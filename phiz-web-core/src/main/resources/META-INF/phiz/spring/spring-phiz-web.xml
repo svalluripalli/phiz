@@ -16,6 +16,11 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = CONTEXT
+    =====================================================================================================-->
+    <context:load-time-weaver/>
+    
+    <!--====================================================================================================
     = REGISTRATION BEANS
     =====================================================================================================-->
     <beans:bean id="regBean" class="org.springframework.boot.context.embedded.RegistrationBean" abstract="true"

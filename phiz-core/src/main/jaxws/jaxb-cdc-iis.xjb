@@ -10,7 +10,7 @@
     
     <jaxb:bindings schemaLocation="../schema/cdc-iis.xsd">
         <jaxb:schemaBindings>
-            <jaxb:package name="gov.hhs.onc.phiz.ws"/>
+            <jaxb:package name="gov.hhs.onc.phiz.ws.iis"/>
         </jaxb:schemaBindings>
     </jaxb:bindings>
  </jaxb:bindings>

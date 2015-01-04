@@ -17,12 +17,21 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = SERVLET CONTEXT LISTENERS
+    = SERVLET LISTENERS
     =====================================================================================================-->
     <beans:bean id="servletContextListener" class="javax.servlet.ServletContextListener" parent="eventListener" abstract="true"/>
+    
+    <beans:bean id="servletReqListener" class="javax.servlet.ServletRequestListener" parent="eventListener" abstract="true"/>
     
     <!--====================================================================================================
     = REGISTRATION BEANS: SERVLET LISTENER
     =====================================================================================================-->
     <beans:bean id="regBeanServletListener" class="org.springframework.boot.context.embedded.ServletListenerRegistrationBean" parent="regBean" abstract="true"/>
+    
+    <beans:bean id="reqBeanServletListenerMdc" parent="regBeanServletListener">
+        <beans:constructor-arg name="listener">
+            <!--suppress InjectionValueTypeInspection -->
+            <beans:bean class="gov.hhs.onc.phiz.web.listener.impl.MdcServletRequestListener" parent="servletReqListener"/>
+        </beans:constructor-arg>
+    </beans:bean>
 </beans:beans>

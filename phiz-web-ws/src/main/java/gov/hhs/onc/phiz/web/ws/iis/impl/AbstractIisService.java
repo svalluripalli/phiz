@@ -1,20 +1,18 @@
-package gov.hhs.onc.phiz.web.ws.impl;
+package gov.hhs.onc.phiz.web.ws.iis.impl;
 
-import gov.hhs.onc.phiz.web.ws.IisService;
-import gov.hhs.onc.phiz.ws.ConnectivityTestRequestType;
-import gov.hhs.onc.phiz.ws.ConnectivityTestResponseType;
-import gov.hhs.onc.phiz.ws.UnsupportedOperationFault;
-import gov.hhs.onc.phiz.ws.impl.ObjectFactory;
+import gov.hhs.onc.phiz.web.ws.iis.IisService;
+import gov.hhs.onc.phiz.ws.iis.ConnectivityTestRequestType;
+import gov.hhs.onc.phiz.ws.iis.ConnectivityTestResponseType;
+import gov.hhs.onc.phiz.ws.iis.UnsupportedOperationFault;
+import gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory;
 import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
-import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class AbstractIisService implements IisService {
-    @Autowired
-    protected ObjectFactory objFactory;
-
     @Resource
     protected WebServiceContext wsContext;
+
+    protected ObjectFactory objFactory;
 
     @Override
     public ConnectivityTestResponseType connectivityTest(ConnectivityTestRequestType reqParams) throws UnsupportedOperationFault {
@@ -26,5 +24,15 @@ public abstract class AbstractIisService implements IisService {
         respParams.setEchoBack(reqParams.getEchoBack());
 
         return respParams;
+    }
+
+    @Override
+    public ObjectFactory getObjectFactory() {
+        return this.objFactory;
+    }
+
+    @Override
+    public void setObjectFactory(ObjectFactory objFactory) {
+        this.objFactory = objFactory;
     }
 }

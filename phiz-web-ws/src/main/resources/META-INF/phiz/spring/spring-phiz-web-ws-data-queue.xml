@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    profile="phiz.profile.context.web"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = CONNECTION FACTORIES: SPRING
+    =====================================================================================================-->
+    <beans:bean id="connFactoryRabbitSpringWs" parent="connFactoryRabbitSpringCaching" lazy-init="true">
+        <beans:constructor-arg name="rabbitConnectionFactory">
+            <!--suppress SpringPlaceholdersInspection -->
+            <beans:bean parent="connFactoryRabbit" lazy-init="true"
+                p:username="${phiz.rabbitmq.user.ws.name}"/>
+        </beans:constructor-arg>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = TRANSACTION MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="txManagerRabbitWs" parent="txManagerRabbit" lazy-init="true"
+        c:connectionFactory-ref="connFactoryRabbitSpringWs"/>
+    
+    <!--====================================================================================================
+    = ADMINISTRATORS
+    =====================================================================================================-->
+    <beans:bean id="rabbitAdminWs" parent="rabbitAdmin" lazy-init="true"
+        c:connectionFactory-ref="connFactoryRabbitSpringWs"/>
+    
+    <!--====================================================================================================
+    = TEMPLATES
+    =====================================================================================================-->
+    <beans:bean id="rabbitTemplateWs" parent="rabbitTemplate" factory-bean="rabbitAdminWs" factory-method="getRabbitTemplate" lazy-init="true"
+        p:messageConverter-ref="msgConvSoap"/>
+    
+    <!--====================================================================================================
+    = MESSAGE ADDRESSES
+    =====================================================================================================-->
+    <beans:bean id="msgAddrWs" parent="msgAddr" abstract="true">
+        <!--suppress SpringPlaceholdersInspection -->
+        <beans:constructor-arg name="exchangeName" value="${phiz.rabbitmq.exchange.ws.name}"/>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="msgAddrWsReq" parent="msgAddrWs"
+        c:routingKey="${phiz.rabbitmq.queue.ws.req.key.routing}"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="msgAddrWsResp" parent="msgAddrWs"
+        c:routingKey="${phiz.rabbitmq.queue.ws.resp.key.routing}"/>
+    
+    <!--====================================================================================================
+    = MESSAGE LISTENER CONTAINERS
+    =====================================================================================================-->
+    <beans:bean id="msgListenerContainerWs" parent="msgListenerContainerSimple" lazy-init="true"
+        c:connectionFactory-ref="connFactoryRabbitSpringWs"
+        p:messageConverter-ref="msgConvSoap"
+        p:rabbitAdmin-ref="rabbitAdminWs"
+        p:transactionManager-ref="txManagerRabbitWs">
+        <beans:property name="messageListener">
+            <beans:bean parent="msgListenerAdapter"
+                p:messageConverter-ref="msgConvSoap">
+                <beans:constructor-arg name="delegate">
+                    <beans:bean class="gov.hhs.onc.phiz.web.ws.data.queue.impl.SubmitSingleMessageSoapMessageHandler" parent="msgHandler"/>
+                </beans:constructor-arg>
+            </beans:bean>
+        </beans:property>
+        <beans:property name="queueNames">
+            <beans:array>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:value>${phiz.rabbitmq.queue.ws.req.name}</beans:value>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
+</beans:beans>

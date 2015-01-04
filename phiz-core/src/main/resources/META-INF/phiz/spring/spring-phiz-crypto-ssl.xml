@@ -35,7 +35,7 @@
     =====================================================================================================-->
     <beans:bean id="keyManager" class="javax.net.ssl.KeyManager" abstract="true"/>
     
-    <beans:bean id="keyManagerNewSunX509" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyManagerFactoryBean" parent="keyManager" abstract="true"
+    <beans:bean id="keyManagerNewSunX509" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizKeyManagerFactoryBean" parent="keyManager" abstract="true"
         p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
         p:type="NewSunX509"/>
     
@@ -66,7 +66,7 @@
     =====================================================================================================-->
     <beans:bean id="trustManager" class="javax.net.ssl.TrustManager" abstract="true"/>
     
-    <beans:bean id="trustManagerPkix" class="gov.hhs.onc.phiz.crypto.impl.PhizTrustManagerFactoryBean" parent="trustManager" abstract="true"
+    <beans:bean id="trustManagerPkix" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizTrustManagerFactoryBean" parent="trustManager" abstract="true"
         p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
         p:type="PKIX"/>
     
@@ -81,7 +81,7 @@
         p:useCipherSuitesOrder="true">
         <beans:property name="protocols">
             <beans:array>
-                <beans:value>#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }</beans:value>
+                <beans:value>#{ T(gov.hhs.onc.phiz.crypto.ssl.PhizTlsVersions).TLS_1_2_NAME }</beans:value>
             </beans:array>
         </beans:property>
     </beans:bean>
@@ -91,23 +91,23 @@
     =====================================================================================================-->
     <beans:bean id="sslContext" class="javax.net.ssl.SSLContext" abstract="true"/>
     
-    <beans:bean id="sslContextBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslContextFactoryBean" parent="sslContext" abstract="true"
+    <beans:bean id="sslContextBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizSslContextFactoryBean" parent="sslContext" abstract="true"
         p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
         p:secureRandom-ref="secureRandomSha1"
-        p:type="#{ T(gov.hhs.onc.phiz.crypto.PhizTlsVersions).TLS_1_2_NAME }"/>
+        p:type="#{ T(gov.hhs.onc.phiz.crypto.ssl.PhizTlsVersions).TLS_1_2_NAME }"/>
     
     <!--====================================================================================================
     = SECURE SOCKETS LAYER SOCKET FACTORIES
     =====================================================================================================-->
     <beans:bean id="sslSocketFactory" class="javax.net.ssl.SSLSocketFactory" abstract="true"/>
     
-    <beans:bean id="sslSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslSocketFactoryFactoryBean" parent="sslSocketFactory" abstract="true"/>
+    <beans:bean id="sslSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizSslSocketFactoryFactoryBean" parent="sslSocketFactory" abstract="true"/>
     
     <!--====================================================================================================
     = SECURE SOCKETS LAYER SERVER SOCKET FACTORIES
     =====================================================================================================-->
     <beans:bean id="sslServerSocketFactory" class="javax.net.ssl.SSLServerSocketFactory" abstract="true"/>
     
-    <beans:bean id="sslServerSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.impl.PhizSslServerSocketFactoryFactoryBean" parent="sslServerSocketFactory"
+    <beans:bean id="sslServerSocketFactoryBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizSslServerSocketFactoryFactoryBean" parent="sslServerSocketFactory"
         abstract="true"/>
 </beans:beans>

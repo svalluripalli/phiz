@@ -6,13 +6,17 @@ import org.springframework.boot.context.embedded.Ssl;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 
 public class PhizTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedServletContainerFactory {
+    private final static Ssl SSL_PLACEHOLDER_INSTANCE = new Ssl();
+    
     private Class<? extends SSLImplementation> sslImplClass;
-
+    
+    {
+        this.setSsl(SSL_PLACEHOLDER_INSTANCE);
+    }
+    
     @Override
     protected void configureSsl(AbstractHttp11JsseProtocol<?> protocol, Ssl ssl) {
-        // TEMP: dev
-        super.configureSsl(protocol, ssl);
-
+        protocol.setSSLEnabled(true);
         protocol.setSslImplementationName(this.sslImplClass.getName());
     }
 

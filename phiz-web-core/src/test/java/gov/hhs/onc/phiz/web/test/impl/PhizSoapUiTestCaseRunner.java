@@ -11,11 +11,10 @@ import com.eviware.soapui.impl.wsdl.support.http.HttpClientSupport;
 import com.eviware.soapui.impl.wsdl.support.http.SoapUISSLSocketFactory;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.model.project.ProjectFactoryRegistry;
+import com.eviware.soapui.model.propertyexpansion.PropertyExpander;
+import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
 import com.github.sebhoss.warnings.CompilerWarnings;
-import gov.hhs.onc.phiz.context.PhizProperties;
-import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
@@ -23,21 +22,15 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanExpressionContext;
-import org.springframework.beans.factory.config.BeanExpressionResolver;
-import org.springframework.beans.factory.support.AbstractBeanFactory;
-import org.springframework.boot.bind.PropertySourceUtils;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-import org.springframework.core.env.MapPropertySource;
-import org.springframework.core.env.MutablePropertySources;
-import org.springframework.core.env.PropertySourcesPropertyResolver;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 
 @SuppressWarnings({ CompilerWarnings.DEPRECATION })
 public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
-    @Autowired
-    private List<PropertySourcesPlaceholderConfigurer> propSourcesPlaceholderConfigurers;
+    private final static String SPRING_REF_PROP_NAME_PREFIX = PropertyExpansion.SCOPE_PREFIX + "Spring" + PropertyExpansion.PROPERTY_SEPARATOR;
 
     @Autowired
-    private AbstractBeanFactory beanFactory;
+    private ConfigurableBeanFactory beanFactory;
 
     private SSLParameters sslParams;
     private SSLSocketFactory sslSocketFactory;
@@ -94,25 +87,24 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
 
     @Override
     protected void initProjectProperties(WsdlProject project) {
+        PropertyExpander
+            .getDefaultExpander()
+            .addResolver(
+                (propExpContext, propName, globalOverride) -> {
+                    if (!StringUtils.startsWith(propName, SPRING_REF_PROP_NAME_PREFIX)) {
+                        return null;
+                    }
+
+                    String propNameResolving =
+                        (PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX + (propName = StringUtils.removeStart(propName, SPRING_REF_PROP_NAME_PREFIX)) + PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX), propNameResolved =
+                        this.beanFactory.resolveEmbeddedValue(propNameResolving);
+
+                    return Objects.toString(
+                        this.beanFactory.getBeanExpressionResolver().evaluate((!propNameResolved.equals(propNameResolving) ? propNameResolved : propName),
+                            new BeanExpressionContext(this.beanFactory, null)), null);
+                });
+
         super.initProjectProperties(project);
-
-        BeanExpressionResolver beanExprResolver = this.beanFactory.getBeanExpressionResolver();
-        BeanExpressionContext beanExprContext = new BeanExpressionContext(this.beanFactory, null);
-        MutablePropertySources propSources = new MutablePropertySources();
-        PropertySourcesPropertyResolver propSourcesPropResolver = new PropertySourcesPropertyResolver(propSources);
-
-        this.propSourcesPlaceholderConfigurers.forEach((propSourcesPlaceholderConfigurer) -> propSources.addLast(new MapPropertySource(
-            (PropertySourcesPlaceholderConfigurer.LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME + UUID.randomUUID()), PropertySourceUtils.getSubProperties(
-                propSourcesPlaceholderConfigurer.getAppliedPropertySources(), StringUtils.EMPTY))));
-
-        PropertySourceUtils.getSubProperties(propSources, PhizProperties.PREFIX).forEach(
-            (propName, propValue) -> {
-                if (!project.hasProperty((propName = (PhizProperties.PREFIX + propName)))) {
-                    project.setPropertyValue(propName, Objects.toString(
-                        beanExprResolver.evaluate(propSourcesPropResolver.resolveRequiredPlaceholders(Objects.toString(propValue, null)), beanExprContext),
-                        null));
-                }
-            });
     }
 
     @Override

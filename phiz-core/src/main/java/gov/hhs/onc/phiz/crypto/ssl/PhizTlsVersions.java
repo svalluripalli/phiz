@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.crypto;
+package gov.hhs.onc.phiz.crypto.ssl;
 
 public final class PhizTlsVersions {
     private final static String SSL_PREFIX = "SSL";
