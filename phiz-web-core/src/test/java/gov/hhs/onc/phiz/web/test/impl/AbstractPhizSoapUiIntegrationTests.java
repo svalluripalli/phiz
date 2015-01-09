@@ -63,24 +63,24 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
                         (testSuite) -> testSuite.getTestCaseList().stream().filter((testCase) -> !testCase.isDisabled())
                             .map((testCase) -> ((WsdlTestCasePro) testCase))).collect(Collectors.toList());
 
-            CountDownLatch testCaseRunLatch = new CountDownLatch(testCases.size());
-            testCaseRunner.setTestCaseRunLatch(testCaseRunLatch);
+            CountDownLatch projectRunLatch = new CountDownLatch(testCases.size());
+            testCaseRunner.setProjectRunLatch(projectRunLatch);
 
-            FutureTask<Void> testCaseRunTask = new FutureTask<>(() -> {
+            FutureTask<Void> projectRunTask = new FutureTask<>(() -> {
                 testCaseRunner.run(project);
 
                 return null;
             });
 
-            Thread testCaseRunThread = new Thread(testCaseRunTask);
-            testCaseRunThread.setDaemon(true);
-            testCaseRunThread.start();
+            Thread projectRunThread = new Thread(projectRunTask);
+            projectRunThread.setDaemon(true);
+            projectRunThread.start();
 
             return testCases.stream().map((testCase) -> {
                 T testCaseTestsInstance = this.testCaseTestsClassBuilder.get();
                 testCaseTestsInstance.testCaseRunner = testCaseRunner;
-                testCaseTestsInstance.testCaseRunTask = testCaseRunTask;
-                testCaseTestsInstance.testCaseRunLatch = testCaseRunLatch;
+                testCaseTestsInstance.projectRunTask = projectRunTask;
+                testCaseTestsInstance.projectRunLatch = projectRunLatch;
                 testCaseTestsInstance.testCase = testCase;
 
                 return testCaseTestsInstance;
@@ -89,19 +89,19 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
     }
 
     protected PhizSoapUiTestCaseRunner testCaseRunner;
-    protected FutureTask<Void> testCaseRunTask;
-    protected CountDownLatch testCaseRunLatch;
+    protected FutureTask<Void> projectRunTask;
+    protected CountDownLatch projectRunLatch;
     protected WsdlTestCasePro testCase;
 
     public void testTestCase() throws Exception {
         try {
             this.testCaseRunner.runTestCase(this.testCase);
         } finally {
-            this.testCaseRunLatch.countDown();
+            this.projectRunLatch.countDown();
 
-            if (this.testCaseRunLatch.getCount() == 0) {
+            if (this.projectRunLatch.getCount() == 0) {
                 try {
-                    this.testCaseRunTask.get();
+                    this.projectRunTask.get();
                 } catch (InterruptedException ignored) {
                 }
             }

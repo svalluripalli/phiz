@@ -36,7 +36,7 @@
    <soap:Header/>
    <soap:Body>
       <iis:ConnectivityTestRequest>
-         <iis:EchoBack>test</iis:EchoBack>
+         <iis:EchoBack>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:EchoBack>
       </iis:ConnectivityTestRequest>
    </soap:Body>
 </soap:Envelope>]]></con:request>
@@ -107,12 +107,12 @@ empty(//iis:EchoBack)</path>
             <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
    <soap:Header>
       <iis-hub:HubRequestHeader>
-         <iis-hub:DestinationId>${#Spring#phiz.ws.dest.iis.dev.id}</iis-hub:DestinationId>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
       </iis-hub:HubRequestHeader>
    </soap:Header>
    <soap:Body>
       <iis:SubmitSingleMessageRequest>
-         <iis:Hl7Message>test</iis:Hl7Message>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
       </iis:SubmitSingleMessageRequest>
    </soap:Body>
 </soap:Envelope>]]></con:request>
@@ -171,12 +171,501 @@ empty(//iis:Hl7Message)</path>
       </con:testStep>
       <con:properties/>
     </con:testCase>
+    <con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="SubmitSingleMessage_No_WS_Addr_Header" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage no WS-Addressing header test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="false" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings/>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:assertion type="Valid HTTP Status Codes" name="Valid HTTP Status Codes">
+              <con:configuration>
+                <codes>500</codes>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="SOAP Response" name="SOAP Response">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
+                <con:configuration/>
+            </con:assertion>
+            <con:assertion type="XPath Match" name="XPath Match">
+              <con:configuration>
+                <path>declare namespace soap='http://www.w3.org/2003/05/soap-envelope';
+//soap:Fault/soap:Code/soap:Value/text()</path>
+                <content>ns1:MessageAddressingHeaderRequired</content>
+                <allowWildcards>false</allowWildcards>
+                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
+                <ignoreComments>false</ignoreComments>
+              </con:configuration>
+            </con:assertion>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties/>
+    </con:testCase>
+    <con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="SubmitSingleMessage_Fault_MsgTooLarge" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage MessageTooLargeFault test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
+                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_MSG_TOO_LARGE_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
+                </con:setting>
+            </con:settings>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:assertion type="Valid HTTP Status Codes" name="Valid HTTP Status Codes">
+              <con:configuration>
+                <codes>500</codes>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="SOAP Response" name="SOAP Response">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
+                <con:configuration/>
+            </con:assertion>
+            <con:assertion type="XPath Match" name="XPath Match">
+              <con:configuration>
+                <path>declare namespace iis='urn:cdc:iisb:2014';
+declare namespace iis-hub='urn:cdc:iisb:hub:2014';
+empty(//iis:MessageTooLargeFault)</path>
+                <content>false</content>
+                <allowWildcards>false</allowWildcards>
+                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
+                <ignoreComments>false</ignoreComments>
+              </con:configuration>
+            </con:assertion>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties/>
+    </con:testCase>
+    <con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="SubmitSingleMessage_Fault_Sec" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage SecurityFault test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
+                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_SEC_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
+                </con:setting>
+            </con:settings>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:assertion type="Valid HTTP Status Codes" name="Valid HTTP Status Codes">
+              <con:configuration>
+                <codes>500</codes>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="SOAP Response" name="SOAP Response">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
+                <con:configuration/>
+            </con:assertion>
+            <con:assertion type="XPath Match" name="XPath Match">
+              <con:configuration>
+                <path>declare namespace iis='urn:cdc:iisb:2014';
+declare namespace iis-hub='urn:cdc:iisb:hub:2014';
+empty(//iis:SecurityFault)</path>
+                <content>false</content>
+                <allowWildcards>false</allowWildcards>
+                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
+                <ignoreComments>false</ignoreComments>
+              </con:configuration>
+            </con:assertion>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties/>
+    </con:testCase>
+    <con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="SubmitSingleMessage_Fault_DestConn" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage DestinationConnectionFault test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
+                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_DEST_CONN_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
+                </con:setting>
+            </con:settings>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:assertion type="Valid HTTP Status Codes" name="Valid HTTP Status Codes">
+              <con:configuration>
+                <codes>500</codes>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="SOAP Response" name="SOAP Response">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
+                <con:configuration/>
+            </con:assertion>
+            <con:assertion type="XPath Match" name="XPath Match">
+              <con:configuration>
+                <path>declare namespace iis='urn:cdc:iisb:2014';
+declare namespace iis-hub='urn:cdc:iisb:hub:2014';
+empty(//iis-hub:DestinationConnectionFault)</path>
+                <content>false</content>
+                <allowWildcards>false</allowWildcards>
+                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
+                <ignoreComments>false</ignoreComments>
+              </con:configuration>
+            </con:assertion>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties/>
+    </con:testCase>
+    <con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="SubmitSingleMessage_Fault_HubClient" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage HubClientFault test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
+                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_HUB_CLIENT_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
+                </con:setting>
+            </con:settings>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:assertion type="Valid HTTP Status Codes" name="Valid HTTP Status Codes">
+              <con:configuration>
+                <codes>500</codes>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="SOAP Response" name="SOAP Response">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
+                <con:configuration/>
+            </con:assertion>
+            <con:assertion type="XPath Match" name="XPath Match">
+              <con:configuration>
+                <path>declare namespace iis='urn:cdc:iisb:2014';
+declare namespace iis-hub='urn:cdc:iisb:hub:2014';
+empty(//iis-hub:HubClientFault)</path>
+                <content>false</content>
+                <allowWildcards>false</allowWildcards>
+                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
+                <ignoreComments>false</ignoreComments>
+              </con:configuration>
+            </con:assertion>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties/>
+    </con:testCase>
+    <con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="SubmitSingleMessage_Fault_UnknownDest" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage UnknownDestinationFault test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
+                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_UNKNOWN_DEST_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
+                </con:setting>
+            </con:settings>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:assertion type="Valid HTTP Status Codes" name="Valid HTTP Status Codes">
+              <con:configuration>
+                <codes>500</codes>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="SOAP Response" name="SOAP Response">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
+                <con:configuration/>
+            </con:assertion>
+            <con:assertion type="XPath Match" name="XPath Match">
+              <con:configuration>
+                <path>declare namespace iis='urn:cdc:iisb:2014';
+declare namespace iis-hub='urn:cdc:iisb:hub:2014';
+empty(//iis-hub:UnknownDestinationFault)</path>
+                <content>false</content>
+                <allowWildcards>false</allowWildcards>
+                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
+                <ignoreComments>false</ignoreComments>
+              </con:configuration>
+            </con:assertion>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties/>
+    </con:testCase>
     <con:properties/>
   </con:testSuite>
   <con:testSuite name="suite-load">
     <con:description>Load test suite.</con:description>
     <con:settings/>
     <con:runType>SEQUENTIAL</con:runType>
+    <con:testCase failOnError="true" failTestCaseOnErrors="true" keepSession="false" maxResults="0" name="SubmitSingleMessage_Load" searchProperties="true">
+      <con:description>SubmitSingleMessage load test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage_Load">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage_Load" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings>
+              <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting>
+            </con:settings>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:assertion type="Valid HTTP Status Codes" name="Valid HTTP Status Codes">
+              <con:configuration>
+                <codes>200</codes>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="SOAP Response" name="SOAP Response">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="SOAP Fault Assertion" name="Not SOAP Fault">
+              <con:settings/>
+              <con:configuration/>
+            </con:assertion>
+            <con:assertion type="WS-A Response Assertion" name="WS-Addressing Response">
+              <con:configuration>
+                <asertWsaAction>true</asertWsaAction>
+                <asertWsaTo>false</asertWsaTo>
+                <asertWsaRelatesTo>false</asertWsaRelatesTo>
+                <assertReplyToRefParams>false</assertReplyToRefParams>
+                <assertFaultToRefParams>false</assertFaultToRefParams>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="XPath Match" name="XPath Match">
+              <con:configuration>
+                <path>declare namespace iis='urn:cdc:iisb:2014';
+declare namespace iis-hub='urn:cdc:iisb:hub:2014';
+empty(//iis:Hl7Message)</path>
+                <content>false</content>
+                <allowWildcards>false</allowWildcards>
+                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
+                <ignoreComments>false</ignoreComments>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
+              <con:configuration>
+                <scriptText>gov.hhs.onc.phiz.web.test.utils.PhizSoapUiUtils.assertAddressingMessageIdsMatch(context, messageExchange)</scriptText>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
+              <con:configuration>
+                <scriptText>messageExchange.requestContent == messageExchange.responseContent</scriptText>
+              </con:configuration>
+            </con:assertion>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:loadTest name="SubmitSingleMessage_Load">
+        <con:settings/>
+        <con:threadCount>10</con:threadCount>
+        <con:startDelay>0</con:startDelay>
+        <con:sampleInterval>50</con:sampleInterval>
+        <con:calculateTPSOnTimePassed>true</con:calculateTPSOnTimePassed>
+        <con:resetStatisticsOnThreadCountChange>true</con:resetStatisticsOnThreadCountChange>
+        <con:historyLimit>-1</con:historyLimit>
+        <con:testLimit>2</con:testLimit>
+        <con:limitType>COUNT_PER_THREAD</con:limitType>
+        <con:loadStrategy>
+          <con:type>Simple</con:type>
+          <con:config>
+            <testDelay>50</testDelay>
+            <randomFactor>0.25</randomFactor>
+          </con:config>
+        </con:loadStrategy>
+        <con:assertion type="Step Status" name="Step Status">
+          <con:configuration/>
+        </con:assertion>
+        <con:maxAssertionErrors>100</con:maxAssertionErrors>
+        <con:statisticsLogFolder/>
+        <con:statisticsLogInterval>0</con:statisticsLogInterval>
+        <con:logStatisticsOnThreadChange>false</con:logStatisticsOnThreadChange>
+        <con:cancelOnReachedLimit>false</con:cancelOnReachedLimit>
+        <con:cancelExcessiveThreads>true</con:cancelExcessiveThreads>
+        <con:strategyInterval>50</con:strategyInterval>
+        <con:updateStatisticsPerTestStep>false</con:updateStatisticsPerTestStep>
+      </con:loadTest>
+      <con:properties/>
+    </con:testCase>
     <con:properties/>
   </con:testSuite>
   <con:properties/>

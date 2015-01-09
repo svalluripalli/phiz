@@ -118,11 +118,6 @@
         <appender-ref ref="file"/>
     </logger>
     
-    <logger name="org.apache.cxf.configuration.jsse" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-    </logger>
-    
     <logger name="org.apache.cxf.transport.http" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>

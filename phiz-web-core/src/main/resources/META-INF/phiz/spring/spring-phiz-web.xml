@@ -30,7 +30,7 @@
     <!--====================================================================================================
     = SESSION CONFIGURATIONS
     =====================================================================================================-->
-    <beans:bean id="sessionConfig" class="gov.hhs.onc.phiz.web.context.impl.PhizSessionConfig" parent="sessionCookieConfig" abstract="true"/>
+    <beans:bean id="sessionConfig" class="gov.hhs.onc.phiz.web.tomcat.impl.PhizSessionConfig" parent="sessionCookieConfig" abstract="true"/>
     
     <beans:bean id="sessionConfigSsl" parent="sessionConfig" abstract="true">
         <beans:property name="trackingModes">

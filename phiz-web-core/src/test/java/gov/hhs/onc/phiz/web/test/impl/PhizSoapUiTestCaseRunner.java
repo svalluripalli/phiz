@@ -6,16 +6,24 @@ import com.eviware.soapui.SoapUIProTestCaseRunner;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.WsdlProjectPro;
 import com.eviware.soapui.impl.wsdl.WsdlProjectProFactory;
+import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
+import com.eviware.soapui.impl.wsdl.WsdlTestSuitePro;
 import com.eviware.soapui.impl.wsdl.submit.RequestTransportRegistry;
 import com.eviware.soapui.impl.wsdl.support.http.HttpClientSupport;
 import com.eviware.soapui.impl.wsdl.support.http.SoapUISSLSocketFactory;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunContext;
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunner;
 import com.eviware.soapui.model.project.ProjectFactoryRegistry;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpander;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
+import com.eviware.soapui.model.testsuite.LoadTest;
+import com.eviware.soapui.support.types.StringToObjectMap;
 import com.github.sebhoss.warnings.CompilerWarnings;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.lang3.StringUtils;
@@ -35,7 +43,10 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
     private SSLParameters sslParams;
     private SSLSocketFactory sslSocketFactory;
     private boolean projectInitialized;
-    private CountDownLatch testCaseRunLatch;
+    private CountDownLatch projectRunLatch;
+    private WsdlTestSuite testSuite;
+    private CountDownLatch testSuiteRunLatch;
+    private FutureTask<Void> testSuiteRunTask;
 
     public PhizSoapUiTestCaseRunner() {
         super();
@@ -56,7 +67,54 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
 
     @Override
     public void runTestCase(WsdlTestCase testCase) {
-        super.runTestCase(testCase);
+        WsdlTestSuite testCaseTestSuite = testCase.getTestSuite();
+
+        if ((this.testSuite == null) || !testCaseTestSuite.getName().equals(this.testSuite.getName())) {
+            if (this.testSuite != null) {
+                this.testSuiteRunLatch.countDown();
+
+                try {
+                    this.testSuiteRunTask.get();
+                } catch (ExecutionException | InterruptedException ignored) {
+                }
+            }
+
+            this.testSuite = testCaseTestSuite;
+            this.testSuiteRunLatch = new CountDownLatch(1);
+
+            this.testSuiteRunTask = new FutureTask<>(() -> {
+                this.runSuite(new WsdlTestSuitePro(((WsdlProject) testCase.getProject()), this.testSuite.getConfig()) {
+                    @Override
+                    public WsdlTestSuiteRunner run(StringToObjectMap context, boolean async) {
+                        WsdlTestSuiteRunner testSuiteRunner = new WsdlTestSuiteRunner(this, context) {
+                            @Override
+                            public void internalRun(WsdlTestSuiteRunContext runContext) throws Exception {
+                                try {
+                                    PhizSoapUiTestCaseRunner.this.testSuiteRunLatch.await();
+                                } catch (InterruptedException ignored) {
+                                }
+                            }
+                        };
+
+                        testSuiteRunner.start(async);
+
+                        return testSuiteRunner;
+                    }
+                });
+
+                return null;
+            });
+
+            Thread testSuiteRunThread = new Thread(this.testSuiteRunTask);
+            testSuiteRunThread.setDaemon(true);
+            testSuiteRunThread.start();
+        }
+
+        if (testCase.getLoadTestCount() > 0) {
+            testCase.getLoadTestList().stream().forEach(LoadTest::run);
+        } else {
+            super.runTestCase(testCase);
+        }
     }
 
     @Override
@@ -80,7 +138,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
     @Override
     protected void runProject(WsdlProject project) {
         try {
-            this.testCaseRunLatch.await();
+            this.projectRunLatch.await();
         } catch (InterruptedException ignored) {
         }
     }
@@ -132,11 +190,11 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
         this.sslSocketFactory = sslSocketFactory;
     }
 
-    public CountDownLatch getTestCaseRunLatch() {
-        return this.testCaseRunLatch;
+    public CountDownLatch getProjectRunLatch() {
+        return this.projectRunLatch;
     }
 
-    public void setTestCaseRunLatch(CountDownLatch testCaseRunLatch) {
-        this.testCaseRunLatch = testCaseRunLatch;
+    public void setProjectRunLatch(CountDownLatch testCaseRunLatch) {
+        this.projectRunLatch = testCaseRunLatch;
     }
 }

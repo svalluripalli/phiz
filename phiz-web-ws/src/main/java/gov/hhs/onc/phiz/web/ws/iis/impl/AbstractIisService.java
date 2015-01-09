@@ -7,6 +7,7 @@ import gov.hhs.onc.phiz.ws.iis.UnsupportedOperationFault;
 import gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory;
 import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
+import org.apache.cxf.Bus;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -15,6 +16,9 @@ import org.springframework.context.support.AbstractApplicationContext;
 public abstract class AbstractIisService implements IisService {
     @Autowired
     protected ObjectFactory objFactory;
+
+    @Resource(name = "busPhiz")
+    protected Bus bus;
 
     @Resource
     protected WebServiceContext wsContext;

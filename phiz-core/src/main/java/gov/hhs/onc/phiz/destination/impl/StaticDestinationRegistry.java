@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 
 @Service("destRegStatic")
 public class StaticDestinationRegistry implements InitializingBean, PhizDestinationRegistry {
-    @Value("${phiz.ws.dest.iis.dev.id}")
+    @Value("${phiz.dest.iis.dev.id}")
     private String iisDevDestId;
 
-    @Value("${phiz.ws.dest.iis.dev.uri}")
+    @Value("${phiz.dest.iis.dev.uri}")
     private URI iisDevDestUri;
 
     private PhizDestination iisDevDest;

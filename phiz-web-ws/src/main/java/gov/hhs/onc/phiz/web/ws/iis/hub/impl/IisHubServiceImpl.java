@@ -2,10 +2,9 @@ package gov.hhs.onc.phiz.web.ws.iis.hub.impl;
 
 import gov.hhs.onc.phiz.destination.PhizDestination;
 import gov.hhs.onc.phiz.destination.PhizDestinationRegistry;
-import gov.hhs.onc.phiz.web.ws.iis.hub.IisHubHttpHeaders;
+import gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders;
 import gov.hhs.onc.phiz.web.ws.iis.hub.IisHubService;
 import gov.hhs.onc.phiz.web.ws.iis.impl.AbstractIisService;
-import gov.hhs.onc.phiz.web.ws.jaxws.impl.PhizJaxWsClientProxyFactoryBean;
 import gov.hhs.onc.phiz.web.ws.utils.PhizWsUtils;
 import gov.hhs.onc.phiz.ws.PhizWsAddressingActions;
 import gov.hhs.onc.phiz.ws.PhizWsNames;
@@ -21,7 +20,6 @@ import gov.hhs.onc.phiz.ws.iis.hub.HubResponseHeaderType;
 import gov.hhs.onc.phiz.ws.iis.hub.IisHubPortType;
 import gov.hhs.onc.phiz.ws.iis.hub.UnknownDestinationFault;
 import gov.hhs.onc.phiz.ws.iis.hub.impl.DestinationConnectionFaultTypeImpl;
-import gov.hhs.onc.phiz.ws.iis.hub.impl.HubClientFaultTypeImpl;
 import gov.hhs.onc.phiz.ws.iis.hub.impl.HubResponseHeaderTypeImpl;
 import gov.hhs.onc.phiz.ws.iis.hub.impl.ObjectFactory;
 import gov.hhs.onc.phiz.ws.iis.hub.impl.UnknownDestinationFaultTypeImpl;
@@ -29,7 +27,6 @@ import gov.hhs.onc.phiz.xml.PhizXmlNs;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import javax.jws.WebService;
@@ -39,17 +36,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.binding.soap.SoapMessage;
-import org.apache.cxf.endpoint.Client;
-import org.apache.cxf.frontend.ClientProxy;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.AbstractPhaseInterceptor;
-import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.Headers;
 import org.apache.cxf.ws.addressing.AddressingProperties;
 import org.apache.cxf.ws.addressing.ContextUtils;
-import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -62,10 +52,10 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
     @Autowired
     private PhizDestinationRegistry destReg;
 
-    private String clientProxyFactoryBeanName;
+    private String clientBeanName;
 
-    public IisHubServiceImpl(String clientProxyFactoryBeanName) {
-        this.clientProxyFactoryBeanName = clientProxyFactoryBeanName;
+    public IisHubServiceImpl(String clientBeanName) {
+        this.clientBeanName = clientBeanName;
     }
 
     @Override
@@ -106,40 +96,22 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
             }
         }
 
-        PhizJaxWsClientProxyFactoryBean clientProxyFactoryBean =
-            this.appContext.getBean(this.clientProxyFactoryBeanName, PhizJaxWsClientProxyFactoryBean.class);
-        clientProxyFactoryBean.setAddress(destUriStr);
-
-        Map<String, List<String>> clientReqHttpHeaders =
-            Headers
-                .getSetProtocolHeaders(reqMsg)
-                .entrySet()
-                .stream()
-                .filter(
-                    ((Entry<String, List<String>> reqHttpHeaderEntry) -> StringUtils.startsWithIgnoreCase(reqHttpHeaderEntry.getKey(), IisHubHttpHeaders.PREFIX)))
-                .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-
-        clientProxyFactoryBean.getOutInterceptors().add(new AbstractPhaseInterceptor<Message>(Phase.PRE_STREAM) {
-            @Override
-            public void handleMessage(Message iisClientReqMsg) throws Fault {
-                Headers.getSetProtocolHeaders(iisClientReqMsg).putAll(clientReqHttpHeaders);
-            }
-        });
-
-        IisPortType clientPort;
-
-        try {
-            clientPort = ((IisPortType) clientProxyFactoryBean.getObject());
-        } catch (Exception e) {
-            throw new HubClientFault("Unable to build IIS destination web service client.", new HubClientFaultTypeImpl(destId, destUriStr), e);
-        }
-
-        Client client = ClientProxy.getClient(clientPort);
-
         AddressingProperties clientReqAddrProps = new AddressingProperties(Names.WSA_NAMESPACE_NAME);
         clientReqAddrProps.setAction(ContextUtils.getAttributedURI(PhizWsAddressingActions.SUBMIT_SINGLE_MSG_REQ));
         clientReqAddrProps.setMessageID(ContextUtils.retrieveMAPs(reqMsg, false, false).getMessageID());
-        client.getRequestContext().put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, clientReqAddrProps);
+
+        IisPortType clientPort =
+            ((IisPortType) this.appContext.getBean(
+                this.clientBeanName,
+                this.bus,
+                destUriStr,
+                Headers
+                    .getSetProtocolHeaders(reqMsg)
+                    .entrySet()
+                    .stream()
+                    .filter(
+                        ((Entry<String, List<String>> reqHttpHeaderEntry) -> StringUtils.startsWithIgnoreCase(reqHttpHeaderEntry.getKey(),
+                            PhizWsHttpHeaders.EXT_IIS_HUB_PREFIX))).collect(Collectors.toMap(Entry::getKey, Entry::getValue)), clientReqAddrProps));
 
         return new ImmutablePair<>(clientPort.submitSingleMessage(reqParams), new HubResponseHeaderTypeImpl(destId, destUriStr));
     }

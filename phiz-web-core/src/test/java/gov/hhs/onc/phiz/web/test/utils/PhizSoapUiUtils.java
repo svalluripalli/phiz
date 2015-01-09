@@ -8,11 +8,16 @@ import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
 
 public final class PhizSoapUiUtils {
-    private final static String WSA_XPATH_PREFIX = "declare namespace " + JAXWSAConstants.WSA_PREFIX + "='" + Names.WSA_NAMESPACE_NAME + "'; //"
-        + JAXWSAConstants.WSA_PREFIX + ":";
+    public final static String DECL_NS_XPATH_PREFIX = "declare namespace ";
+    public final static String DECL_NS_XPATH_DELIM = "='";
+    public final static String DECL_NS_XPATH_SUFFIX = "';";
 
-    private final static String WSA_MSG_ID_XPATH = WSA_XPATH_PREFIX + Names.WSA_MESSAGEID_NAME;
-    private final static String WSA_RELATES_TO_XPATH = WSA_XPATH_PREFIX + Names.WSA_RELATESTO_NAME;
+    public final static String WSA_DECL_NS_XPATH = DECL_NS_XPATH_PREFIX + JAXWSAConstants.WSA_PREFIX + DECL_NS_XPATH_DELIM + Names.WSA_NAMESPACE_NAME
+        + DECL_NS_XPATH_SUFFIX;
+
+    public final static String WSA_ELEM_XPATH_PREFIX = WSA_DECL_NS_XPATH + " //" + JAXWSAConstants.WSA_PREFIX + ":";
+    public final static String WSA_MSG_ID_ELEM_XPATH = WSA_ELEM_XPATH_PREFIX + Names.WSA_MESSAGEID_NAME;
+    public final static String WSA_RELATES_TO_ELEM_XPATH = WSA_ELEM_XPATH_PREFIX + Names.WSA_RELATESTO_NAME;
 
     private PhizSoapUiUtils() {
     }
@@ -20,8 +25,8 @@ public final class PhizSoapUiUtils {
     public static void assertAddressingMessageIdsMatch(PropertyExpansionContext propExpansionContext, MessageExchange msgExchange) throws Exception {
         GroovyUtilsPro groovyUtils = createGroovyUtils(propExpansionContext);
 
-        assert Objects.equals(groovyUtils.getXmlHolder(msgExchange.getRequestContentAsXml()).getNodeValue(WSA_MSG_ID_XPATH),
-            groovyUtils.getXmlHolder(msgExchange.getResponseContentAsXml()).getNodeValue(WSA_RELATES_TO_XPATH));
+        assert Objects.equals(groovyUtils.getXmlHolder(msgExchange.getRequestContentAsXml()).getNodeValue(WSA_MSG_ID_ELEM_XPATH),
+            groovyUtils.getXmlHolder(msgExchange.getResponseContentAsXml()).getNodeValue(WSA_RELATES_TO_ELEM_XPATH));
     }
 
     public static GroovyUtilsPro createGroovyUtils(PropertyExpansionContext propExpansionContext) {

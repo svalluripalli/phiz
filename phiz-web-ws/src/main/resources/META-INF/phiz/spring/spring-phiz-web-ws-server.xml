@@ -29,8 +29,8 @@
     <beans:bean id="serviceIisHub" class="gov.hhs.onc.phiz.web.ws.iis.hub.IisHubService" parent="serviceIis" abstract="true"/>
     
     <beans:bean id="serviceIisHubImpl" class="gov.hhs.onc.phiz.web.ws.iis.hub.impl.IisHubServiceImpl" parent="serviceIisHub">
-        <beans:constructor-arg name="clientProxyFactoryBeanName">
-            <beans:idref bean="&amp;clientIis"/>
+        <beans:constructor-arg name="clientBeanName">
+            <beans:idref bean="clientIis"/>
         </beans:constructor-arg>
     </beans:bean>
     
@@ -66,5 +66,11 @@
         p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT_HUB }"
         p:serviceBean-ref="serviceIisHubImpl"
         p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE_HUB }"
-        p:wsdlLocation="${phiz.ws.iis.hub.wsdl.loc}"/>
+        p:wsdlLocation="${phiz.ws.iis.hub.wsdl.loc}">
+        <beans:property name="inInterceptors">
+            <beans:list>
+                <beans:ref bean="interceptorIisHubDevAction"/>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
 </beans:beans>
