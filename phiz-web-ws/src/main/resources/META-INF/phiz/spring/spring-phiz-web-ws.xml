@@ -103,12 +103,12 @@
     <!--====================================================================================================
     = PORT TYPES: IIS
     =====================================================================================================-->
-    <beans:bean id="portTypeIis" class="gov.hhs.onc.phiz.ws.IisPortType" abstract="true"/>
+    <beans:bean id="portTypeIis" class="gov.hhs.onc.phiz.ws.iis.IisPortType" abstract="true"/>
     
     <!--====================================================================================================
     = PORT TYPES: IIS HUB
     =====================================================================================================-->
-    <beans:bean id="portTypeIisHub" class="gov.hhs.onc.phiz.ws.hub.IisHubPortType" abstract="true"/>
+    <beans:bean id="portTypeIisHub" class="gov.hhs.onc.phiz.ws.iis.hub.IisHubPortType" abstract="true"/>
     
     <!--====================================================================================================
     = TLS PARAMETERS

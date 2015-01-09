@@ -216,11 +216,27 @@
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-core</artifactId>
                 <version>2.14.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-cxf</artifactId>
                 <version>2.14.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.cxf</groupId>
+                        <artifactId>cxf-rt-rs-security-oauth</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -231,6 +247,12 @@
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-soap</artifactId>
                 <version>2.14.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.sun.xml.bind</groupId>
+                        <artifactId>jaxb-impl</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -241,6 +263,12 @@
                 <groupId>org.apache.camel</groupId>
                 <artifactId>camel-spring-security</artifactId>
                 <version>2.14.1</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -296,6 +324,11 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
+                <version>3.0.3</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-rt-transports-jms</artifactId>
                 <version>3.0.3</version>
             </dependency>
             <dependency>
@@ -615,6 +648,9 @@
                     <artifactId>maven-invoker-plugin</artifactId>
                     <version>1.9</version>
                     <inherited>true</inherited>
+                    <configuration>
+                        <skipInvocation>${skipTests}</skipInvocation>
+                    </configuration>
                     <executions>
                         <execution>
                             <id>integration-test-invoke</id>
@@ -937,7 +973,7 @@
                     <inherited>true</inherited>
                     <configuration>
                         <argLine>
-                            -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4
+                            -Xms256m -Xmx512m -Xss8m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4
                         </argLine>
                         <parallel>all</parallel>
                         <reportFormat>plain</reportFormat>
@@ -946,8 +982,9 @@
                         </suiteXmlFiles>
                         <systemPropertyVariables combine.children="append">
                             <!-- TEMP: dev -->
-                            <javax.net.debug>ssl,handshake</javax.net.debug>
+                            <!--<javax.net.debug>ssl,handshake</javax.net.debug>-->
                             
+                            <javax.net.ssl.keyStore/>
                             <javax.net.ssl.trustStore/>
                             <logback.configurationFile>META-INF/phiz/logback/logback-phiz.xml</logback.configurationFile>
                             <phiz.conf.ssl.dir>${project.build.directory}/surefire-ssl</phiz.conf.ssl.dir>
@@ -964,6 +1001,9 @@
                         <execution>
                             <id>default-test</id>
                             <inherited>true</inherited>
+                            <configuration>
+                                <skip>${skipTests}</skip>
+                            </configuration>
                         </execution>
                         <execution>
                             <id>test-integration</id>
@@ -1047,6 +1087,7 @@
                                     <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-test-pre-it-process-files.groovy</script>
                                     <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-test-pre-it-process-rabbitmq.groovy</script>
                                 </scripts>
+                                <skip>${skipTests}</skip>
                             </configuration>
                         </execution>
                     </executions>
@@ -1357,6 +1398,17 @@
                 <jdeb.sign.key/>
                 <jdeb.sign.passphrase/>
                 <jdeb.sign.pkg>false</jdeb.sign.pkg>
+            </properties>
+        </profile>
+        <profile>
+            <id>test-skip-default</id>
+            <activation>
+                <property>
+                    <name>!skipTests</name>
+                </property>
+            </activation>
+            <properties>
+                <skipTests>false</skipTests>
             </properties>
         </profile>
     </profiles>

@@ -42,7 +42,7 @@
                     <execution>
                         <id>test-integration</id>
                         <configuration>
-                            <skip>false</skip>
+                            <skip>${skipTests}</skip>
                             <systemPropertyVariables>
                                 <phiz.log.file.name>%{project.artifactId}-test-it</phiz.log.file.name>
                                 <phiz.soapui.output.dir>${project.build.directory}/surefire-reports</phiz.soapui.output.dir>

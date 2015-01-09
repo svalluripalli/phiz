@@ -42,8 +42,15 @@
     <!--====================================================================================================
     = TEMPLATES
     =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="rabbitTemplateWs" parent="rabbitTemplate" factory-bean="rabbitAdminWs" factory-method="getRabbitTemplate" lazy-init="true"
-        p:messageConverter-ref="msgConvSoap"/>
+        p:messageConverter-ref="msgConvSoap">
+        <beans:property name="replyQueue">
+            <!--suppress SpringPlaceholdersInspection -->
+            <beans:bean class="org.springframework.amqp.core.Queue"
+                c:name="${phiz.rabbitmq.queue.ws.resp.name}"/>
+        </beans:property>
+    </beans:bean>
     
     <!--====================================================================================================
     = MESSAGE ADDRESSES
@@ -64,24 +71,9 @@
     <!--====================================================================================================
     = MESSAGE LISTENER CONTAINERS
     =====================================================================================================-->
-    <beans:bean id="msgListenerContainerWs" parent="msgListenerContainerSimple" lazy-init="true"
+    <beans:bean id="msgListenerContainerWs" parent="msgListenerContainerSimple" abstract="true"
         c:connectionFactory-ref="connFactoryRabbitSpringWs"
         p:messageConverter-ref="msgConvSoap"
         p:rabbitAdmin-ref="rabbitAdminWs"
-        p:transactionManager-ref="txManagerRabbitWs">
-        <beans:property name="messageListener">
-            <beans:bean parent="msgListenerAdapter"
-                p:messageConverter-ref="msgConvSoap">
-                <beans:constructor-arg name="delegate">
-                    <beans:bean class="gov.hhs.onc.phiz.web.ws.data.queue.impl.SubmitSingleMessageSoapMessageHandler" parent="msgHandler"/>
-                </beans:constructor-arg>
-            </beans:bean>
-        </beans:property>
-        <beans:property name="queueNames">
-            <beans:array>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:value>${phiz.rabbitmq.queue.ws.req.name}</beans:value>
-            </beans:array>
-        </beans:property>
-    </beans:bean>
+        p:transactionManager-ref="txManagerRabbitWs"/>
 </beans:beans>

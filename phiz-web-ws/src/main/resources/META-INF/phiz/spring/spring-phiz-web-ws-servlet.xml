@@ -26,5 +26,19 @@
             <beans:bean class="gov.hhs.onc.phiz.web.ws.servlet.impl.PhizCxfServlet" parent="servletHttp"
                 p:bus-ref="busPhiz"/>
         </beans:property>
+        <beans:property name="servletSecurity">
+            <beans:bean parent="servletSec">
+                <beans:constructor-arg index="0" type="javax.servlet.HttpConstraintElement">
+                    <beans:bean parent="httpConstraintSsl">
+                        <beans:constructor-arg index="1" type="java.lang.String[]">
+                            <beans:array>
+                                <!--suppress SpringPlaceholdersInspection -->
+                                <beans:value>${phiz.tomcat.role.sec.name}</beans:value>
+                            </beans:array>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:constructor-arg>
+            </beans:bean>
+        </beans:property>
     </beans:bean>
 </beans:beans>

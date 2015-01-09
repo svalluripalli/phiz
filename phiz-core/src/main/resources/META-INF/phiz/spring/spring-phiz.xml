@@ -65,6 +65,7 @@
         <beans:property name="converters">
             <beans:set>
                 <beans:bean class="org.springframework.boot.bind.StringToCharArrayConverter"/>
+                <beans:ref bean="convUri"/>
             </beans:set>
         </beans:property>
     </beans:bean>

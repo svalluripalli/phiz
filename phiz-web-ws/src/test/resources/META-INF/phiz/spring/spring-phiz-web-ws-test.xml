@@ -34,7 +34,7 @@
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryPrivateKey"
                         p:certificateChain="#{ credWsClient.certificateResponse.identity.chain[0] }"
-                        p:password="${phiz.tomcat.crypto.server.store.key.entry.ssl.pass}"
+                        p:password="${phiz.ws.crypto.client.store.key.entry.ssl.pass}"
                         p:privateKey="#{ credWsClient.certificateResponse.identity.privateKey }"/>
                 </beans:entry>
             </beans:map>

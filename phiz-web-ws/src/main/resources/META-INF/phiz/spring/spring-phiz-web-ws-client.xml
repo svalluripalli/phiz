@@ -106,4 +106,48 @@
     <beans:bean id="tlsParamsClientWs" parent="tlsParamsClient" lazy-init="true"
         p:certAlias="${phiz.ws.crypto.client.store.key.entry.ssl.alias}"
         p:SSLSocketFactory-ref="sslSocketFactoryWsClient"/>
+    
+    <!--====================================================================================================
+    = CONDUITS
+    =====================================================================================================-->
+    <beans:bean id="conduit" class="org.apache.cxf.transport.Conduit" abstract="true"/>
+    
+    <beans:bean id="conduitHttp" class="org.apache.cxf.transport.http.HTTPConduit" parent="conduit" abstract="true"
+        p:tlsClientParameters-ref="tlsParamsClientWs">
+        <beans:property name="client">
+            <beans:bean class="org.apache.cxf.transports.http.configuration.HTTPClientPolicy"
+                p:cacheControl="no-cache"/>
+        </beans:property>
+    </beans:bean>
+    
+    <beans:bean id="conduitHttpUrlConn" class="org.apache.cxf.transport.http.URLConnectionHTTPConduit" parent="conduitHttp" abstract="true">
+        <beans:constructor-arg name="b" ref="busPhiz"/>
+        <beans:constructor-arg name="ei">
+            <beans:bean class="org.apache.cxf.service.model.EndpointInfo"/>
+        </beans:constructor-arg>
+    </beans:bean>
+    
+    <beans:bean name="*.http-conduit" class="org.apache.cxf.transport.http.URLConnectionHTTPConduit" parent="conduitHttpUrlConn" lazy-init="true"/>
+    
+    <!--====================================================================================================
+    = CLIENTS
+    =====================================================================================================-->
+    <beans:bean id="clientJaxWs" class="gov.hhs.onc.phiz.web.ws.jaxws.impl.PhizJaxWsClientProxyFactoryBean" abstract="true"
+        p:bindingConfig-ref="soapBindingConfig12"
+        p:bus-ref="busPhiz"
+        p:dataBinding-ref="dataBindingJaxb">
+        <beans:property name="conduitSelector">
+            <beans:bean class="org.apache.cxf.endpoint.DeferredConduitSelector"/>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = CLIENTS: IIS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="clientIis" parent="clientJaxWs" lazy-init="true" scope="prototype"
+        p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT }"
+        p:serviceClass="gov.hhs.onc.phiz.ws.iis.IisPortType"
+        p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE }"
+        p:wsdlLocation="${phiz.ws.iis.dev.wsdl.loc}"/>
 </beans:beans>

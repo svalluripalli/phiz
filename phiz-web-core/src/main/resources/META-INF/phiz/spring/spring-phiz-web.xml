@@ -21,6 +21,43 @@
     <context:load-time-weaver/>
     
     <!--====================================================================================================
+    = SESSION COOKIE CONFIGURATIONS
+    =====================================================================================================-->
+    <beans:bean id="sessionCookieConfig" class="javax.servlet.SessionCookieConfig" abstract="true"
+        p:httpOnly="true"
+        p:secure="true"/>
+    
+    <!--====================================================================================================
+    = SESSION CONFIGURATIONS
+    =====================================================================================================-->
+    <beans:bean id="sessionConfig" class="gov.hhs.onc.phiz.web.context.impl.PhizSessionConfig" parent="sessionCookieConfig" abstract="true"/>
+    
+    <beans:bean id="sessionConfigSsl" parent="sessionConfig" abstract="true">
+        <beans:property name="trackingModes">
+            <beans:set>
+                <beans:value>SSL</beans:value>
+            </beans:set>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = HTTP CONSTRAINTS
+    =====================================================================================================-->
+    <beans:bean id="httpConstraint" class="javax.servlet.HttpConstraintElement" abstract="true"/>
+    
+    <beans:bean id="httpConstraintSsl" parent="httpConstraint" abstract="true">
+        <beans:constructor-arg index="0" type="javax.servlet.annotation.ServletSecurity$TransportGuarantee" value="CONFIDENTIAL"/>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = LOGIN CONFIGURATIONS
+    =====================================================================================================-->
+    <beans:bean id="loginConfig" class="org.apache.tomcat.util.descriptor.web.LoginConfig" abstract="true"/>
+    
+    <beans:bean id="loginConfigClientCert" parent="loginConfig"
+        p:authMethod="CLIENT-CERT"/>
+    
+    <!--====================================================================================================
     = REGISTRATION BEANS
     =====================================================================================================-->
     <beans:bean id="regBean" class="org.springframework.boot.context.embedded.RegistrationBean" abstract="true"

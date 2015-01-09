@@ -17,6 +17,11 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = SERVLET SECURITY
+    =====================================================================================================-->
+    <beans:bean id="servletSec" class="javax.servlet.ServletSecurityElement" parent="httpConstraint" abstract="true"/>
+    
+    <!--====================================================================================================
     = SERVLETS
     =====================================================================================================-->
     <beans:bean id="servlet" class="javax.servlet.Servlet" abstract="true"/>
@@ -26,5 +31,5 @@
     <!--====================================================================================================
     = REGISTRATION BEANS: SERVLET
     =====================================================================================================-->
-    <beans:bean id="regBeanServlet" class="org.springframework.boot.context.embedded.ServletRegistrationBean" parent="regBean" abstract="true"/>
+    <beans:bean id="regBeanServlet" class="gov.hhs.onc.phiz.web.servlet.impl.PhizServletRegistrationBean" parent="regBean" abstract="true"/>
 </beans:beans>

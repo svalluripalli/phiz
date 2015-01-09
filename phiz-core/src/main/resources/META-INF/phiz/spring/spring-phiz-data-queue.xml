@@ -17,6 +17,11 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = RABBIT
+    =====================================================================================================-->
+    <rabbit:annotation-driven/>
+    
+    <!--====================================================================================================
     = KEY STORES
     =====================================================================================================-->
     <!--suppress SpringPlaceholdersInspection -->
@@ -134,17 +139,13 @@
     =====================================================================================================-->
     <beans:bean id="amqpTemplate" class="org.springframework.amqp.core.AmqpTemplate" abstract="true"/>
     
-    <beans:bean id="rabbitTemplate" class="org.springframework.amqp.rabbit.core.RabbitTemplate" parent="amqpTemplate" abstract="true"/>
+    <beans:bean id="rabbitTemplate" class="org.springframework.amqp.rabbit.core.RabbitTemplate" parent="amqpTemplate" abstract="true"
+        p:encoding="#{ charsetUtf8.name() }"/>
     
     <!--====================================================================================================
     = MESSAGE ADDRESSES
     =====================================================================================================-->
     <beans:bean id="msgAddr" class="org.springframework.amqp.core.Address" abstract="true"/>
-    
-    <!--====================================================================================================
-    = MESSAGE HANDLERS
-    =====================================================================================================-->
-    <beans:bean id="msgHandler" class="gov.hhs.onc.phiz.data.queue.PhizMessageHandler" abstract="true"/>
     
     <!--====================================================================================================
     = MESSAGE LISTENERS

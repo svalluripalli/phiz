@@ -7,12 +7,19 @@ import gov.hhs.onc.phiz.ws.iis.UnsupportedOperationFault;
 import gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory;
 import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 public abstract class AbstractIisService implements IisService {
+    @Autowired
+    protected ObjectFactory objFactory;
+
     @Resource
     protected WebServiceContext wsContext;
 
-    protected ObjectFactory objFactory;
+    protected AbstractApplicationContext appContext;
 
     @Override
     public ConnectivityTestResponseType connectivityTest(ConnectivityTestRequestType reqParams) throws UnsupportedOperationFault {
@@ -27,12 +34,7 @@ public abstract class AbstractIisService implements IisService {
     }
 
     @Override
-    public ObjectFactory getObjectFactory() {
-        return this.objFactory;
-    }
-
-    @Override
-    public void setObjectFactory(ObjectFactory objFactory) {
-        this.objFactory = objFactory;
+    public void setApplicationContext(ApplicationContext appContext) throws BeansException {
+        this.appContext = ((AbstractApplicationContext) appContext);
     }
 }

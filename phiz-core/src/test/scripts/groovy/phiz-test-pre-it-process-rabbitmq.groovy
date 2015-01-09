@@ -49,12 +49,32 @@ ant.untar(src: rabbitMqServerArtifactLocalRepoFile, dest: testItRabbitMqDir, com
     ant.cutdirsmapper(dirs: 1)
 }
 
+def rabbitMqAdminExecArtifact = new DefaultArtifact("com.rabbitmq", "rabbitmq-admin", "3.4.2", Artifact.SCOPE_TEST, "py", StringUtils.EMPTY,
+    new DefaultArtifactHandler())
+def rabbitMqAdminExecArtifactLocalRepoFile = new File(localRepo.basedir, "${localRepo.pathOf(rabbitMqAdminExecArtifact)}.${rabbitMqServerArtifact.type}")
+def rabbitMqAdminExecArtifactUrl = "http://hg.rabbitmq.com/rabbitmq-management/raw-file/rabbitmq_v3_4_2/bin/rabbitmqadmin"
+
 def testItRabbitMqSbinDir = new File(testItRabbitMqDir, "sbin")
 def testItRabbitMqAdminExecFile = new File(testItRabbitMqSbinDir, "rabbitmqadmin")
 def testItRabbitMqControlExecFile = new File(testItRabbitMqSbinDir, "rabbitmqctl")
 def testItRabbitMqServerExecFile = new File(testItRabbitMqSbinDir, "rabbitmq-server")
 
-ant.get(src: "http://hg.rabbitmq.com/rabbitmq-management/raw-file/rabbitmq_v3_4_2/bin/rabbitmqadmin", dest: testItRabbitMqAdminExecFile)
+if (!rabbitMqAdminExecArtifactLocalRepoFile.exists()) {
+    ant.get(src: rabbitMqAdminExecArtifactUrl, dest: testItRabbitMqAdminExecFile)
+    
+    ant.exec(executable: "mvn", failonerror: true) {
+        ant.arg(value: "-q")
+        ant.arg(value: "install:install-file")
+        ant.arg(value: "-DgroupId=${rabbitMqAdminExecArtifact.groupId}")
+        ant.arg(value: "-DartifactId=${rabbitMqAdminExecArtifact.artifactId}")
+        ant.arg(value: "-Dversion=${rabbitMqAdminExecArtifact.version}")
+        ant.arg(value: "-Dpackaging=${rabbitMqAdminExecArtifact.type}")
+        ant.arg(value: "-DgeneratePom=true")
+        ant.arg(value: "-Dfile=${testItRabbitMqAdminExecFile}")
+    }
+} else {
+    ant.copy(src: rabbitMqAdminExecArtifactLocalRepoFile, dest: testItRabbitMqAdminExecFile)
+}
 
 ant.fileset(dir: testItRabbitMqSbinDir, includes: "rabbitmq*").each{
     it.file.setExecutable(true, false)
@@ -83,9 +103,15 @@ Thread testItRabbitMqShutdownHookThread = new Thread({
 Runtime.runtime.addShutdownHook(testItRabbitMqShutdownHookThread)
 
 ant.exec(executable: testItRabbitMqServerExecFile, dir: testItRabbitMqSbinDir, spawn: true) {
-    ant.arg(value: "-ssl")
-    ant.arg(value: "versions")
-    ant.arg(value: "['${PhizTlsVersions.TLS_1_2_NAME.toLowerCase()}', '${PhizTlsVersions.TLS_1_1_NAME.toLowerCase()}']")
+    ant.arg(value: "-kernel")
+    ant.arg(value: "inet_dist_listen_min")
+    ant.arg(value: 0)
+    ant.arg(value: "-kernel")
+    ant.arg(value: "inet_dist_listen_max")
+    ant.arg(value: 0)
+    ant.arg(value: "-rabbit")
+    ant.arg(value: "log_levels")
+    ant.arg(value: "[{connection, info}]")
     ant.arg(value: "-rabbit")
     ant.arg(value: "tcp_listeners")
     ant.arg(value: "[]")
@@ -97,14 +123,19 @@ ant.exec(executable: testItRabbitMqServerExecFile, dir: testItRabbitMqSbinDir, s
     ant.arg(value: """[
             {cacertfile, "${new File(testDebShareDataDir, resolvedProps["phiz.crypto.cred.ca.cert.file"])}"},
             {certfile, "${new File(testDebShareDataDir, resolvedProps["phiz.rabbitmq.crypto.server.cred.ssl.cert.file"])}"},
+            {fail_if_no_peer_cert, ${true}},
+            {honor_cipher_order, ${true}},
             {keyfile, "${new File(testDebShareDataDir, resolvedProps["phiz.rabbitmq.crypto.server.cred.ssl.key.private.file"])}"},
+            {secure_renegotiate, ${true}},
             {verify, verify_peer},
-            {fail_if_no_peer_cert, true},
-            {versions, ['${PhizTlsVersions.TLS_1_2_NAME.toLowerCase()}', '${PhizTlsVersions.TLS_1_1_NAME.toLowerCase()}']}
+            {versions, ['${PhizTlsVersions.TLS_1_2_NAME.toLowerCase()}']}
         ]""")
     ant.arg(value: "-rabbit")
     ant.arg(value: "ssl_cert_login_from")
     ant.arg(value: "common_name")
+    ant.arg(value: "-rabbit")
+    ant.arg(value: "ssl_handshake_timeout")
+    ant.arg(value: 5000)
     ant.arg(value: "-rabbit")
     ant.arg(value: "auth_mechanisms")
     ant.arg(value: "['EXTERNAL']")

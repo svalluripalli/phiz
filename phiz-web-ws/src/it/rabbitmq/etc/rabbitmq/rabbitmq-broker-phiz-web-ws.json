@@ -63,14 +63,6 @@
             "destination_type": "queue",
             "routing_key": "@{phiz.rabbitmq.queue.ws.req.key.routing}",
             "arguments": {}
-        },
-        {
-            "vhost": "@{phiz.rabbitmq.vhost.path}",
-            "source": "@{phiz.rabbitmq.exchange.ws.name}",
-            "destination": "@{phiz.rabbitmq.queue.ws.resp.name}",
-            "destination_type": "queue",
-            "routing_key": "@{phiz.rabbitmq.queue.ws.resp.key.routing}",
-            "arguments": {}
         }
     ],
     

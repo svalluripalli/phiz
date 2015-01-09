@@ -103,6 +103,11 @@
     <beans:bean id="lifecycleListener" class="org.apache.catalina.LifecycleListener" abstract="true"/>
     
     <!--====================================================================================================
+    = VALVES
+    =====================================================================================================-->
+    <beans:bean id="valve" class="org.apache.catalina.Valve" abstract="true"/>
+    
+    <!--====================================================================================================
     = EMBEDDED SERVLET CONTAINER FACTORIES
     =====================================================================================================-->
     <beans:bean id="embeddedServletContainerFactory" class="org.springframework.boot.context.embedded.EmbeddedServletContainerFactory" abstract="true"/>
@@ -114,15 +119,31 @@
     <beans:bean id="embeddedServletContainerFactoryTomcatServer" class="gov.hhs.onc.phiz.web.context.impl.PhizTomcatEmbeddedServletContainerFactory"
         parent="embeddedServletContainerFactoryTomcat" lazy-init="true"
         p:baseDirectory="#{ T(org.apache.commons.lang3.SystemUtils).userDir }"
+        p:connectionTimeout="${phiz.tomcat.conn.timeout}"
         p:contextPath="${phiz.tomcat.context.path}"
         p:documentRoot="webapp"
+        p:maxConnections="${phiz.tomcat.conn.max}"
+        p:maxConnectionThreads="${phiz.tomcat.conn.thread.max}"
         p:port="${phiz.tomcat.port.https}"
-        p:sslImplementationClass="gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation">
+        p:sslImplementationClass="gov.hhs.onc.phiz.web.crypto.impl.PhizJsseImplementation"
+        p:uriEncoding="#{ charsetUtf8.name() }">
         <beans:property name="contextLifecycleListeners">
             <beans:list>
                 <beans:bean class="org.apache.catalina.core.JreMemoryLeakPreventionListener" parent="lifecycleListener"/>
                 <beans:bean class="org.apache.catalina.core.ThreadLocalLeakPreventionListener" parent="lifecycleListener"/>
             </beans:list>
+        </beans:property>
+        <beans:property name="loginConfig">
+            <!--suppress SpringPlaceholdersInspection -->
+            <beans:bean parent="loginConfigClientCert"
+                p:realmName="${phiz.tomcat.realm.sec.name}"/>
+        </beans:property>
+        <beans:property name="sessionConfig">
+            <!--suppress SpringPlaceholdersInspection -->
+            <beans:bean parent="sessionConfigSsl"
+                p:cacheSize="${phiz.tomcat.session.cache.size}"
+                p:maxAge="${phiz.tomcat.session.cookie.age.max}"
+                p:timeout="${phiz.tomcat.session.timeout}"/>
         </beans:property>
     </beans:bean>
 </beans:beans>

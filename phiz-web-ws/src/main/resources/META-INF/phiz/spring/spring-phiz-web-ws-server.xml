@@ -19,18 +19,20 @@
     <!--====================================================================================================
     = SERVICES: IIS
     =====================================================================================================-->
-    <beans:bean id="serviceIis" class="gov.hhs.onc.phiz.web.ws.iis.IisService" abstract="true"
-        p:objectFactory-ref="objFactoryIis"/>
+    <beans:bean id="serviceIis" class="gov.hhs.onc.phiz.web.ws.iis.IisService" abstract="true"/>
+    
+    <beans:bean id="serviceIisDev" class="gov.hhs.onc.phiz.web.ws.iis.impl.DevIisService" parent="serviceIis"/>
     
     <!--====================================================================================================
     = SERVICES: IIS HUB
     =====================================================================================================-->
-    <beans:bean id="serviceIisHub" class="gov.hhs.onc.phiz.web.ws.iis.hub.IisHubService" parent="serviceIis" abstract="true"
-        p:hubObjectFactory-ref="objFactoryIisHub"/>
+    <beans:bean id="serviceIisHub" class="gov.hhs.onc.phiz.web.ws.iis.hub.IisHubService" parent="serviceIis" abstract="true"/>
     
-    <beans:bean id="serviceIisHubImpl" class="gov.hhs.onc.phiz.web.ws.iis.hub.impl.IisHubServiceImpl" parent="serviceIisHub"
-        p:rabbitTemplate-ref="rabbitTemplateWs"
-        p:requestMessageAddress-ref="msgAddrWsReq"/>
+    <beans:bean id="serviceIisHubImpl" class="gov.hhs.onc.phiz.web.ws.iis.hub.impl.IisHubServiceImpl" parent="serviceIisHub">
+        <beans:constructor-arg name="clientProxyFactoryBeanName">
+            <beans:idref bean="&amp;clientIis"/>
+        </beans:constructor-arg>
+    </beans:bean>
     
     <!--====================================================================================================
     = SERVERS
@@ -38,18 +40,22 @@
     <beans:bean id="server" class="org.apache.cxf.endpoint.Server" abstract="true"/>
     
     <beans:bean id="serverJaxWs" class="gov.hhs.onc.phiz.web.ws.jaxws.impl.PhizJaxWsServerFactoryBean" parent="server" abstract="true"
-        p:bindingConfig-ref="soapBinding12"
+        p:bindingConfig-ref="soapBindingConfig12"
         p:bus-ref="busPhiz"
         p:dataBinding-ref="dataBindingJaxb"/>
     
     <!--====================================================================================================
     = SERVERS: IIS
     =====================================================================================================-->
-    <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="serverIis" parent="serverJaxWs" abstract="true"
         p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT }"
-        p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE }"
-        p:wsdlLocation="${phiz.ws.iis.wsdl.loc}"/>
+        p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE }"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="serverIisDev" parent="serverIis"
+        p:address="${phiz.ws.iis.dev.path}"
+        p:serviceBean-ref="serviceIisDev"
+        p:wsdlLocation="${phiz.ws.iis.dev.wsdl.loc}"/>
     
     <!--====================================================================================================
     = SERVERS: IIS HUB

@@ -85,6 +85,12 @@
         <dependencies>
             <!-- Compile dependencies -->
             <dependency>
+                <groupId>com.google.inject</groupId>
+                <artifactId>guice</artifactId>
+                <version>3.0</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
                 <version>1.10</version>
@@ -419,12 +425,14 @@
                                         </generatorConfigurations>
                                         <jvmSettings>
                                             <extraArguments>
+                                                <extraArgument>-Xss4m</extraArgument>
+                                                <extraArgument>-XX:MetaspaceSize=512m</extraArgument>
                                                 <extraArgument>-javaagent:lib/aspectjweaver-1.8.4.jar</extraArgument>
                                                 <extraArgument>-javaagent:lib/spring-instrument-4.1.4.RELEASE.jar</extraArgument>
                                             </extraArguments>
                                             <initialMemorySize>1024M</initialMemorySize>
                                             <maxMemorySize>2048M</maxMemorySize>
-                                            <maxStackSize>512M</maxStackSize>
+                                            <maxStackSize>768M</maxStackSize>
                                         </jvmSettings>
                                     </daemon>
                                 </daemons>
