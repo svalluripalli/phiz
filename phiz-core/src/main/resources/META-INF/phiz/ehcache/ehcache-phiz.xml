@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+    
+    <!--====================================================================================================
+    = CACHE: DESTINATIONS
+    =====================================================================================================-->
+    <cache
+        name="gov.hhs.onc.phiz.destination.impl.PhizDestinationImpl"
+        logging="true"
+        maxElementsInMemory="100"
+        statistics="true"
+        timeToLiveSeconds="300"/>
+</ehcache>

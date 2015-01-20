@@ -175,4 +175,53 @@
             </beans:map>
         </beans:property>
     </beans:bean>
+    
+    <!--====================================================================================================
+    = DATABASE SERVERS
+    =====================================================================================================-->
+    <beans:bean id="dbServer" class="gov.hhs.onc.phiz.test.impl.PhizHsqlServer" abstract="true"
+        p:daemon="true"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="dbServerHub" parent="dbServer" destroy-method="stop" init-method="start"
+        p:address="${phiz.data.db.host}"
+        p:databaseName="${phiz.data.db.name}"
+        p:directory="${phiz.data.db.dir}"
+        p:password="${phiz.data.db.user.admin.pass}"
+        p:port="${phiz.data.db.port}"
+        p:user="${phiz.data.db.user.admin.name}"/>
+    
+    <!--====================================================================================================
+    = DATABASE POPULATORS
+    =====================================================================================================-->
+    <beans:bean id="dbPopulator" class="org.springframework.jdbc.datasource.init.DatabasePopulator" abstract="true"/>
+    
+    <beans:bean id="dbPopulatorPlaceholderResource" class="gov.hhs.onc.phiz.test.impl.PlaceholderResourceDatabasePopulator" parent="dbPopulator" abstract="true"
+        p:scriptEncoding-ref="charsetUtf8"/>
+    
+    <!--====================================================================================================
+    = DATA SOURCE INITIALIZERS
+    =====================================================================================================-->
+    <beans:bean id="dataSrcInit" class="org.springframework.jdbc.datasource.init.DataSourceInitializer" abstract="true"/>
+    
+    <beans:bean id="dataSrcInitHub" parent="dataSrcInit" depends-on="dbServerHub"
+        p:dataSource-ref="dataSrcHub">
+        <beans:property name="databasePopulator">
+            <beans:bean parent="dbPopulatorPlaceholderResource">
+                <beans:property name="scripts">
+                    <beans:array>
+                        <beans:value>classpath*:META-INF/phiz/db/db-init-phiz.sql</beans:value>
+                        <beans:value>classpath*:META-INF/phiz/db/db-init-phiz-schema.sql</beans:value>
+                        <beans:value>classpath*:META-INF/phiz/db/db-init-phiz-data.sql</beans:value>
+                    </beans:array>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = HIBERNATE SESSION FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="hibernateSessionFactoryHub" parent="hibernateSessionFactoryBase" depends-on="dataSrcInitHub"
+        p:dataSource-ref="dataSrcHub"/>
 </beans:beans>

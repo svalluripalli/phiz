@@ -1,8 +1,6 @@
 package gov.hhs.onc.phiz.destination;
 
-import javax.annotation.Nullable;
+import gov.hhs.onc.phiz.data.db.PhizDataService;
 
-public interface PhizDestinationRegistry {
-    @Nullable
-    public PhizDestination findById(String id);
+public interface PhizDestinationRegistry extends PhizDataService<String, PhizDestination, PhizDestinationDao> {
 }

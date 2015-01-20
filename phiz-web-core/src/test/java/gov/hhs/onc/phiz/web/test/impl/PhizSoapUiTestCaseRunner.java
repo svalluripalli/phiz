@@ -20,7 +20,7 @@ import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
 import com.eviware.soapui.model.testsuite.LoadTest;
 import com.eviware.soapui.support.types.StringToObjectMap;
 import com.github.sebhoss.warnings.CompilerWarnings;
-import java.util.Objects;
+import gov.hhs.onc.phiz.beans.factory.EmbeddedPlaceholderResolver;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -29,16 +29,13 @@ import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanExpressionContext;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.beans.factory.config.PlaceholderConfigurerSupport;
 
 @SuppressWarnings({ CompilerWarnings.DEPRECATION })
 public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
     private final static String SPRING_REF_PROP_NAME_PREFIX = PropertyExpansion.SCOPE_PREFIX + "Spring" + PropertyExpansion.PROPERTY_SEPARATOR;
 
     @Autowired
-    private ConfigurableBeanFactory beanFactory;
+    private EmbeddedPlaceholderResolver embeddedPlaceholderResolver;
 
     private SSLParameters sslParams;
     private SSLSocketFactory sslSocketFactory;
@@ -145,22 +142,11 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
 
     @Override
     protected void initProjectProperties(WsdlProject project) {
-        PropertyExpander
-            .getDefaultExpander()
-            .addResolver(
-                (propExpContext, propName, globalOverride) -> {
-                    if (!StringUtils.startsWith(propName, SPRING_REF_PROP_NAME_PREFIX)) {
-                        return null;
-                    }
-
-                    String propNameResolving =
-                        (PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_PREFIX + (propName = StringUtils.removeStart(propName, SPRING_REF_PROP_NAME_PREFIX)) + PlaceholderConfigurerSupport.DEFAULT_PLACEHOLDER_SUFFIX), propNameResolved =
-                        this.beanFactory.resolveEmbeddedValue(propNameResolving);
-
-                    return Objects.toString(
-                        this.beanFactory.getBeanExpressionResolver().evaluate((!propNameResolved.equals(propNameResolving) ? propNameResolved : propName),
-                            new BeanExpressionContext(this.beanFactory, null)), null);
-                });
+        PropertyExpander.getDefaultExpander().addResolver(
+            (propExpContext, propName, globalOverride) -> {
+                return (StringUtils.startsWith(propName, SPRING_REF_PROP_NAME_PREFIX) ? this.embeddedPlaceholderResolver.resolvePlaceholders(
+                    StringUtils.removeStart(propName, SPRING_REF_PROP_NAME_PREFIX), true) : null);
+            });
 
         super.initProjectProperties(project);
     }

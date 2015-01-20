@@ -1,12 +1,9 @@
 package gov.hhs.onc.phiz.destination;
 
+import gov.hhs.onc.phiz.data.db.PhizEntity;
 import java.net.URI;
 
-public interface PhizDestination {
-    public String getId();
-
-    public void setId(String id);
-
+public interface PhizDestination extends PhizEntity<String> {
     public URI getUri();
 
     public void setUri(URI uri);

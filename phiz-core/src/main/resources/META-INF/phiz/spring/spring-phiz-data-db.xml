@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = BEAN POST PROCESSORS
+    =====================================================================================================-->
+    <beans:bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+    
+    <!--====================================================================================================
+    = DATA SOURCES
+    =====================================================================================================-->
+    <beans:bean id="dataSrc" class="javax.sql.DataSource" abstract="true"/>
+    
+    <beans:bean id="dataSrcPooled" class="com.mchange.v2.c3p0.ComboPooledDataSource" parent="dataSrc" abstract="true"
+        p:acquireIncrement="1"
+        p:initialPoolSize="0"
+        p:maxIdleTime="#{ T(com.mchange.v2.c3p0.impl.C3P0Defaults).maxIdleTime() }"
+        p:maxPoolSize="#{ T(com.mchange.v2.c3p0.impl.C3P0Defaults).maxPoolSize() }"
+        p:minPoolSize="1"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="dataSrcHub" parent="dataSrcPooled" destroy-method="close"
+        p:driverClass="${phiz.data.db.jdbc.driver.class.name}"
+        p:jdbcUrl="${phiz.data.db.jdbc.url}"
+        p:password="${phiz.data.db.user.hub.pass}"
+        p:user="${phiz.data.db.user.hub.name}"/>
+    
+    <!--====================================================================================================
+    = HIBERNATE SESSION FACTORIES
+    =====================================================================================================-->
+    <beans:bean id="hibernateSessionFactory" class="org.hibernate.SessionFactory" abstract="true"/>
+    
+    <beans:bean id="hibernateSessionFactoryBase" class="gov.hhs.onc.phiz.data.db.impl.PhizLocalSessionFactoryBean" parent="hibernateSessionFactory"
+        abstract="true"
+        p:packagesToScan="gov.hhs.onc.phiz">
+        <beans:property name="basicTypes">
+            <beans:set>
+                <beans:ref bean="basicTypeUri"/>
+            </beans:set>
+        </beans:property>
+        <beans:property name="hibernateProperties">
+            <beans:props>
+                <beans:prop key="#{ T(org.hibernate.cache.ehcache.AbstractEhcacheRegionFactory).NET_SF_EHCACHE_CONFIGURATION_RESOURCE_NAME }">
+                    META-INF/phiz/ehcache/ehcache-phiz.xml
+                </beans:prop>
+                <beans:prop key="#{ T(org.hibernate.cfg.AvailableSettings).CACHE_REGION_FACTORY }">
+                    #{ T(org.hibernate.cache.ehcache.EhCacheRegionFactory).name }
+                </beans:prop>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:prop key="#{ T(org.hibernate.cfg.AvailableSettings).DIALECT }">${phiz.data.db.hibernate.dialect}</beans:prop>
+                <beans:prop key="#{ T(org.hibernate.cfg.AvailableSettings).SHOW_SQL }">true</beans:prop>
+            </beans:props>
+        </beans:property>
+    </beans:bean>
+    
+    <beans:bean id="hibernateSessionFactoryHub" parent="hibernateSessionFactoryBase"
+        p:dataSource-ref="dataSrcHub"/>
+    
+    <!--====================================================================================================
+    = TRANSACTION MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="txManagerHibernate" class="org.springframework.orm.hibernate4.HibernateTransactionManager" parent="txManager" abstract="true"
+        p:nestedTransactionAllowed="true"
+        p:rollbackOnCommitFailure="true"
+        p:validateExistingTransaction="true"/>
+    
+    <beans:bean id="txManagerHibernateHub" parent="txManagerHibernate"
+        p:sessionFactory-ref="hibernateSessionFactoryHub"/>
+    
+    <!--====================================================================================================
+    = TRANSACTIONS
+    =====================================================================================================-->
+    <tx:annotation-driven transaction-manager="txManagerHibernateHub"/>
+</beans:beans>
