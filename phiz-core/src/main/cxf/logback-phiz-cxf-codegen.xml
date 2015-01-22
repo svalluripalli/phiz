@@ -3,15 +3,27 @@
     debug="false"
     xmlns="ch.qos.logback">
     
+    <!--====================================================================================================
+    = CONTEXT NAME
+    =====================================================================================================-->
     <contextName>phiz-cxf-codegen</contextName>
     
+    <!--====================================================================================================
+    = STATUS LISTENERS
+    =====================================================================================================-->
     <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
     
+    <!--====================================================================================================
+    = CONTEXT LISTENERS
+    =====================================================================================================-->
     <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
         <resetJUL>true</resetJUL>
     </contextListener>
     
-    <appender name="console-cxf-codegen" class="ch.qos.logback.core.ConsoleAppender">
+    <!--====================================================================================================
+    = APPENDERS: CONSOLE
+    =====================================================================================================-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t] %p - %m%n%rEx</pattern>
         </encoder>
@@ -19,10 +31,17 @@
         <withJansi>true</withJansi>
     </appender>
     
+    <!--====================================================================================================
+    = LOGGERS: APACHE
+    =====================================================================================================-->
     <logger name="org.apache" level="info" additivity="false">
-        <appender-ref ref="console-cxf-codegen"/>
+        <appender-ref ref="console"/>
     </logger>
+    
+    <!--====================================================================================================
+    = ROOT LOGGER
+    =====================================================================================================-->
     <root level="warn">
-        <appender-ref ref="console-cxf-codegen"/>
+        <appender-ref ref="console"/>
     </root>
 </configuration>

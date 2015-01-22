@@ -7,7 +7,7 @@ import org.springframework.boot.logging.LoggingApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-@Configuration
+@Configuration("app")
 @ImportResource({ "classpath*:META-INF/phiz/spring/spring-phiz*.xml" })
 public abstract class PhizApplication {
     public static void main(String ... args) {

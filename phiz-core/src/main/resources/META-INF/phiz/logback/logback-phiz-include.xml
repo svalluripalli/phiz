@@ -60,17 +60,12 @@
     =====================================================================================================-->
     <if condition='isDefined("phiz.log.file.dir") &amp;&amp; !new java.io.File(p("phiz.log.file.dir")).isFile()'>
         <then>
-            <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+            <appender name="file" class="ch.qos.logback.core.FileAppender">
                 <file>${phiz.log.file.dir}/${phiz.log.file.name}${phiz.log.file.name.ext}</file>
-                <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-                    <fileNamePattern>${phiz.log.file.dir}/${phiz.log.file.name}.%d{yyyy-MM-dd}.%i${phiz.log.file.name.ext}</fileNamePattern>
-                    <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                        <maxFileSize>100MB</maxFileSize>
-                    </timeBasedFileNamingAndTriggeringPolicy>
-                </rollingPolicy>
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                     <pattern>%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t]%xReq %p - %m%n%rEx</pattern>
                 </encoder>
+                <prudent>true</prudent>
             </appender>
         </then>
         <else>

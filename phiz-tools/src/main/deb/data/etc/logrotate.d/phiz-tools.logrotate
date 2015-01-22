@@ -1,0 +1,16 @@
+"/%{project.build.debLogDataDirectoryPath}/*.log" {
+    copytruncate
+    create 640 root adm
+    daily
+    dateext
+    dateformat .%Y-%m-%d
+    extension .log
+    missingok
+    nocompress
+    postrotate
+        chmod 640 "$1"
+        chown "root:adm" "$1"
+    endscript
+    rotate 51
+    sharedscripts
+}

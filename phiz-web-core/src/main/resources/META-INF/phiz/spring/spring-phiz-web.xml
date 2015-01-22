@@ -16,11 +16,6 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = CONTEXT
-    =====================================================================================================-->
-    <context:load-time-weaver/>
-    
-    <!--====================================================================================================
     = SESSION COOKIE CONFIGURATIONS
     =====================================================================================================-->
     <beans:bean id="sessionCookieConfig" class="javax.servlet.SessionCookieConfig" abstract="true"

@@ -284,6 +284,11 @@
                 <version>3.0.3</version>
             </dependency>
             <dependency>
+                <groupId>org.aspectj</groupId>
+                <artifactId>aspectjweaver</artifactId>
+                <version>1.8.4</version>
+            </dependency>
+            <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>1.51</version>
@@ -395,6 +400,11 @@
                 <version>4.1.4.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-instrument</artifactId>
+                <version>4.1.4.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.amqp</groupId>
@@ -707,6 +717,8 @@
                                         <directory>${project.build.debDataSourceDirectory}</directory>
                                         <filtering>true</filtering>
                                         <includes>
+                                            <include>etc/default/${project.artifactId}</include>
+                                            <include>etc/logrotate.d/${project.artifactId}.logrotate</include>
                                             <include>**/*.properties</include>
                                             <include>**/*.xml</include>
                                         </includes>
@@ -714,6 +726,8 @@
                                     <resource>
                                         <directory>${project.build.debDataSourceDirectory}</directory>
                                         <excludes>
+                                            <exclude>etc/default/${project.artifactId}</exclude>
+                                            <exclude>etc/logrotate.d/${project.artifactId}.logrotate</exclude>
                                             <exclude>**/*.properties</exclude>
                                             <exclude>**/*.xml</exclude>
                                         </excludes>
@@ -851,8 +865,8 @@
                                         <includes>
                                             <include>**/*.conf</include>
                                             <include>**/*.config</include>
+                                            <include>**/*.json</include>
                                             <include>**/*.properties</include>
-                                            <include>**/*.sql</include>
                                             <include>**/*.xml</include>
                                         </includes>
                                     </resource>
@@ -861,8 +875,8 @@
                                         <excludes>
                                             <exclude>**/*.conf</exclude>
                                             <exclude>**/*.config</exclude>
+                                            <exclude>**/*.json</exclude>
                                             <exclude>**/*.properties</exclude>
-                                            <exclude>**/*.sql</exclude>
                                             <exclude>**/*.xml</exclude>
                                         </excludes>
                                     </resource>
@@ -899,9 +913,6 @@
                     <version>2.18</version>
                     <inherited>true</inherited>
                     <configuration>
-                        <argLine>
-                            -Xms256m -Xmx512m -Xss8m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4
-                        </argLine>
                         <reportFormat>plain</reportFormat>
                         <suiteXmlFiles>
                             <suiteXmlFile>${project.build.testngDirectory}/testng-${project.artifactId}.xml</suiteXmlFile>
@@ -927,6 +938,9 @@
                             <id>default-test</id>
                             <inherited>true</inherited>
                             <configuration>
+                                <argLine>
+                                    -Xms256m -Xmx512m -Xss8m -XX:MetaspaceSize=128m -XX:MaxMetaspaceSize=256m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4
+                                </argLine>
                                 <skip>${skipTests}</skip>
                             </configuration>
                         </execution>
@@ -938,6 +952,9 @@
                             </goals>
                             <inherited>true</inherited>
                             <configuration>
+                                <argLine>
+                                    -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -javaagent:lib/aspectjweaver-1.8.4.jar -javaagent:lib/spring-instrument-4.1.4.RELEASE.jar
+                                </argLine>
                                 <reportNameSuffix>it</reportNameSuffix>
                                 <skip>true</skip>
                             </configuration>
@@ -971,11 +988,6 @@
                             <version>3.3.2</version>
                         </dependency>
                         <dependency>
-                            <groupId>org.apache.maven</groupId>
-                            <artifactId>maven-ant-tasks</artifactId>
-                            <version>2.1.3</version>
-                        </dependency>
-                        <dependency>
                             <groupId>org.codehaus.groovy</groupId>
                             <artifactId>groovy-all</artifactId>
                             <version>2.3.8</version>
@@ -983,11 +995,21 @@
                         </dependency>
                     </dependencies>
                     <configuration>
+                        <properties combine.children="append">
+                            <property>
+                                <name>excludes</name>
+                                <value/>
+                            </property>
+                            <property>
+                                <name>includes</name>
+                                <value>**/*</value>
+                            </property>
+                        </properties>
                         <scripts combine.children="append"/>
                     </configuration>
                     <executions>
                         <execution>
-                            <id>process-app-scripts</id>
+                            <id>process-resources-app-scripts</id>
                             <phase>process-resources</phase>
                             <goals>
                                 <goal>execute</goal>
@@ -995,22 +1017,126 @@
                             <inherited>true</inherited>
                             <configuration>
                                 <scripts>
-                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-app-process-scripts.groovy</script>
+                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources-app-scripts.groovy</script>
                                 </scripts>
                             </configuration>
                         </execution>
                         <execution>
-                            <id>pre-integration-test-process-components</id>
-                            <phase>pre-integration-test</phase>
+                            <id>process-properties</id>
+                            <phase>process-test-resources</phase>
                             <goals>
                                 <goal>execute</goal>
                             </goals>
                             <inherited>true</inherited>
                             <configuration>
                                 <scripts>
-                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-test-pre-it-process-deb.groovy</script>
-                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-test-pre-it-process-files.groovy</script>
-                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-test-pre-it-process-rabbitmq.groovy</script>
+                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-properties.groovy</script>
+                                </scripts>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>process-test-resources</id>
+                            <phase>process-test-resources</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <properties>
+                                    <property>
+                                        <name>dir</name>
+                                        <value>${project.build.testOutputDirectory}/META-INF</value>
+                                    </property>
+                                    <property>
+                                        <name>excludes</name>
+                                        <value>
+                                            phiz/spring/**
+                                        </value>
+                                    </property>
+                                    <property>
+                                        <name>includes</name>
+                                        <value>
+                                            **/*.properties
+                                            **/*.xml
+                                        </value>
+                                    </property>
+                                </properties>
+                                <scripts>
+                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources.groovy</script>
+                                </scripts>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>process-resources-deb-control</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <properties>
+                                    <property>
+                                        <name>dir</name>
+                                        <value>${project.build.debControlDirectory}</value>
+                                    </property>
+                                </properties>
+                                <scripts>
+                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources.groovy</script>
+                                </scripts>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>process-resources-deb-data</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <properties>
+                                    <property>
+                                        <name>dir</name>
+                                        <value>${project.build.debDataDirectory}</value>
+                                    </property>
+                                    <property>
+                                        <name>includes</name>
+                                        <value>etc/**</value>
+                                    </property>
+                                </properties>
+                                <scripts>
+                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources.groovy</script>
+                                </scripts>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>process-test-components-it</id>
+                            <phase>pre-integration-test</phase>
+                            <goals>
+                                <goal>execute</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                            <configuration>
+                                <properties>
+                                    <property>
+                                        <name>dir</name>
+                                        <value>${project.build.itDirectory}</value>
+                                    </property>
+                                    <property>
+                                        <name>includes</name>
+                                        <value>
+                                            **/*.conf
+                                            **/*.config
+                                            **/*.json
+                                            **/*.properties
+                                            **/*.xml
+                                        </value>
+                                    </property>
+                                </properties>
+                                <scripts>
+                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-process-test-deb-it.groovy</script>
+                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources.groovy</script>
+                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-process-test-resources-it.groovy</script>
+                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-process-test-rabbitmq-it.groovy</script>
                                 </scripts>
                                 <skip>${skipTests}</skip>
                             </configuration>
@@ -1196,13 +1322,13 @@
                                 <controlDir>${project.build.debControlDirectory}</controlDir>
                                 <dataSet combine.children="append">
                                     <data>
-                                        <src>${project.build.debConfDataDirectory}</src>
+                                        <src>${project.build.debDataDirectory}/etc</src>
                                         <type>directory</type>
                                         <conffile>true</conffile>
                                         <missingSrc>ignore</missingSrc>
                                         <mapper>
                                             <type>perm</type>
-                                            <prefix>/${project.build.debConfDataDirectoryPath}</prefix>
+                                            <prefix>/etc</prefix>
                                         </mapper>
                                     </data>
                                     <data>
@@ -1232,7 +1358,7 @@
                                     <data>
                                         <src>${project.build.debDataDirectory}</src>
                                         <type>directory</type>
-                                        <excludes>${project.build.debConfDataDirectoryPath}/**,${project.build.debShareBinDataDirectoryPath}/**</excludes>
+                                        <excludes>etc/**,${project.build.debShareBinDataDirectoryPath}/**</excludes>
                                     </data>
                                     <data>
                                         <type>template</type>

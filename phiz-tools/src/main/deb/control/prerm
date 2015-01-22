@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    deconfigure|failed-upgrade|upgrade)
+        ;;
+esac
+
+exit 0

@@ -53,7 +53,7 @@ public class PhizTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedSer
         context.setTldValidation(true);
         context.setXmlNamespaceAware(true);
         context.setXmlValidation(true);
-        
+
         context.setLoginConfig(this.loginConfig);
 
         super.configureContext(context, ArrayUtils.add(servletContextInits, 0, ((servletContext) -> {

@@ -2,7 +2,8 @@ package gov.hhs.onc.phiz.beans.factory.impl;
 
 import gov.hhs.onc.phiz.beans.factory.EmbeddedPlaceholderResolver;
 import java.util.Objects;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.BeanExpressionResolver;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -11,9 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component("embeddedPlaceholderResolverImpl")
 public class EmbeddedPlaceholderResolverImpl implements EmbeddedPlaceholderResolver {
-    @Autowired
     private ConfigurableBeanFactory beanFactory;
-
     private BeanExpressionResolver beanExprResolver;
     private BeanExpressionContext beanExprContext;
 
@@ -42,5 +41,10 @@ public class EmbeddedPlaceholderResolverImpl implements EmbeddedPlaceholderResol
     public void afterPropertiesSet() throws Exception {
         this.beanExprResolver = this.beanFactory.getBeanExpressionResolver();
         this.beanExprContext = new BeanExpressionContext(this.beanFactory, null);
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = ((ConfigurableBeanFactory) beanFactory);
     }
 }

@@ -11,7 +11,6 @@ import org.springframework.util.PropertyPlaceholderHelper
 
 def pluginContextMap = session.getPluginContext(mojoExecution.mojoDescriptor.pluginDescriptor, project)
 def resolvedProps = pluginContextMap.get("resolvedProps")
-
 def localRepo = project.projectBuildingRequest.localRepository
 
 def rabbitMqServerArtifact = new DefaultArtifact("com.rabbitmq", "rabbitmq-server-generic-unix", "3.4.2", Artifact.SCOPE_TEST, "tar.gz", StringUtils.EMPTY,

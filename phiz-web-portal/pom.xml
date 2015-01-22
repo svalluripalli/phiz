@@ -119,7 +119,6 @@
         <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
@@ -177,12 +176,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-instrument</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-instrument-tomcat</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -412,10 +405,22 @@
                 <artifactId>gmavenplus-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>process-app-scripts</id>
+                        <id>process-resources-app-scripts</id>
                     </execution>
                     <execution>
-                        <id>pre-integration-test-process-components</id>
+                        <id>process-properties</id>
+                    </execution>
+                    <execution>
+                        <id>process-test-resources</id>
+                    </execution>
+                    <execution>
+                        <id>process-resources-deb-control</id>
+                    </execution>
+                    <execution>
+                        <id>process-resources-deb-data</id>
+                    </execution>
+                    <execution>
+                        <id>process-test-components-it</id>
                     </execution>
                 </executions>
             </plugin>
@@ -467,6 +472,15 @@
                 <executions>
                     <execution>
                         <id>jdeb</id>
+                        <configuration>
+                            <dataSet>
+                                <data>
+                                    <type>link</type>
+                                    <linkName>/etc/init.d/${project.artifactId}</linkName>
+                                    <linkTarget>../../${project.build.debShareBinDataDirectoryPath}/${project.artifactId}</linkTarget>
+                                </data>
+                            </dataSet>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

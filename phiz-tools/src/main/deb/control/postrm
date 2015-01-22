@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -e
+
+case "$1" in
+    abort-install|abort-upgrade|disappear|failed-upgrade|purge|remove|upgrade)
+        ;;
+esac
+
+exit 0

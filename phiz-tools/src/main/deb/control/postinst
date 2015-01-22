@@ -1,0 +1,30 @@
+#!/bin/bash
+
+set -e
+
+pkgName="%{project.artifactId}"
+pkgUser="root"
+pkgGroup="adm"
+
+rootDir="$(pwd)"
+rootDir="${rootDir#*/}"
+
+case "$1" in
+    abort-deconfigure|abort-remove|abort-upgrade)
+        ;;
+    
+    configure)
+        cacheDir="${rootDir}/var/cache/${pkgName}"
+        logDir="${rootDir}/var/log/${pkgName}"
+        runDir="${rootDir}/var/run/${pkgName}"
+        shareDir="${rootDir}/usr/share/${pkgName}"
+        varDir="${rootDir}/var/lib/${pkgName}"
+        
+        chown -R "${pkgUser}:${pkgGroup}" "${cacheDir}"
+        chown -R "${pkgUser}:${pkgGroup}" "${logDir}"
+        chown -R "${pkgUser}:${pkgGroup}" "${runDir}"
+        chown -R "${pkgUser}:${pkgGroup}" "${varDir}"
+        ;;
+esac
+
+exit 0
