@@ -89,6 +89,10 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
@@ -345,7 +349,7 @@
                                 </bindingFiles>
                                 <extraargs>
                                     <extraarg>-exceptionSuper</extraarg>
-                                    <extraarg>java.lang.RuntimeException</extraarg>
+                                    <extraarg>java.lang.Exception</extraarg>
                                     <extraarg>-faultSerialVersionUID</extraarg>
                                     <extraarg>1</extraarg>
                                     <extraarg>-mark-generated</extraarg>

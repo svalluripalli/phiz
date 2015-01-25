@@ -189,6 +189,7 @@
         p:directory="${phiz.data.db.dir}"
         p:password="${phiz.data.db.user.admin.pass}"
         p:port="${phiz.data.db.port}"
+        p:silent="true"
         p:user="${phiz.data.db.user.admin.name}"/>
     
     <!--====================================================================================================

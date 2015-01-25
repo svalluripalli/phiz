@@ -29,9 +29,9 @@
     
     <beans:bean id="dataSrcPooled" class="com.mchange.v2.c3p0.ComboPooledDataSource" parent="dataSrc" abstract="true"
         p:acquireIncrement="1"
-        p:initialPoolSize="0"
-        p:maxIdleTime="#{ T(com.mchange.v2.c3p0.impl.C3P0Defaults).maxIdleTime() }"
-        p:maxPoolSize="#{ T(com.mchange.v2.c3p0.impl.C3P0Defaults).maxPoolSize() }"
+        p:initialPoolSize="1"
+        p:maxIdleTime="0"
+        p:maxPoolSize="5"
         p:minPoolSize="1"/>
     
     <!--suppress SpringPlaceholdersInspection -->

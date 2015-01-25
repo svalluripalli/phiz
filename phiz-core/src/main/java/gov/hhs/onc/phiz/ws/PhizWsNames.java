@@ -1,19 +1,24 @@
 package gov.hhs.onc.phiz.ws;
 
-public final class PhizWsNames {
-    private final static String HUB_PREFIX = "Hub";
-    private final static String IIS_PREFIX = "IIS";
-    private final static String IIS_HUB_PREFIX = IIS_PREFIX + HUB_PREFIX;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.interceptor.Fault;
 
-    private final static String PORT_TYPE_SUFFIX = "PortType";
-    private final static String BINDING_SUFFIX = "BindingSoap12";
-    private final static String REQ_SUFFIX = "Request";
-    private final static String RESP_SUFFIX = "Response";
-    private final static String HEADER_SUFFIX = "Header";
-    private final static String FAULT_SUFFIX = "Fault";
-    private final static String MSG_SUFFIX = "Message";
-    private final static String SERVICE_SUFFIX = "Service";
-    private final static String PORT_SUFFIX = "PortSoap12";
+public final class PhizWsNames {
+    public final static String HUB_PREFIX = "Hub";
+    public final static String IIS_PREFIX = "IIS";
+    public final static String IIS_HUB_PREFIX = IIS_PREFIX + HUB_PREFIX;
+
+    public final static String PORT_TYPE_SUFFIX = "PortType";
+    public final static String BINDING_SUFFIX = "BindingSoap12";
+    public final static String REQ_SUFFIX = "Request";
+    public final static String RESP_SUFFIX = "Response";
+    public final static String HEADER_SUFFIX = "Header";
+    public final static String FAULT_SUFFIX = "Fault";
+    public final static String MSG_SUFFIX = "Message";
+    public final static String SERVICE_SUFFIX = "Service";
+    public final static String PORT_SUFFIX = "PortSoap12";
+
+    public final static String CXF_FAULT_ROOT_CAUSE_STACK_TRACE = "rootCause" + StringUtils.capitalize(Fault.STACKTRACE);
 
     public final static String PORT_TYPE = IIS_PREFIX + PORT_TYPE_SUFFIX;
     public final static String PORT_TYPE_HUB = IIS_HUB_PREFIX + PORT_TYPE_SUFFIX;

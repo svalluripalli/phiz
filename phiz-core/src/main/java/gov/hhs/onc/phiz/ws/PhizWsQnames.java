@@ -2,8 +2,12 @@ package gov.hhs.onc.phiz.ws;
 
 import gov.hhs.onc.phiz.xml.PhizXmlNs;
 import javax.xml.namespace.QName;
+import org.apache.cxf.interceptor.Fault;
 
 public final class PhizWsQnames {
+    public final static QName CXF_FAULT_ROOT_CAUSE_STACK_TRACE = new QName(Fault.STACKTRACE_NAMESPACE, PhizWsNames.CXF_FAULT_ROOT_CAUSE_STACK_TRACE,
+        PhizXmlNs.CXF_FAULT_PREFIX);
+
     public final static QName PORT_TYPE = new QName(PhizXmlNs.IIS, PhizWsNames.PORT_TYPE, PhizXmlNs.IIS_PREFIX);
     public final static QName PORT_TYPE_HUB = new QName(PhizXmlNs.IIS_HUB, PhizWsNames.PORT_TYPE_HUB, PhizXmlNs.IIS_HUB_PREFIX);
 

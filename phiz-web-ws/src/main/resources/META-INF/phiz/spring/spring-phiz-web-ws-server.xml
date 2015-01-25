@@ -42,7 +42,13 @@
     <beans:bean id="serverJaxWs" class="gov.hhs.onc.phiz.web.ws.jaxws.impl.PhizJaxWsServerFactoryBean" parent="server" abstract="true"
         p:bindingConfig-ref="soapBindingConfig12"
         p:bus-ref="busPhiz"
-        p:dataBinding-ref="dataBindingJaxb"/>
+        p:dataBinding-ref="dataBindingJaxb">
+        <beans:property name="outFaultInterceptors">
+            <beans:list>
+                <beans:ref bean="interceptorFaultRootCauseStackTrace"/>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
     
     <!--====================================================================================================
     = SERVERS: IIS

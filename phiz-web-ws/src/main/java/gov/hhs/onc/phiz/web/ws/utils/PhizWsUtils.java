@@ -1,6 +1,6 @@
 package gov.hhs.onc.phiz.web.ws.utils;
 
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -12,7 +12,10 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.Holder;
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
+import org.apache.commons.io.IOUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
+import org.apache.cxf.io.CachedOutputStream;
+import org.apache.cxf.io.DelegatingInputStream;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
@@ -22,17 +25,29 @@ public final class PhizWsUtils {
     private PhizWsUtils() {
     }
 
-    public static BufferedInputStream getMarkedInputStream(Message msg) throws IOException {
+    public static InputStream getCachedInputStream(Message msg) throws IOException {
         InputStream msgInStream = msg.getContent(InputStream.class);
-        BufferedInputStream msgBufferedInStream = ((msgInStream instanceof BufferedInputStream) ? ((BufferedInputStream) msgInStream) : null);
+        DelegatingInputStream delegatingMsgInStream = ((msgInStream instanceof DelegatingInputStream) ? ((DelegatingInputStream) msgInStream) : null);
+        CachedOutputStream cachedMsgOutStream = new CachedOutputStream();
+        byte[] msgContent;
 
-        if (msgBufferedInStream == null) {
-            msg.setContent(InputStream.class, (msgBufferedInStream = new BufferedInputStream(msgInStream)));
+        IOUtils.copy(((delegatingMsgInStream != null) ? delegatingMsgInStream.getInputStream() : msgInStream), cachedMsgOutStream);
+
+        msgInStream.close();
+        cachedMsgOutStream.flush();
+
+        msgContent = IOUtils.toByteArray(cachedMsgOutStream.getInputStream());
+        msgInStream = new ByteArrayInputStream(msgContent);
+
+        if (delegatingMsgInStream != null) {
+            delegatingMsgInStream.setInputStream(msgInStream);
+        } else {
+            msg.setContent(InputStream.class, msgInStream);
         }
 
-        msgBufferedInStream.mark(msgBufferedInStream.available());
+        cachedMsgOutStream.close();
 
-        return msgBufferedInStream;
+        return new ByteArrayInputStream(msgContent);
     }
 
     @Nullable
