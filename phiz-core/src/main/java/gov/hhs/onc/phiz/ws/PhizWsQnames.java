@@ -8,6 +8,11 @@ public final class PhizWsQnames {
     public final static QName CXF_FAULT_ROOT_CAUSE_STACK_TRACE = new QName(Fault.STACKTRACE_NAMESPACE, PhizWsNames.CXF_FAULT_ROOT_CAUSE_STACK_TRACE,
         PhizXmlNs.CXF_FAULT_PREFIX);
 
+    public final static QName USERNAME = new QName(PhizXmlNs.IIS, PhizWsNames.USERNAME, PhizXmlNs.IIS_PREFIX);
+    public final static QName PASSWORD = new QName(PhizXmlNs.IIS, PhizWsNames.PASSWORD, PhizXmlNs.IIS_PREFIX);
+    public final static QName FACILITY_ID = new QName(PhizXmlNs.IIS, PhizWsNames.FACILITY_ID, PhizXmlNs.IIS_PREFIX);
+    public final static QName HL7_MSG = new QName(PhizXmlNs.IIS, PhizWsNames.HL7_MSG, PhizXmlNs.IIS_PREFIX);
+
     public final static QName PORT_TYPE = new QName(PhizXmlNs.IIS, PhizWsNames.PORT_TYPE, PhizXmlNs.IIS_PREFIX);
     public final static QName PORT_TYPE_HUB = new QName(PhizXmlNs.IIS_HUB, PhizWsNames.PORT_TYPE_HUB, PhizXmlNs.IIS_HUB_PREFIX);
 

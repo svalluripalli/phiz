@@ -85,6 +85,11 @@
         <dependencies>
             <!-- Compile dependencies -->
             <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-access</artifactId>
+                <version>1.1.2</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.inject</groupId>
                 <artifactId>guice</artifactId>
                 <version>3.0</version>

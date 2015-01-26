@@ -20,6 +20,7 @@ import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.logging.FaultListener;
+import org.apache.cxf.logging.NoOpFaultListener;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
 import org.apache.cxf.transport.http.Headers;
@@ -28,14 +29,7 @@ import org.springframework.stereotype.Component;
 
 @Component("interceptorIisHubDevAction")
 public class IisHubDevActionInterceptor extends AbstractPhizSoapInterceptor {
-    private static class IisHubDevFaultListener implements FaultListener {
-        public final static IisHubDevFaultListener INSTANCE = new IisHubDevFaultListener();
-
-        @Override
-        public boolean faultOccurred(Exception exception, String desc, Message msg) {
-            return false;
-        }
-    }
+    private final static FaultListener NO_OP_FAULT_LISTENER_INSTANCE = new NoOpFaultListener();
 
     @Value("${phiz.dest.iis.dev.id}")
     private String iisDevDestId;
@@ -88,7 +82,7 @@ public class IisHubDevActionInterceptor extends AbstractPhizSoapInterceptor {
                 }
 
                 if (devActionValueFaultCause != null) {
-                    msg.setContextualProperty(FaultListener.class.getName(), IisHubDevFaultListener.INSTANCE);
+                    msg.setContextualProperty(FaultListener.class.getName(), NO_OP_FAULT_LISTENER_INSTANCE);
 
                     throw SoapFault.createFault(new Fault(devActionValueFaultCause), msg.getVersion());
                 }

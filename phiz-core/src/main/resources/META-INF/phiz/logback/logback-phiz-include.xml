@@ -15,9 +15,9 @@
     <!--====================================================================================================
     = PROPERTIES: FILE
     =====================================================================================================-->
-    <if condition='!isDefined("hub.log.file.dir")'>
+    <if condition='!isDefined("phiz.log.file.dir")'>
         <then>
-            <property name="hub.log.file.dir" value="logs" scope="context"/>
+            <property name="phiz.log.file.dir" value="logs" scope="context"/>
         </then>
     </if>
     
@@ -40,11 +40,11 @@
     <!--====================================================================================================
     = CONVERSION RULES
     =====================================================================================================-->
-    <conversionRule conversionWord="exRoot" converterClass="gov.hhs.onc.phiz.logging.logback.impl.RootCauseThrowableProxyConverter"/>
+    <conversionRule conversionWord="exRoot" converterClass="gov.hhs.onc.phiz.logging.impl.RootCauseThrowableProxyConverter"/>
     
-    <conversionRule conversionWord="pColor" converterClass="gov.hhs.onc.phiz.logging.logback.impl.PriorityColorCompositeConverter"/>
+    <conversionRule conversionWord="pColor" converterClass="gov.hhs.onc.phiz.logging.impl.PriorityColorCompositeConverter"/>
     
-    <conversionRule conversionWord="xReq" converterClass="gov.hhs.onc.phiz.logging.logback.impl.RequestMdcConverter"/>
+    <conversionRule conversionWord="xReq" converterClass="gov.hhs.onc.phiz.logging.impl.RequestMdcConverter"/>
     
     <!--====================================================================================================
     = APPENDERS: CONSOLE
@@ -63,10 +63,10 @@
     <if condition='isDefined("phiz.log.file.dir") &amp;&amp; !new java.io.File(p("phiz.log.file.dir")).isFile()'>
         <then>
             <appender name="file" class="ch.qos.logback.core.FileAppender">
-                <file>${phiz.log.file.dir}/${phiz.log.file.name}${phiz.log.file.name.ext}</file>
                 <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
                     <pattern>%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t]%xReq %p - %m%n%exRoot</pattern>
                 </encoder>
+                <file>${phiz.log.file.dir}/${phiz.log.file.name}${phiz.log.file.name.ext}</file>
                 <prudent>true</prudent>
             </appender>
         </then>
@@ -76,11 +76,27 @@
     </if>
     
     <!--====================================================================================================
+    = APPENDERS: LOGSTASH
+    =====================================================================================================-->
+    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <includeCallerInfo>true</includeCallerInfo>
+            <includeContext>false</includeContext>
+            <includeMdc>false</includeMdc>
+            <jsonFactoryDecorator class="gov.hhs.onc.phiz.logging.impl.PhizJsonFactoryDecorator"/>
+            <throwableConverter class="gov.hhs.onc.phiz.logging.impl.RootCauseThrowableProxyConverter"/>
+        </encoder>
+        <port>4560</port>
+        <remoteHost>127.0.0.1</remoteHost>
+    </appender>
+    
+    <!--====================================================================================================
     = LOGGERS: PROJECT
     =====================================================================================================-->
     <logger name="gov.hhs.onc.phiz" level="all" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <!--====================================================================================================
@@ -89,6 +105,7 @@
     <logger name="br.net.woodstock.rockframework" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <!--====================================================================================================
@@ -97,6 +114,7 @@
     <logger name="com.eviware" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <!--====================================================================================================
@@ -105,6 +123,7 @@
     <logger name="org.apache" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <!--====================================================================================================
@@ -113,16 +132,19 @@
     <logger name="org.apache.cxf" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <logger name="org.apache.cxf.transport.http" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <logger name="org.apache.cxf.transport.https" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <!--====================================================================================================
@@ -131,11 +153,13 @@
     <logger name="org.hibernate" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <logger name="org.hibernate.SQL" level="debug" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <!--====================================================================================================
@@ -144,11 +168,13 @@
     <logger name="org.springframework" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="warn" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </logger>
     
     <!--====================================================================================================
@@ -157,5 +183,6 @@
     <root level="warn">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
     </root>
 </included>

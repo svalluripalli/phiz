@@ -20,6 +20,11 @@ public final class PhizWsNames {
 
     public final static String CXF_FAULT_ROOT_CAUSE_STACK_TRACE = "rootCause" + StringUtils.capitalize(Fault.STACKTRACE);
 
+    public final static String USERNAME = "Username";
+    public final static String PASSWORD = "Password";
+    public final static String FACILITY_ID = "FacilityID";
+    public final static String HL7_MSG = "Hl7" + MSG_SUFFIX;
+
     public final static String PORT_TYPE = IIS_PREFIX + PORT_TYPE_SUFFIX;
     public final static String PORT_TYPE_HUB = IIS_HUB_PREFIX + PORT_TYPE_SUFFIX;
 

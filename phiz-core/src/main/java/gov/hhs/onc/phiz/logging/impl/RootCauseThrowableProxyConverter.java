@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.logging.logback.impl;
+package gov.hhs.onc.phiz.logging.impl;
 
 import ch.qos.logback.classic.pattern.ExtendedThrowableProxyConverter;
 import ch.qos.logback.classic.spi.IThrowableProxy;

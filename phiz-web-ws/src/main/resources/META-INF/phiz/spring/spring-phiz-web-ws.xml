@@ -42,6 +42,8 @@
     <beans:bean id="bus" class="org.apache.cxf.Bus" abstract="true" destroy-method="shutdown">
         <beans:property name="features">
             <beans:list>
+                <beans:bean class="gov.hhs.onc.phiz.web.ws.feature.impl.PhizLoggingFeature" parent="feature"
+                    p:indentSize="4"/>
                 <beans:bean class="org.apache.cxf.feature.validation.SchemaValidationFeature" parent="feature">
                     <beans:constructor-arg name="provider">
                         <beans:bean parent="schemaValidationTypeProvConst"
@@ -120,15 +122,9 @@
         =====================================================================================================-->
         <!--suppress DuplicatedBeanNamesInspection -->
         <beans:bean id="busPhiz" parent="busSpring" primary="true">
-            <beans:property name="features">
-                <beans:list merge="true">
-                    <beans:bean class="gov.hhs.onc.phiz.web.ws.feature.impl.PhizLoggingFeature" parent="feature"
-                        p:indentSize="4"/>
-                </beans:list>
-            </beans:property>
             <beans:property name="properties">
                 <beans:map>
-                    <beans:entry key="#{ T(gov.hhs.onc.phiz.web.ws.PhizMessageContextProperties).FAULT_ROOT_STACK_TRACE_ENABLED }" value="true"/>
+                    <beans:entry key="#{ T(gov.hhs.onc.phiz.web.ws.PhizWsMessageContextProperties).FAULT_ROOT_STACK_TRACE_ENABLED }" value="true"/>
                 </beans:map>
             </beans:property>
         </beans:bean>
@@ -142,6 +138,18 @@
         = BUS
         =====================================================================================================-->
         <!--suppress DuplicatedBeanNamesInspection -->
-        <beans:bean id="busPhiz" parent="busSpring" primary="true"/>
+        <beans:bean id="busPhiz" parent="busSpring" primary="true">
+            <beans:property name="properties">
+                <beans:map>
+                    <beans:entry key="#{ T(gov.hhs.onc.phiz.web.ws.PhizWsMessageContextProperties).LOG_MSG_PAYLOAD_HIDE_CONTENT_ELEM_QNAMES }">
+                        <beans:set>
+                            <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).USERNAME }</beans:value>
+                            <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PASSWORD }</beans:value>
+                            <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).HL7_MSG }</beans:value>
+                        </beans:set>
+                    </beans:entry>
+                </beans:map>
+            </beans:property>
+        </beans:bean>
     </beans:beans>
 </beans:beans>

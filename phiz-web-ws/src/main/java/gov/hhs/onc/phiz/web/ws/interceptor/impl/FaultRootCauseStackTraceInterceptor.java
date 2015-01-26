@@ -1,7 +1,7 @@
 package gov.hhs.onc.phiz.web.ws.interceptor.impl;
 
 import com.github.sebhoss.warnings.CompilerWarnings;
-import gov.hhs.onc.phiz.web.ws.PhizMessageContextProperties;
+import gov.hhs.onc.phiz.web.ws.PhizWsMessageContextProperties;
 import gov.hhs.onc.phiz.ws.PhizWsQnames;
 import gov.hhs.onc.phiz.xml.utils.PhizXmlQnameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +30,7 @@ public class FaultRootCauseStackTraceInterceptor extends AbstractPhizSoapInterce
         Fault fault = ((Fault) msg.getContent(Exception.class));
         Throwable faultCause;
 
-        if (!MessageUtils.getContextualBoolean(msg, PhizMessageContextProperties.FAULT_ROOT_STACK_TRACE_ENABLED, false)
+        if (!MessageUtils.getContextualBoolean(msg, PhizWsMessageContextProperties.FAULT_ROOT_STACK_TRACE_ENABLED, false)
             || ((faultCause = fault.getCause()) == null)) {
             return;
         }
