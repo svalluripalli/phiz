@@ -192,6 +192,10 @@ public final class PhizXmlUtils {
         return DOMUtils.getContent(findElement(parentElem, elemNsUri, elemLocalName));
     }
 
+    public static List<Element> findElements(Element parentElem, QName elemQname) {
+        return DOMUtils.findAllElementsByTagNameNS(parentElem, elemQname.getNamespaceURI(), elemQname.getLocalPart());
+    }
+
     @Nullable
     public static Element findElement(Element parentElem, QName elemQname) {
         return findElement(parentElem, elemQname.getNamespaceURI(), elemQname.getLocalPart());

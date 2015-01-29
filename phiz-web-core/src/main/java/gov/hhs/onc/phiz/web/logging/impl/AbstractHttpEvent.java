@@ -17,7 +17,7 @@ public abstract class AbstractHttpEvent<T> implements HttpEvent<T> {
     public Map<String, List<String>> getHeaderMap() {
         Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
-        this.getHeaderNames().stream().forEach((headerName) -> headers.put(headerName, new ArrayList<>(this.getHeaders(headerName))));
+        this.getHeaderNames().stream().forEach((headerName) -> headers.put(headerName.toLowerCase(), new ArrayList<>(this.getHeaders(headerName))));
 
         return headers;
     }

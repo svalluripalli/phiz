@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = ENCODERS
+    =====================================================================================================-->
+    <beans:bean id="encoderLogstash" class="net.logstash.logback.encoder.LogstashEncoder" parent="encoder" abstract="true"
+        p:includeContext="false"
+        p:includeMdc="false"
+        p:jsonFactoryDecorator-ref="jsonFactoryDecoratorLogstash"
+        p:throwableConverter-ref="throwableProxyConvRootCause"/>
+    
+    <beans:bean id="encoderLogstashTcp" class="net.logstash.logback.encoder.LogstashTcpEncoder" parent="encoderLogstash" abstract="true"
+        p:encoding="#{ charsetUtf8.name() }"
+        p:newLine="#{ T(org.apache.commons.lang3.StringUtils).LF }"/>
+    
+    <!--====================================================================================================
+    = APPENDERS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="appenderLogstashTcp" class="net.logstash.logback.appender.LogstashTcpSocketAppender" parent="appender" init-method="start"
+        destroy-method="stop"
+        p:includeCallerData="true"
+        p:name="logstash"
+        p:port="${phiz.logging.logstash.port}"
+        p:remoteHost="${phiz.logging.logstash.host}">
+        <beans:property name="encoder">
+            <beans:bean parent="encoderLogstashTcp" init-method="start" destroy-method="stop"/>
+        </beans:property>
+    </beans:bean>
+</beans:beans>

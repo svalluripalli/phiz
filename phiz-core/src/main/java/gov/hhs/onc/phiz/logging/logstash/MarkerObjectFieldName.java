@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.logging;
+package gov.hhs.onc.phiz.logging.logstash;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
@@ -12,6 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
-public @interface MarkerFieldName {
+public @interface MarkerObjectFieldName {
     String value() default StringUtils.EMPTY;
 }

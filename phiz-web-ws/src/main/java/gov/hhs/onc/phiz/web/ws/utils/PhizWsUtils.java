@@ -17,6 +17,7 @@ import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.DelegatingInputStream;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
+import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.message.MessageContentsList;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
@@ -73,6 +74,15 @@ public final class PhizWsUtils {
     }
 
     @Nullable
+    public static <T> T getContextualProperty(Message msg, String propName, Class<T> propValueClass) {
+        return (hasContextualProperty(msg, propName) ? propValueClass.cast(msg.getContextualProperty(propName)) : null);
+    }
+
+    public static boolean hasContextualProperty(Message msg, String propName) {
+        return msg.getContextualPropertyKeys().contains(propName);
+    }
+
+    @Nullable
     public static HttpServletResponse getHttpServletResponse(Message msg) {
         return getProperty(msg, AbstractHTTPDestination.HTTP_RESPONSE, HttpServletResponse.class);
     }
@@ -90,6 +100,11 @@ public final class PhizWsUtils {
     @Nullable
     public static HttpServletRequest getHttpServletRequest(MessageContext msgContext) {
         return getProperty(msgContext, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class);
+    }
+
+    @Nullable
+    public static <T> T getProperty(Exchange exchange, String propName, Class<T> propValueClass) {
+        return getPropertyInternal(exchange, propName, propValueClass);
     }
 
     @Nullable

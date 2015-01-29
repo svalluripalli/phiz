@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = METRICS
+    =====================================================================================================-->
+    <beans:bean id="metric" class="com.codahale.metrics.Metric" abstract="true"/>
+    
+    <beans:bean id="metricSet" class="com.codahale.metrics.MetricSet" parent="metric" abstract="true"/>
+    
+    <!--====================================================================================================
+    = GAUGES
+    =====================================================================================================-->
+    <beans:bean id="gauge" class="com.codahale.metrics.Gauge" parent="metric" abstract="true"/>
+    
+    <beans:bean id="gaugeSet" parent="metricSet" abstract="true"/>
+    
+    <!--====================================================================================================
+    = METRIC REGISTRIES
+    =====================================================================================================-->
+    <beans:bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry" abstract="true"/>
+    
+    <beans:bean id="metricRegistryBase" class="gov.hhs.onc.phiz.logging.metrics.impl.PhizMetricRegistryFactoryBean" parent="metricRegistry">
+        <beans:property name="metrics">
+            <beans:map>
+                <beans:entry key="bufferPool">
+                    <beans:bean class="com.codahale.metrics.jvm.BufferPoolMetricSet" parent="metricSet"
+                        c:mBeanServer="#{ T(java.lang.management.ManagementFactory).platformMBeanServer }"/>
+                </beans:entry>
+                <beans:entry key="cachedThreadStates">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean class="com.codahale.metrics.jvm.CachedThreadStatesGaugeSet" parent="gaugeSet"
+                        c:interval="${phiz.logging.metrics.metric.cached.thread.states.interval}"
+                        c:unit="#{ T(java.util.concurrent.TimeUnit).SECONDS }"/>
+                </beans:entry>
+                <beans:entry key="classLoading">
+                    <beans:bean class="com.codahale.metrics.jvm.ClassLoadingGaugeSet" parent="gaugeSet"/>
+                </beans:entry>
+                <beans:entry key="fileDescRatio">
+                    <beans:bean class="com.codahale.metrics.jvm.FileDescriptorRatioGauge" parent="gauge"/>
+                </beans:entry>
+                <beans:entry key="garbageColl">
+                    <beans:bean class="com.codahale.metrics.jvm.GarbageCollectorMetricSet" parent="metricSet"/>
+                </beans:entry>
+                <beans:entry key="jvmAttr">
+                    <beans:bean class="com.codahale.metrics.JvmAttributeGaugeSet" parent="metricSet"/>
+                </beans:entry>
+                <beans:entry key="memUsage">
+                    <beans:bean class="com.codahale.metrics.jvm.MemoryUsageGaugeSet" parent="gaugeSet"/>
+                </beans:entry>
+                <beans:entry key="threadStates">
+                    <beans:bean class="com.codahale.metrics.jvm.ThreadStatesGaugeSet" parent="gaugeSet"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = REPORTERS
+    =====================================================================================================-->
+    <beans:bean id="reporter" class="com.codahale.metrics.Reporter" abstract="true"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="reporterLogstash" class="gov.hhs.onc.phiz.logging.metrics.impl.LogstashReporter" parent="reporter" depends-on="appenderLogstashTcp"
+        c:metricRegistry-ref="metricRegistryBase"
+        p:period="${phiz.logging.metrics.reporter.logstash.interval}"/>
+</beans:beans>

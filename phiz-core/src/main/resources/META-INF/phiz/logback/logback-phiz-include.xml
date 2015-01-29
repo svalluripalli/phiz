@@ -78,16 +78,8 @@
     <!--====================================================================================================
     = APPENDERS: LOGSTASH
     =====================================================================================================-->
-    <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
-            <includeCallerInfo>true</includeCallerInfo>
-            <includeContext>false</includeContext>
-            <includeMdc>false</includeMdc>
-            <jsonFactoryDecorator class="gov.hhs.onc.phiz.logging.impl.PhizJsonFactoryDecorator"/>
-            <throwableConverter class="gov.hhs.onc.phiz.logging.impl.RootCauseThrowableProxyConverter"/>
-        </encoder>
-        <port>4560</port>
-        <remoteHost>127.0.0.1</remoteHost>
+    <appender name="logstash" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
+        <beanName>appenderLogstashTcp</beanName>
     </appender>
     
     <!--====================================================================================================
@@ -99,10 +91,23 @@
         <appender-ref ref="logstash"/>
     </logger>
     
+    <logger name="gov.hhs.onc.phiz.logging.metrics.impl.LogstashReporter" level="all" additivity="false">
+        <appender-ref ref="logstash"/>
+    </logger>
+    
     <!--====================================================================================================
     = LOGGERS: ROCKFRAMEWORK
     =====================================================================================================-->
     <logger name="br.net.woodstock.rockframework" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+        <appender-ref ref="logstash"/>
+    </logger>
+    
+    <!--====================================================================================================
+    = LOGGERS: METRICS
+    =====================================================================================================-->
+    <logger name="com.codahale.metrics" level="info" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
         <appender-ref ref="logstash"/>

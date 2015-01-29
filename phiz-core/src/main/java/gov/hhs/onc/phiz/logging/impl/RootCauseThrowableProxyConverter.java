@@ -6,7 +6,9 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.CoreConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.stereotype.Component;
 
+@Component("throwableProxyConvRootCause")
 public class RootCauseThrowableProxyConverter extends ExtendedThrowableProxyConverter {
     public String throwableProxyToString(IThrowableProxy throwableProxy) {
         String[] rootCauseStackTraceArr = ExceptionUtils.getRootCauseStackTrace(((ThrowableProxy) throwableProxy).getThrowable());

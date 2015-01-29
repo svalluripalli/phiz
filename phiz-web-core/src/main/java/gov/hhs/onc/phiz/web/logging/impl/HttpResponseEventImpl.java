@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.tomcat.util.http.HttpMessages;
 
 public class HttpResponseEventImpl extends AbstractHttpEvent<HttpServletResponse> implements HttpResponseEvent {
     public HttpResponseEventImpl(HttpServletResponse desc) {
@@ -33,5 +34,10 @@ public class HttpResponseEventImpl extends AbstractHttpEvent<HttpServletResponse
     @Override
     public int getStatus() {
         return this.desc.getStatus();
+    }
+
+    @Override
+    public String getStatusMessage() {
+        return HttpMessages.getInstance(this.desc.getLocale()).getMessage(this.getStatus());
     }
 }

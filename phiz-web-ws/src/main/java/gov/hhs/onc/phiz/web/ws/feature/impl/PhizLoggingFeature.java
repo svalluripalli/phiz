@@ -3,8 +3,8 @@ package gov.hhs.onc.phiz.web.ws.feature.impl;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.github.sebhoss.warnings.CompilerWarnings;
 import com.sun.xml.ws.encoding.soap.SOAP12Constants;
-import gov.hhs.onc.phiz.logging.MarkerFieldName;
-import gov.hhs.onc.phiz.logging.impl.PhizMarkers;
+import gov.hhs.onc.phiz.logging.logstash.MarkerObjectFieldName;
+import gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashMarkers;
 import gov.hhs.onc.phiz.web.PhizHttpRequestMethods;
 import gov.hhs.onc.phiz.web.logging.HttpEvent;
 import gov.hhs.onc.phiz.web.logging.HttpRequestEvent;
@@ -116,7 +116,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         }
     }
 
-    @MarkerFieldName("wsRequest")
+    @MarkerObjectFieldName("wsRequest")
     private static class WsRequestMessageEvent extends AbstractWsMessageEvent {
         public WsRequestMessageEvent(String endpointAddr, int eventId) {
             super(endpointAddr, eventId);
@@ -128,7 +128,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         }
     }
 
-    @MarkerFieldName("wsResponse")
+    @MarkerObjectFieldName("wsResponse")
     private static class WsResponseMessageEvent extends AbstractWsMessageEvent {
         public WsResponseMessageEvent(String endpointAddr, int eventId) {
             super(endpointAddr, eventId);
@@ -167,7 +167,7 @@ public class PhizLoggingFeature extends AbstractFeature {
                     msg,
                     this.httpEventSupplier.apply(this.httpEventDescSupplier.apply(msg)),
                     this.wsMsgEventSupplier.apply(msg.getExchange().getEndpoint().getEndpointInfo().getAddress(),
-                        ((int) msgExchange.get(WS_MSG_EVENT_ID_PROP_NAME))));
+                        PhizWsUtils.getProperty(msgExchange, WS_MSG_EVENT_ID_PROP_NAME, Integer.class)));
             } catch (Fault e) {
                 throw e;
             } catch (Exception e) {
@@ -189,20 +189,17 @@ public class PhizLoggingFeature extends AbstractFeature {
                     (msgSoapFaultCodeElem) -> msgSoapFaultContentMap.put(SOAP12Constants.QNAME_FAULT_CODE.getLocalPart(),
                         DOMUtils.getContent(DOMUtils.getFirstChildWithName(msgSoapFaultCodeElem, SOAP12Constants.QNAME_FAULT_VALUE))));
 
-                Optional.ofNullable(
-                    DOMUtils.findAllElementsByTagNameNS(msgSoapFaultElem, SOAP12Constants.QNAME_FAULT_SUBCODE.getNamespaceURI(),
-                        SOAP12Constants.QNAME_FAULT_SUBCODE.getLocalPart())).ifPresent(
-                    (msgSoapFaultSubcodeElems) -> {
-                        if (!msgSoapFaultSubcodeElems.isEmpty()) {
-                            msgSoapFaultContentMap.put(
-                                SOAP12Constants.QNAME_FAULT_SUBCODE.getLocalPart(),
-                                msgSoapFaultSubcodeElems
-                                    .stream()
-                                    .map(
-                                        (msgSoapFaultSubcodeElem) -> DOMUtils.getContent(DOMUtils.getFirstChildWithName(msgSoapFaultSubcodeElem,
-                                            SOAP12Constants.QNAME_FAULT_VALUE))).collect(Collectors.toList()));
-                        }
-                    });
+                List<Element> msgSoapFaultSubcodeElems = PhizXmlUtils.findElements(msgSoapFaultElem, SOAP12Constants.QNAME_FAULT_SUBCODE);
+
+                if (!msgSoapFaultSubcodeElems.isEmpty()) {
+                    msgSoapFaultContentMap.put(
+                        SOAP12Constants.QNAME_FAULT_SUBCODE.getLocalPart(),
+                        msgSoapFaultSubcodeElems
+                            .stream()
+                            .map(
+                                (msgSoapFaultSubcodeElem) -> DOMUtils.getContent(DOMUtils.getFirstChildWithName(msgSoapFaultSubcodeElem,
+                                    SOAP12Constants.QNAME_FAULT_VALUE))).collect(Collectors.toList()));
+                }
 
                 Optional.ofNullable(DOMUtils.getFirstChildWithName(msgSoapFaultElem, SOAP12Constants.QNAME_FAULT_REASON)).ifPresent(
                     (msgSoapFaultReasonElem) -> msgSoapFaultContentMap.put(SOAP12Constants.QNAME_FAULT_REASON.getLocalPart(),
@@ -226,7 +223,7 @@ public class PhizLoggingFeature extends AbstractFeature {
 
         protected void populateSoapHeaders(V wsMsgEvent, Element msgPayloadDocElem) {
             Element[] msgSoapHeaderElems =
-                DOMUtils.findAllElementsByTagNameNS(msgPayloadDocElem, SOAP12Constants.URI_ENVELOPE, SOAP12Constants.QNAME_SOAP_HEADER.getLocalPart()).stream()
+                PhizXmlUtils.findElements(msgPayloadDocElem, SOAP12Constants.QNAME_SOAP_HEADER).stream()
                     .flatMap((msgSoapHeaderContainerElem) -> DomUtils.getChildElements(msgSoapHeaderContainerElem).stream()).toArray(Element[]::new);
 
             if (msgSoapHeaderElems.length > 0) {
@@ -343,7 +340,7 @@ public class PhizLoggingFeature extends AbstractFeature {
                     ((Set<QName>) msg.getContextualProperty(PhizWsMessageContextProperties.LOG_MSG_PAYLOAD_HIDE_CONTENT_ELEM_QNAMES)))) : PhizXmlUtils
             .toString(msgPayloadDoc, this.indentSize)));
 
-        LOGGER.info(PhizMarkers.append(httpEvent, wsMsgEvent), wsMsgEvent.toString());
+        LOGGER.info(PhizLogstashMarkers.append(httpEvent, wsMsgEvent), wsMsgEvent.toString());
     }
 
     public int getIndentSize() {
