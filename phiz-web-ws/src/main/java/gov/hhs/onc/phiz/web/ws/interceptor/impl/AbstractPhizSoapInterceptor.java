@@ -1,9 +1,10 @@
 package gov.hhs.onc.phiz.web.ws.interceptor.impl;
 
 import com.github.sebhoss.warnings.CompilerWarnings;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -16,27 +17,27 @@ public abstract class AbstractPhizSoapInterceptor extends AbstractPhaseIntercept
 
     @SuppressWarnings({ CompilerWarnings.UNCHECKED })
     public void setAfterClasses(Class<? extends PhaseInterceptor<? extends Message>> ... afterClasses) {
-        this.setAfterClasses(Stream.of(afterClasses));
+        this.setAfterClasses(Arrays.asList(afterClasses));
     }
 
     public void setAfterClasses(Collection<Class<? extends PhaseInterceptor<? extends Message>>> afterClasses) {
-        this.setAfterClasses(afterClasses.stream());
+        this.setAfter(ClassUtils.convertClassesToClassNames(new ArrayList<>(afterClasses)));
     }
 
-    public void setAfterClasses(Stream<Class<? extends PhaseInterceptor<? extends Message>>> afterClasses) {
-        this.setAfter(afterClasses.map(Object::getClass).map(Class::getName).collect(Collectors.toList()));
+    public void setAfter(String ... afterStrs) {
+        this.setAfter(Arrays.asList(afterStrs));
     }
 
     @SuppressWarnings({ CompilerWarnings.UNCHECKED })
     public void setBeforeClasses(Class<? extends PhaseInterceptor<? extends Message>> ... beforeClasses) {
-        this.setBeforeClasses(Stream.of(beforeClasses));
+        this.setBeforeClasses(Arrays.asList(beforeClasses));
     }
 
     public void setBeforeClasses(Collection<Class<? extends PhaseInterceptor<? extends Message>>> beforeClasses) {
-        this.setBeforeClasses(beforeClasses.stream());
+        this.setBefore(ClassUtils.convertClassesToClassNames(new ArrayList<>(beforeClasses)));
     }
 
-    public void setBeforeClasses(Stream<Class<? extends PhaseInterceptor<? extends Message>>> beforeClasses) {
-        this.setBefore(beforeClasses.map(Object::getClass).map(Class::getName).collect(Collectors.toList()));
+    public void setBefore(String ... beforeStrs) {
+        this.setBefore(Arrays.asList(beforeStrs));
     }
 }

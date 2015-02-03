@@ -1,118 +1,204 @@
 package gov.hhs.onc.phiz.web.logging.impl;
 
 import gov.hhs.onc.phiz.web.logging.HttpRequestEvent;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.collections4.EnumerationUtils;
+import javax.annotation.Nullable;
+import org.springframework.http.HttpMethod;
 
-public class HttpRequestEventImpl extends AbstractHttpEvent<HttpServletRequest> implements HttpRequestEvent {
-    public HttpRequestEventImpl(HttpServletRequest desc) {
-        super(desc);
-    }
+public class HttpRequestEventImpl extends AbstractHttpEvent implements HttpRequestEvent {
+    private String authType;
+    private String contextPath;
+    private String localName;
+    private Integer localPort;
+    private HttpMethod method;
+    private String pathInfo;
+    private String protocol;
+    private String queryString;
+    private String remoteAddr;
+    private String remoteHost;
+    private Integer remotePort;
+    private String scheme;
+    private String serverName;
+    private Integer serverPort;
+    private String servletPath;
+    private String url;
+    private String userPrincipal;
 
-    @Override
-    public Set<String> getHeaderNames() {
-        Set<String> headerNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-        headerNames.addAll(EnumerationUtils.toList(this.desc.getHeaderNames()));
-
-        return headerNames;
-    }
-
-    @Override
-    public List<String> getHeaders(String headerName) {
-        return EnumerationUtils.toList(this.desc.getHeaders(headerName));
-    }
-
+    @Nullable
     @Override
     public String getAuthType() {
-        return this.desc.getAuthType();
+        return this.authType;
     }
 
     @Override
-    public long getContentLength() {
-        return this.desc.getContentLengthLong();
+    public void setAuthType(@Nullable String authType) {
+        this.authType = authType;
     }
 
-    @Override
-    public String getContentType() {
-        return this.desc.getContentType();
-    }
-
+    @Nullable
     @Override
     public String getContextPath() {
-        return this.desc.getContextPath();
+        return this.contextPath;
     }
 
+    @Override
+    public void setContextPath(@Nullable String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+    @Nullable
     @Override
     public String getLocalName() {
-        return this.desc.getLocalName();
+        return this.localName;
     }
 
     @Override
-    public int getLocalPort() {
-        return this.desc.getLocalPort();
+    public void setLocalName(@Nullable String localName) {
+        this.localName = localName;
+    }
+
+    @Nullable
+    @Override
+    public Integer getLocalPort() {
+        return this.localPort;
     }
 
     @Override
-    public String getMethod() {
-        return this.desc.getMethod();
+    public void setLocalPort(@Nullable Integer localPort) {
+        this.localPort = localPort;
+    }
+
+    @Override
+    public HttpMethod getMethod() {
+        return this.method;
+    }
+
+    @Override
+    public void setMethod(HttpMethod method) {
+        this.method = method;
     }
 
     @Override
     public String getPathInfo() {
-        return this.desc.getPathInfo();
+        return this.pathInfo;
+    }
+
+    @Override
+    public void setPathInfo(String pathInfo) {
+        this.pathInfo = pathInfo;
     }
 
     @Override
     public String getProtocol() {
-        return this.desc.getProtocol();
+        return this.protocol;
+    }
+
+    @Override
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
     @Override
     public String getQueryString() {
-        return this.desc.getQueryString();
+        return this.queryString;
     }
 
+    @Override
+    public void setQueryString(String queryString) {
+        this.queryString = queryString;
+    }
+
+    @Nullable
     @Override
     public String getRemoteAddr() {
-        return this.desc.getRemoteAddr();
+        return this.remoteAddr;
     }
 
     @Override
-    public int getRemotePort() {
-        return this.desc.getRemotePort();
+    public void setRemoteAddr(@Nullable String remoteAddr) {
+        this.remoteAddr = remoteAddr;
+    }
+
+    @Override
+    public String getRemoteHost() {
+        return this.remoteHost;
+    }
+
+    @Override
+    public void setRemoteHost(String remoteHost) {
+        this.remoteHost = remoteHost;
+    }
+
+    @Override
+    public Integer getRemotePort() {
+        return this.remotePort;
+    }
+
+    @Override
+    public void setRemotePort(Integer remotePort) {
+        this.remotePort = remotePort;
     }
 
     @Override
     public String getScheme() {
-        return this.desc.getScheme();
+        return this.scheme;
     }
 
+    @Override
+    public void setScheme(String scheme) {
+        this.scheme = scheme;
+    }
+
+    @Nullable
     @Override
     public String getServerName() {
-        return this.desc.getServerName();
+        return this.serverName;
     }
 
     @Override
-    public int getServerPort() {
-        return this.desc.getServerPort();
+    public void setServerName(@Nullable String serverName) {
+        this.serverName = serverName;
     }
 
+    @Nullable
+    @Override
+    public Integer getServerPort() {
+        return this.serverPort;
+    }
+
+    @Override
+    public void setServerPort(@Nullable Integer serverPort) {
+        this.serverPort = serverPort;
+    }
+
+    @Nullable
     @Override
     public String getServletPath() {
-        return this.desc.getServletPath();
+        return this.servletPath;
+    }
+
+    @Override
+    public void setServletPath(@Nullable String servletPath) {
+        this.servletPath = servletPath;
     }
 
     @Override
     public String getUrl() {
-        return this.desc.getRequestURL().toString();
+        return this.url;
     }
 
     @Override
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    @Nullable
+    @Override
     public String getUserPrincipal() {
-        return Objects.toString(this.desc.getUserPrincipal(), null);
+        return this.userPrincipal;
+    }
+
+    @Override
+    public void setUserPrincipal(@Nullable String userPrincipal) {
+        this.userPrincipal = userPrincipal;
     }
 }

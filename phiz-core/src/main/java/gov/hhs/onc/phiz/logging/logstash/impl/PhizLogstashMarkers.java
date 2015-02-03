@@ -1,8 +1,6 @@
 package gov.hhs.onc.phiz.logging.logstash.impl;
 
 import gov.hhs.onc.phiz.logging.logstash.MarkerObjectFieldName;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import net.logstash.logback.marker.Markers;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Marker;
@@ -11,6 +9,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 
 public final class PhizLogstashMarkers {
     public final static String MARKER_FIELD_NAME_DELIM = "_";
+    public final static String MARKER_FIELD_NAME_LITERAL_DELIMS = "-" + MARKER_FIELD_NAME_DELIM;
 
     private PhizLogstashMarkers() {
     }
@@ -47,6 +46,7 @@ public final class PhizLogstashMarkers {
 
     public static String buildFieldName(String markerFieldName) {
         // noinspection ConstantConditions
-        return StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(markerFieldName), MARKER_FIELD_NAME_DELIM).toLowerCase();
+        return (StringUtils.containsAny(markerFieldName, MARKER_FIELD_NAME_LITERAL_DELIMS) ? markerFieldName : StringUtils.join(
+            StringUtils.splitByCharacterTypeCamelCase(markerFieldName), MARKER_FIELD_NAME_DELIM)).toLowerCase();
     }
 }

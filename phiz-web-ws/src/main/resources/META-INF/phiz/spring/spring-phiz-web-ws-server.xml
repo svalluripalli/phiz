@@ -43,6 +43,12 @@
         p:bindingConfig-ref="soapBindingConfig12"
         p:bus-ref="busPhiz"
         p:dataBinding-ref="dataBindingJaxb">
+        <beans:property name="features">
+            <beans:list>
+                <beans:ref bean="featureLogging"/>
+                <beans:ref bean="featureSchemaValidation"/>
+            </beans:list>
+        </beans:property>
         <beans:property name="outFaultInterceptors">
             <beans:list>
                 <beans:ref bean="interceptorFaultRootCauseStackTrace"/>

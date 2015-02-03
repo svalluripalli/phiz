@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.SmartLifecycle;
 
 public class LogstashReporter extends ScheduledReporter implements SmartLifecycle {
-    private final static String METRICS_MARKER_NAME = "metrics";
-    private final static String METRICS_MARKER_FIELD_NAME = "metrics";
+    private final static String METRICS_NAME = "metrics";
 
     private final static Logger LOGGER = LoggerFactory.getLogger(LogstashReporter.class);
 
@@ -38,7 +37,7 @@ public class LogstashReporter extends ScheduledReporter implements SmartLifecycl
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms,
         SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
         LOGGER.info(
-            PhizLogstashMarkers.append(METRICS_MARKER_NAME, Markers.append(METRICS_MARKER_FIELD_NAME, this.metricRegistry)),
+            PhizLogstashMarkers.append(METRICS_NAME, Markers.append(METRICS_NAME, this.metricRegistry)),
             String.format("Metrics (numGauges=%d, numCounters=%d, numHistograms=%d, numMeters=%d, numTimers=%d).", gauges.size(), counters.size(),
                 histograms.size(), meters.size(), timers.size()));
     }

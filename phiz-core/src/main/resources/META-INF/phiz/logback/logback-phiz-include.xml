@@ -140,13 +140,7 @@
         <appender-ref ref="logstash"/>
     </logger>
     
-    <logger name="org.apache.cxf.transport.http" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="logstash"/>
-    </logger>
-    
-    <logger name="org.apache.cxf.transport.https" level="info" additivity="false">
+    <logger name="org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor" level="warn" additivity="false">
         <appender-ref ref="console"/>
         <appender-ref ref="file"/>
         <appender-ref ref="logstash"/>

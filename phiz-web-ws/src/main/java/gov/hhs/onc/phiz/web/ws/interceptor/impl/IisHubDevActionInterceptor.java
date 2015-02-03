@@ -16,13 +16,14 @@ import gov.hhs.onc.phiz.ws.iis.impl.SecurityFaultTypeImpl;
 import java.math.BigInteger;
 import java.util.Objects;
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.logging.FaultListener;
 import org.apache.cxf.logging.NoOpFaultListener;
-import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.Headers;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -68,8 +69,8 @@ public class IisHubDevActionInterceptor extends AbstractPhizSoapInterceptor {
                     case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_MSG_TOO_LARGE_FAULT_VALUE:
                         // noinspection ConstantConditions
                         devActionValueFaultCause =
-                            new MessageTooLargeFault(devActionFaultMsg, new MessageTooLargeFaultTypeImpl(BigInteger.valueOf(PhizWsUtils.getHttpServletRequest(
-                                msg).getContentLengthLong()), BigInteger.valueOf(-1)));
+                            new MessageTooLargeFault(devActionFaultMsg, new MessageTooLargeFaultTypeImpl(BigInteger.valueOf(PhizWsUtils.getProperty(msg,
+                                AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class).getContentLengthLong()), BigInteger.valueOf(0)));
                         break;
 
                     case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_SEC_FAULT_VALUE:

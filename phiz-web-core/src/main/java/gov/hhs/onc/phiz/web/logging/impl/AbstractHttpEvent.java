@@ -1,29 +1,36 @@
 package gov.hhs.onc.phiz.web.logging.impl;
 
 import gov.hhs.onc.phiz.web.logging.HttpEvent;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import javax.annotation.Nullable;
+import org.springframework.http.HttpHeaders;
 
-public abstract class AbstractHttpEvent<T> implements HttpEvent<T> {
-    protected T desc;
+public abstract class AbstractHttpEvent implements HttpEvent {
+    protected Long contentLen;
+    protected String contentType;
+    protected HttpHeaders headers = new HttpHeaders();
 
-    protected AbstractHttpEvent(T desc) {
-        this.desc = desc;
+    @Nullable
+    public Long getContentLength() {
+        return this.contentLen;
+    }
+
+    public void setContentLength(@Nullable Long contentLen) {
+        this.contentLen = contentLen;
+    }
+
+    @Nullable
+    @Override
+    public String getContentType() {
+        return this.contentType;
     }
 
     @Override
-    public Map<String, List<String>> getHeaderMap() {
-        Map<String, List<String>> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-
-        this.getHeaderNames().stream().forEach((headerName) -> headers.put(headerName.toLowerCase(), new ArrayList<>(this.getHeaders(headerName))));
-
-        return headers;
+    public void setContentType(@Nullable String contentType) {
+        this.contentType = contentType;
     }
 
     @Override
-    public T getDescriptor() {
-        return this.desc;
+    public HttpHeaders getHeaders() {
+        return this.headers;
     }
 }

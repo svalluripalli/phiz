@@ -17,18 +17,6 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = BEAN POST PROCESSORS
-    =====================================================================================================-->
-    <beans:bean id="org.apache.cxf.bus.spring.BusExtensionPostProcessor" class="org.apache.cxf.bus.spring.BusExtensionPostProcessor"/>
-    
-    <beans:bean id="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor" class="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor"/>
-    
-    <!--====================================================================================================
-    = FEATURES
-    =====================================================================================================-->
-    <beans:bean id="feature" class="org.apache.cxf.feature.AbstractFeature" abstract="true"/>
-    
-    <!--====================================================================================================
     = SCHEMA VALIDATION TYPE PROVIDERS
     =====================================================================================================-->
     <beans:bean id="schemaValidationTypeProv" class="org.apache.cxf.feature.validation.SchemaValidationTypeProvider" abstract="true"/>
@@ -37,39 +25,28 @@
         parent="schemaValidationTypeProv" abstract="true"/>
     
     <!--====================================================================================================
+    = FEATURES
+    =====================================================================================================-->
+    <beans:bean id="feature" class="org.apache.cxf.feature.AbstractFeature" abstract="true"/>
+    
+    <beans:bean id="featureLogging" class="gov.hhs.onc.phiz.web.ws.feature.impl.PhizLoggingFeature" parent="feature"
+        p:indentSize="4"/>
+    
+    <beans:bean id="featureSchemaValidation" class="org.apache.cxf.feature.validation.SchemaValidationFeature" parent="feature">
+        <beans:constructor-arg name="provider">
+            <beans:bean parent="schemaValidationTypeProvConst"
+                c:type="#{ T(org.apache.cxf.annotations.SchemaValidation.SchemaValidationType).BOTH }"/>
+        </beans:constructor-arg>
+    </beans:bean>
+    
+    <!--====================================================================================================
     = BUS
     =====================================================================================================-->
-    <beans:bean id="bus" class="org.apache.cxf.Bus" abstract="true" destroy-method="shutdown">
-        <beans:property name="features">
-            <beans:list>
-                <beans:bean class="gov.hhs.onc.phiz.web.ws.feature.impl.PhizLoggingFeature" parent="feature"
-                    p:indentSize="4"/>
-                <beans:bean class="org.apache.cxf.feature.validation.SchemaValidationFeature" parent="feature">
-                    <beans:constructor-arg name="provider">
-                        <beans:bean parent="schemaValidationTypeProvConst"
-                            c:type="#{ T(org.apache.cxf.annotations.SchemaValidation.SchemaValidationType).BOTH }"/>
-                    </beans:constructor-arg>
-                </beans:bean>
-            </beans:list>
-        </beans:property>
-    </beans:bean>
+    <beans:bean id="bus" class="org.apache.cxf.Bus" abstract="true" destroy-method="shutdown"/>
     
     <beans:bean id="busSpring" class="org.apache.cxf.bus.spring.SpringBus" parent="bus" abstract="true"/>
     
     <beans:alias name="busPhiz" alias="cxf"/>
-    
-    <!--====================================================================================================
-    = WEB SERVICE CONTEXTS
-    =====================================================================================================-->
-    <beans:bean id="org.apache.cxf.jaxws.context.WebServiceContextImpl" class="org.apache.cxf.jaxws.context.WebServiceContextImpl" lazy-init="true"/>
-    <beans:alias name="org.apache.cxf.jaxws.context.WebServiceContextImpl" alias="javax.xml.ws.WebServiceContext"/>
-    
-    <!--====================================================================================================
-    = WEB SERVICE CONTEXT RESOURCE RESOLVER
-    =====================================================================================================-->
-    <beans:bean id="org.apache.cxf.jaxws.context.WebServiceContextResourceResolver" class="org.apache.cxf.jaxws.context.WebServiceContextResourceResolver"
-        lazy-init="true"
-        c:b-ref="busPhiz"/>
     
     <!--====================================================================================================
     = DATA BINDINGS
@@ -114,6 +91,26 @@
     <beans:bean id="tlsParams" class="org.apache.cxf.configuration.jsse.TLSParameterBase" abstract="true"/>
     
     <!--====================================================================================================
+    = WEB SERVICE CONTEXTS
+    =====================================================================================================-->
+    <beans:bean id="org.apache.cxf.jaxws.context.WebServiceContextImpl" class="org.apache.cxf.jaxws.context.WebServiceContextImpl" lazy-init="true"/>
+    <beans:alias name="org.apache.cxf.jaxws.context.WebServiceContextImpl" alias="javax.xml.ws.WebServiceContext"/>
+    
+    <!--====================================================================================================
+    = WEB SERVICE CONTEXT RESOURCE RESOLVER
+    =====================================================================================================-->
+    <beans:bean id="org.apache.cxf.jaxws.context.WebServiceContextResourceResolver" class="org.apache.cxf.jaxws.context.WebServiceContextResourceResolver"
+        lazy-init="true"
+        c:b-ref="busPhiz"/>
+    
+    <!--====================================================================================================
+    = BEAN POST PROCESSORS
+    =====================================================================================================-->
+    <beans:bean id="org.apache.cxf.bus.spring.BusExtensionPostProcessor" class="org.apache.cxf.bus.spring.BusExtensionPostProcessor"/>
+    
+    <beans:bean id="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor" class="org.apache.cxf.bus.spring.Jsr250BeanPostProcessor"/>
+    
+    <!--====================================================================================================
     = PROFILE: DEVELOPMENT MODE
     =====================================================================================================-->
     <beans:beans profile="phiz.profile.mode.dev">
@@ -143,9 +140,9 @@
                 <beans:map>
                     <beans:entry key="#{ T(gov.hhs.onc.phiz.web.ws.PhizWsMessageContextProperties).LOG_MSG_PAYLOAD_HIDE_CONTENT_ELEM_QNAMES }">
                         <beans:set>
-                            <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).USERNAME }</beans:value>
-                            <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PASSWORD }</beans:value>
                             <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).HL7_MSG }</beans:value>
+                            <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PASSWORD }</beans:value>
+                            <beans:value>#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).USERNAME }</beans:value>
                         </beans:set>
                     </beans:entry>
                 </beans:map>

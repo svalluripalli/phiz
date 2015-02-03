@@ -133,6 +133,11 @@
                 <beans:bean class="org.apache.catalina.core.ThreadLocalLeakPreventionListener" parent="lifecycleListener"/>
             </beans:list>
         </beans:property>
+        <beans:property name="contextValves">
+            <beans:list>
+                <beans:ref bean="valveMetrics"/>
+            </beans:list>
+        </beans:property>
         <beans:property name="loginConfig">
             <!--suppress SpringPlaceholdersInspection -->
             <beans:bean parent="loginConfigClientCert"

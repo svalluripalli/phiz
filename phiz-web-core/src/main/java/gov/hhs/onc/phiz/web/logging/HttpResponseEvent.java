@@ -2,13 +2,12 @@ package gov.hhs.onc.phiz.web.logging;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import gov.hhs.onc.phiz.logging.logstash.MarkerObjectFieldName;
-import javax.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 
 @MarkerObjectFieldName("httpResponse")
-public interface HttpResponseEvent extends HttpEvent<HttpServletResponse> {
+public interface HttpResponseEvent extends HttpEvent {
     @JsonProperty
-    public int getStatus();
-
-    @JsonProperty
-    public String getStatusMessage();
+    public HttpStatus getStatus();
+    
+    public void setStatus(HttpStatus status);
 }

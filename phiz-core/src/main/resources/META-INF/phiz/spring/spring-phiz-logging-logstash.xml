@@ -28,6 +28,7 @@
     
     <beans:bean id="encoderLogstashTcp" class="net.logstash.logback.encoder.LogstashTcpEncoder" parent="encoderLogstash" abstract="true"
         p:encoding="#{ charsetUtf8.name() }"
+        p:includeCallerInfo="true"
         p:newLine="#{ T(org.apache.commons.lang3.StringUtils).LF }"/>
     
     <!--====================================================================================================

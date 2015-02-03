@@ -1,20 +1,22 @@
 package gov.hhs.onc.phiz.web.logging;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import javax.annotation.Nullable;
+import org.springframework.http.HttpHeaders;
 
-public interface HttpEvent<T> {
-    @JsonProperty("headers")
-    public Map<String, List<String>> getHeaderMap();
+public interface HttpEvent {
+    @JsonProperty
+    @Nullable
+    public Long getContentLength();
 
-    public Set<String> getHeaderNames();
-
-    public List<String> getHeaders(String headerName);
+    public void setContentLength(@Nullable Long contentLen);
 
     @JsonProperty
+    @Nullable
     public String getContentType();
 
-    public T getDescriptor();
+    public void setContentType(@Nullable String contentType);
+
+    @JsonProperty
+    public HttpHeaders getHeaders();
 }
