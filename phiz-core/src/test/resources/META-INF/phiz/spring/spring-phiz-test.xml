@@ -72,45 +72,6 @@
         p:issuerCredential-ref="credCa"/>
     
     <!--====================================================================================================
-    = CREDENTIALS: RABBITMQ
-    =====================================================================================================-->
-    <beans:bean id="credRabbitClient" parent="credGen">
-        <beans:property name="credential">
-            <beans:bean parent="credLeaf">
-                <beans:property name="certificateRequest">
-                    <beans:bean parent="certReqLeaf">
-                        <beans:constructor-arg name="subject">
-                            <!--suppress SpringPlaceholdersInspection -->
-                            <beans:bean parent="dn"
-                                p:commonName="${phiz.rabbitmq.crypto.client.cred.ssl.subject.cn}"/>
-                        </beans:constructor-arg>
-                    </beans:bean>
-                </beans:property>
-            </beans:bean>
-        </beans:property>
-    </beans:bean>
-    
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="credRabbitServer" parent="credGen"
-        p:certificateResource="${phiz.rabbitmq.crypto.server.cred.ssl.cert.file}"
-        p:eagerInit="true"
-        p:privateKeyResource="${phiz.rabbitmq.crypto.server.cred.ssl.key.private.file}">
-        <beans:property name="credential">
-            <beans:bean parent="credLeaf">
-                <beans:property name="certificateRequest">
-                    <beans:bean parent="certReqLeaf">
-                        <beans:constructor-arg name="subject">
-                            <!--suppress SpringPlaceholdersInspection -->
-                            <beans:bean parent="dn"
-                                p:commonName="${phiz.rabbitmq.crypto.server.cred.ssl.subject.cn}"/>
-                        </beans:constructor-arg>
-                    </beans:bean>
-                </beans:property>
-            </beans:bean>
-        </beans:property>
-    </beans:bean>
-    
-    <!--====================================================================================================
     = KEY STORES: CERTIFICATE AUTHORITY
     =====================================================================================================-->
     <!--suppress SpringPlaceholdersInspection -->
@@ -134,43 +95,6 @@
                         p:certificateChain="#{ credCa.certificateResponse.identity.chain[0] }"
                         p:password="${phiz.crypto.store.ca.entry.ca.pass}"
                         p:privateKey="#{ credCa.certificateResponse.identity.privateKey }"/>
-                </beans:entry>
-            </beans:map>
-        </beans:property>
-    </beans:bean>
-    
-    <!--====================================================================================================
-    = KEY STORES: RABBITMQ
-    =====================================================================================================-->
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="keyStoreRabbitClientKey" parent="keyStoreGen" lazy-init="true"
-        p:password="${phiz.rabbitmq.crypto.client.store.key.pass}"
-        p:resource="${phiz.rabbitmq.crypto.client.store.key.file}">
-        <beans:property name="entryMap">
-            <beans:map>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="${phiz.rabbitmq.crypto.client.store.key.entry.ssl.alias}">
-                    <!--suppress SpringPlaceholdersInspection -->
-                    <beans:bean parent="keyStoreEntryPrivateKey"
-                        p:certificateChain="#{ credRabbitClient.certificateResponse.identity.chain[0] }"
-                        p:password="${phiz.rabbitmq.crypto.client.store.key.entry.ssl.pass}"
-                        p:privateKey="#{ credRabbitClient.certificateResponse.identity.privateKey }"/>
-                </beans:entry>
-            </beans:map>
-        </beans:property>
-    </beans:bean>
-    
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="keyStoreRabbitClientTrust" parent="keyStoreGen" lazy-init="true"
-        p:password="${phiz.rabbitmq.crypto.client.store.trust.pass}"
-        p:resource="${phiz.rabbitmq.crypto.client.store.trust.file}">
-        <beans:property name="entryMap">
-            <beans:map>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="${phiz.rabbitmq.crypto.client.store.trust.entry.ca.alias}">
-                    <!--suppress SpringPlaceholdersInspection -->
-                    <beans:bean parent="keyStoreEntryTrustedCert"
-                        p:certificate="#{ credCa.certificateResponse.identity.chain[0] }"/>
                 </beans:entry>
             </beans:map>
         </beans:property>

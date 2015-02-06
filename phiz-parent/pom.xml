@@ -533,32 +533,11 @@
                 <version>4.1.4.RELEASE</version>
             </dependency>
             <dependency>
-                <groupId>org.springframework.amqp</groupId>
-                <artifactId>spring-amqp</artifactId>
-                <version>1.4.2.RELEASE</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.amqp</groupId>
-                <artifactId>spring-rabbit</artifactId>
-                <version>1.4.2.RELEASE</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>log4j</groupId>
-                        <artifactId>log4j</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>1.2.1.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.retry</groupId>
-                <artifactId>spring-retry</artifactId>
-                <version>1.1.2.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>tanukisoft</groupId>
@@ -1263,7 +1242,6 @@
                                     <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-process-test-deb-it.groovy</script>
                                     <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources.groovy</script>
                                     <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-process-test-resources-it.groovy</script>
-                                    <script>file://${project.basedir.all}/phiz-core/src/test/scripts/groovy/phiz-process-test-rabbitmq-it.groovy</script>
                                 </scripts>
                                 <skip>${skipTests}</skip>
                             </configuration>
