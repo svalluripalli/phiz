@@ -91,6 +91,11 @@ public interface HttpRequestEvent extends HttpEvent {
     public void setServletPath(@Nullable String servletPath);
 
     @JsonProperty
+    public String getUri();
+
+    public void setUri(String uri);
+
+    @JsonProperty
     public String getUrl();
 
     public void setUrl(String url);

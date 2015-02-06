@@ -32,6 +32,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.jws.WebService;
@@ -43,6 +44,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientCallback;
 import org.apache.cxf.jaxws.context.WrappedMessageContext;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.ExchangeImpl;
@@ -129,13 +131,20 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         Exchange clientExchange = new ExchangeImpl();
         clientExchange.put(PhizLoggingFeature.WS_MSG_EVENT_ID_PROP_NAME, reqMsg.getExchange().get(PhizLoggingFeature.WS_MSG_EVENT_ID_PROP_NAME));
 
+        ClientCallback clientReqCallback = new ClientCallback();
+
         try {
-            return new ImmutablePair<>(((SubmitSingleMessageResponseType) client.invoke(
-                client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP), new Object[] { reqParams }, null,
-                clientExchange)[0]), new HubResponseHeaderTypeImpl(destId, destUriStr));
+            try {
+                client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP),
+                    new Object[] { reqParams }, clientExchange);
+
+                return new ImmutablePair<>(((SubmitSingleMessageResponseType) clientReqCallback.get()[0]), new HubResponseHeaderTypeImpl(destId, destUriStr));
+            } catch (ExecutionException e) {
+                throw clientReqCallback.getException();
+            }
         } catch (DestinationConnectionFault | HubClientFault | MessageTooLargeFault | SecurityFault | UnknownDestinationFault e) {
             throw e;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             SocketTimeoutException clientReqTimeoutException =
                 ((SocketTimeoutException) Stream.of(ExceptionUtils.getThrowables(e))
                     .filter(clientReqExceptionCause -> (clientReqExceptionCause instanceof SocketTimeoutException)).findFirst().orElse(null));

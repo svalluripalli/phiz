@@ -15,6 +15,7 @@ import gov.hhs.onc.phiz.web.tomcat.impl.PhizTomcatEmbeddedServletContainerFactor
 import gov.hhs.onc.phiz.web.ws.PhizWsEndpointType;
 import gov.hhs.onc.phiz.web.ws.PhizWsMessageContextProperties;
 import gov.hhs.onc.phiz.web.ws.PhizWsMessageDirection;
+import gov.hhs.onc.phiz.web.ws.PhizWsMessageProperties;
 import gov.hhs.onc.phiz.web.ws.interceptor.impl.AbstractPhizSoapInterceptor;
 import gov.hhs.onc.phiz.web.ws.logging.WsMessageEvent;
 import gov.hhs.onc.phiz.web.ws.logging.WsRequestMessageEvent;
@@ -45,6 +46,7 @@ import org.apache.commons.collections4.EnumerationUtils;
 import org.apache.cxf.Bus;
 import org.apache.cxf.binding.soap.SoapMessage;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.helpers.DOMUtils;
@@ -56,7 +58,6 @@ import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Exchange;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.service.Service;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.cxf.transport.http.Headers;
 import org.apache.cxf.ws.policy.PolicyConstants;
@@ -200,6 +201,7 @@ public class PhizLoggingFeature extends AbstractFeature {
             httpEvent.setServerName(httpServletReq.getServerName());
             httpEvent.setServerPort(httpServletReq.getServerPort());
             httpEvent.setServletPath(httpServletReq.getServletPath());
+            httpEvent.setUri(httpServletReq.getRequestURL().toString());
             httpEvent.setUrl(httpServletReq.getRequestURL().toString());
             httpEvent.setUserPrincipal(Objects.toString(httpServletReq.getUserPrincipal(), null));
 
@@ -230,8 +232,13 @@ public class PhizLoggingFeature extends AbstractFeature {
             HttpResponseEvent httpEvent = super.createHttpEvent(msg);
             httpEvent.setContentType(PhizWsUtils.getProperty(msg, Message.CONTENT_TYPE));
             httpEvent.getHeaders().putAll(Headers.getSetProtocolHeaders(msg));
+
+            Integer status = PhizWsUtils.getProperty(msg, Message.RESPONSE_CODE, Integer.class);
+            httpEvent.setStatus(status);
+
+            String statusMsg = PhizWsUtils.getProperty(msg, PhizWsMessageProperties.RESP_CODE_MSG);
             // noinspection ConstantConditions
-            httpEvent.setStatus(HttpStatus.valueOf(PhizWsUtils.getProperty(msg, Message.RESPONSE_CODE, Integer.class)));
+            httpEvent.setStatusMessage(((statusMsg != null) ? statusMsg : HttpStatus.valueOf(status).getReasonPhrase()));
 
             return httpEvent;
         }
@@ -311,11 +318,11 @@ public class PhizLoggingFeature extends AbstractFeature {
 
             return new PhizLoggingOutCallback<>(msg, httpEvent, wsMsgEvent, (callbackMsg, callbackHttpEvent) -> {
                 // noinspection ConstantConditions
-                httpEvent.setContentLength(httpServletResp.getCoyoteResponse().getContentLengthLong());
+                httpEvent.setContentLength(httpServletResp.getContentWritten());
                 // noinspection ConstantConditions
                 httpEvent.setContentType(httpServletResp.getContentType());
-                // noinspection ConstantConditions
-                httpEvent.setStatus(HttpStatus.valueOf(httpServletResp.getStatus()));
+                httpEvent.setStatus(httpServletResp.getStatus());
+                httpEvent.setStatusMessage(httpServletResp.getMessage());
 
                 HttpHeaders httpHeaders = httpEvent.getHeaders();
 
@@ -358,11 +365,15 @@ public class PhizLoggingFeature extends AbstractFeature {
         protected PhizLoggingOutCallback<HttpRequestEvent, WsRequestMessageEvent> createCallback(SoapMessage msg, HttpRequestEvent httpEvent,
             WsRequestMessageEvent wsMsgEvent) {
             return new PhizLoggingOutCallback<>(msg, httpEvent, wsMsgEvent, (callbackMsg, callbackHttpEvent) -> {
+                httpEvent.setContentLength(PhizWsUtils.getProperty(msg, PhizWsMessageProperties.CONTENT_LEN, Long.class));
                 httpEvent.setContentType(PhizWsUtils.getProperty(msg, Message.CONTENT_TYPE));
                 httpEvent.getHeaders().putAll(Headers.getSetProtocolHeaders(msg));
                 httpEvent.setMethod(HttpMethod.valueOf(PhizWsUtils.getProperty(msg, Message.HTTP_REQUEST_METHOD)));
                 httpEvent.setPathInfo(PhizWsUtils.getProperty(msg, Message.PATH_INFO));
+                httpEvent.setProtocol(PhizWsUtils.getProperty(msg, PhizWsMessageProperties.PROTOCOL));
                 httpEvent.setQueryString(PhizWsUtils.getProperty(msg, Message.QUERY_STRING));
+                httpEvent.setScheme(PhizWsUtils.getProperty(msg, PhizWsMessageProperties.HTTP_SCHEME));
+                httpEvent.setUri(PhizWsUtils.getProperty(msg, Message.REQUEST_URI));
                 httpEvent.setUrl(PhizWsUtils.getProperty(msg, Message.REQUEST_URL));
             });
         }
@@ -387,15 +398,15 @@ public class PhizLoggingFeature extends AbstractFeature {
 
     @Override
     public void initialize(Server server, Bus bus) {
-        Service service = server.getEndpoint().getService();
+        Endpoint endpoint = server.getEndpoint();
 
         PhizServerLoggingInInterceptor loggingInInterceptor = new PhizServerLoggingInInterceptor(SERVER_LOGGER);
-        service.getInInterceptors().add(loggingInInterceptor);
-        service.getInFaultInterceptors().add(loggingInInterceptor);
+        endpoint.getInInterceptors().add(loggingInInterceptor);
+        endpoint.getInFaultInterceptors().add(loggingInInterceptor);
 
         PhizServerLoggingOutInterceptor loggingOutInterceptor = new PhizServerLoggingOutInterceptor(SERVER_LOGGER);
-        service.getOutInterceptors().add(loggingOutInterceptor);
-        service.getOutFaultInterceptors().add(loggingOutInterceptor);
+        endpoint.getOutInterceptors().add(loggingOutInterceptor);
+        endpoint.getOutFaultInterceptors().add(loggingOutInterceptor);
     }
 
     @Override

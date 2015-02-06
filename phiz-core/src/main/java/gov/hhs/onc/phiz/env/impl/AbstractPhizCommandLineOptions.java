@@ -1,6 +1,5 @@
 package gov.hhs.onc.phiz.env.impl;
 
-import gov.hhs.onc.phiz.context.impl.CommandLineApplicationRunListener;
 import gov.hhs.onc.phiz.env.PhizCommandLineOptions;
 import java.io.StringWriter;
 import javax.annotation.Resource;

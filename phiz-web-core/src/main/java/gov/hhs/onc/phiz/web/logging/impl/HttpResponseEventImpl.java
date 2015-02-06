@@ -1,18 +1,28 @@
 package gov.hhs.onc.phiz.web.logging.impl;
 
 import gov.hhs.onc.phiz.web.logging.HttpResponseEvent;
-import org.springframework.http.HttpStatus;
 
 public class HttpResponseEventImpl extends AbstractHttpEvent implements HttpResponseEvent {
-    private HttpStatus status;
+    private Integer status;
+    private String statusMsg;
 
     @Override
-    public HttpStatus getStatus() {
+    public Integer getStatus() {
         return this.status;
     }
 
     @Override
-    public void setStatus(HttpStatus status) {
+    public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    @Override
+    public String getStatusMessage() {
+        return this.statusMsg;
+    }
+
+    @Override
+    public void setStatusMessage(String statusMsg) {
+        this.statusMsg = statusMsg;
     }
 }

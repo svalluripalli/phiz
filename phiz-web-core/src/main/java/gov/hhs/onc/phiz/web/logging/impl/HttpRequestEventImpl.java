@@ -20,6 +20,7 @@ public class HttpRequestEventImpl extends AbstractHttpEvent implements HttpReque
     private String serverName;
     private Integer serverPort;
     private String servletPath;
+    private String uri;
     private String url;
     private String userPrincipal;
 
@@ -179,6 +180,16 @@ public class HttpRequestEventImpl extends AbstractHttpEvent implements HttpReque
     @Override
     public void setServletPath(@Nullable String servletPath) {
         this.servletPath = servletPath;
+    }
+
+    @Override
+    public String getUri() {
+        return this.uri;
+    }
+
+    @Override
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     @Override

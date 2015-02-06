@@ -8,10 +8,81 @@
     <!--====================================================================================================
     = CONTEXT NAME
     =====================================================================================================-->
-    <contextName>${phiz.log.context.name:-%{project.artifactId}}</contextName>
+    <contextName>${phiz.log.context.name:-phiz}</contextName>
+    
+    <!--====================================================================================================
+    = PROPERTIES: CONSOLE
+    =====================================================================================================-->
+    <if condition='!isDefined("phiz.logging.console.tty") &amp;&amp; !gov.hhs.onc.phiz.context.utils.PhizApplicationUtils.isDaemon()'>
+        <then>
+            <property name="phiz.logging.console.tty" value="true" scope="context"/>
+        </then>
+    </if>
+    
+    <!--====================================================================================================
+    = STATUS LISTENERS
+    =====================================================================================================-->
+    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>
+    
+    <!--====================================================================================================
+    = CONTEXT LISTENERS
+    =====================================================================================================-->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+    
+    <!--====================================================================================================
+    = RULES
+    =====================================================================================================-->
+    <newRule pattern="configuration/includes" actionClass="gov.hhs.onc.phiz.logging.impl.IncludesAction"/>
+    
+    <!--====================================================================================================
+    = CONVERSION RULES
+    =====================================================================================================-->
+    <conversionRule conversionWord="exRoot" converterClass="gov.hhs.onc.phiz.logging.impl.RootCauseThrowableProxyConverter"/>
+    
+    <conversionRule conversionWord="pColor" converterClass="gov.hhs.onc.phiz.logging.impl.PriorityColorCompositeConverter"/>
+    
+    <conversionRule conversionWord="xReq" converterClass="gov.hhs.onc.phiz.logging.impl.RequestMdcConverter"/>
+    
+    <!--====================================================================================================
+    = APPENDERS: CONSOLE
+    =====================================================================================================-->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%pColor(%p){${phiz.logging.console.tty:-false}} - %m%n%exRoot</pattern>
+        </encoder>
+        <target>System.out</target>
+        <withJansi>true</withJansi>
+    </appender>
+    
+    <!--====================================================================================================
+    = APPENDERS: FILE
+    =====================================================================================================-->
+    <appender name="file" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
+        <beanName>appenderFileMain</beanName>
+    </appender>
+    
+    <!--====================================================================================================
+    = APPENDERS: LOGSTASH
+    =====================================================================================================-->
+    <appender name="fileLogstash" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
+        <beanName>appenderFileLogstash</beanName>
+    </appender>
+    
+    <!--====================================================================================================
+    = ROOT LOGGER
+    =====================================================================================================-->
+    <root level="warn">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+        <appender-ref ref="fileLogstash"/>
+    </root>
     
     <!--====================================================================================================
     = INCLUDES
     =====================================================================================================-->
-    <include resource="META-INF/phiz/logback/logback-phiz-include.xml"/>
+    <includes resources="META-INF/phiz/logback/logback-phiz*-include.xml"/>
+    
+    <includes resources="META-INF/phiz/logback/logback-phiz*-include-test.xml"/>
 </configuration>

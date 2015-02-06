@@ -111,7 +111,7 @@
     <beans:bean id="reporter" class="com.codahale.metrics.Reporter" abstract="true"/>
     
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="reporterLogstash" class="gov.hhs.onc.phiz.logging.metrics.impl.LogstashReporter" parent="reporter" depends-on="appenderLogstashTcp"
+    <beans:bean id="reporterLogstash" class="gov.hhs.onc.phiz.logging.metrics.impl.LogstashReporter" parent="reporter" depends-on="appenderFileLogstash"
         c:metricRegistry-ref="metricRegistry"
         p:period="${phiz.logging.metrics.reporter.logstash.interval}"/>
     

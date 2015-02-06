@@ -35,12 +35,21 @@
     <beans:bean id="methodInvoke" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" abstract="true"/>
     
     <!--====================================================================================================
-    = CHARACTER SET
+    = CHARACTER SETS
     =====================================================================================================-->
     <beans:bean id="charset" class="java.nio.charset.Charset" abstract="true"/>
     
     <beans:bean id="charsetUtf8" parent="charset" factory-method="forName">
         <beans:constructor-arg index="0" value="UTF-8"/>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = TIME ZONES
+    =====================================================================================================-->
+    <beans:bean id="timeZone" class="java.util.TimeZone" abstract="true"/>
+    
+    <beans:bean id="timeZoneUtc" parent="timeZone" factory-method="getTimeZone">
+        <beans:constructor-arg index="0" value="UTC"/>
     </beans:bean>
     
     <!--====================================================================================================
@@ -60,7 +69,7 @@
     </beans:bean>
     
     <!--====================================================================================================
-    = CONVERSION SERVICE
+    = CONVERSION SERVICES
     =====================================================================================================-->
     <beans:bean id="conversionService" class="org.springframework.format.support.FormattingConversionServiceFactoryBean" primary="true">
         <beans:property name="converters">

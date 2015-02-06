@@ -299,7 +299,7 @@
             <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
-                <version>3.6</version>
+                <version>4.0</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
@@ -1051,9 +1051,10 @@
                             <javax.net.ssl.trustStore/>
                             <logback.configurationFile>META-INF/phiz/logback/logback-phiz.xml</logback.configurationFile>
                             <phiz.conf.ssl.dir>${project.build.directory}/surefire-ssl</phiz.conf.ssl.dir>
-                            <phiz.log.console.tty>true</phiz.log.console.tty>
-                            <phiz.log.file.dir>${project.build.directory}/surefire-logs</phiz.log.file.dir>
-                            <phiz.log.file.name>${project.artifactId}-test</phiz.log.file.name>
+                            <phiz.logging.console.tty>true</phiz.logging.console.tty>
+                            <phiz.logging.file.dir>${project.build.directory}/surefire-logs</phiz.logging.file.dir>
+                            <phiz.logging.file.name>${project.artifactId}-test</phiz.logging.file.name>
+                            <phiz.logging.logstash.file.name>${project.artifactId}-logstash-test</phiz.logging.logstash.file.name>
                             <phiz.mode>dev</phiz.mode>
                         </systemPropertyVariables>
                         <trimStackTrace>false</trimStackTrace>
@@ -1368,7 +1369,7 @@
                                                 <systemProperty>loader.main=gov.hhs.onc.phiz.context.impl.PhizApplication</systemProperty>
                                                 <systemProperty>logback.configurationFile=META-INF/phiz/logback/logback-phiz.xml</systemProperty>
                                                 <systemProperty>phiz.app.name=${project.artifactId}</systemProperty>
-                                                <systemProperty>phiz.log.file.name=${project.artifactId}</systemProperty>
+                                                <systemProperty>phiz.logging.file.name=${project.artifactId}</systemProperty>
                                             </systemProperties>
                                         </jvmSettings>
                                         <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>

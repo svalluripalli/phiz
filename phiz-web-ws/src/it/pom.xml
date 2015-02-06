@@ -42,9 +42,10 @@
                     <execution>
                         <id>test-integration</id>
                         <configuration>
-                            <skip>${skipTests}</skip>
+                            <skip>%{skipTests}</skip>
                             <systemPropertyVariables>
-                                <phiz.log.file.name>%{project.artifactId}-test-it</phiz.log.file.name>
+                                <phiz.logging.file.name>%{project.artifactId}-test-it</phiz.logging.file.name>
+                                <phiz.logging.logstash.file.name>%{project.artifactId}-logstash-test-it</phiz.logging.logstash.file.name>
                                 <phiz.soapui.output.dir>${project.build.directory}/surefire-reports</phiz.soapui.output.dir>
                                 <phiz.soapui.project.file>${project.build.itSoapUiDirectory}/soapui-%{project.artifactId}.xml</phiz.soapui.project.file>
                                 <phiz.soapui.settings.file>${project.build.itSoapUiDirectory}/soapui-settings-%{project.artifactId}.xml</phiz.soapui.settings.file>

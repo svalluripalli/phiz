@@ -1,6 +1,7 @@
 org.springframework.boot.SpringApplicationRunListener=\
-    gov.hhs.onc.phiz.context.impl.CommandLineApplicationRunListener,\
-    gov.hhs.onc.phiz.context.impl.ProfilesApplicationRunListener
+    gov.hhs.onc.phiz.context.impl.ProfilesApplicationRunListener,\
+    gov.hhs.onc.phiz.env.impl.CommandLineApplicationRunListener,\
+    gov.hhs.onc.phiz.logging.impl.LoggingApplicationRunListener
 
 org.springframework.context.ApplicationListener=\
     ch.qos.logback.ext.spring.ApplicationContextHolder

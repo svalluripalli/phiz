@@ -113,7 +113,8 @@
     <beans:bean id="clientPolicyHttp" class="org.apache.cxf.transports.http.configuration.HTTPClientPolicy" abstract="true"
         p:allowChunking="false"
         p:asyncExecuteTimeoutRejection="true"
-        p:cacheControl="no-cache, no-store, no-transform"/>
+        p:cacheControl="no-cache, no-store, no-transform"
+        p:connection="CLOSE"/>
     
     <!--====================================================================================================
     = CONDUIT FACTORIES
