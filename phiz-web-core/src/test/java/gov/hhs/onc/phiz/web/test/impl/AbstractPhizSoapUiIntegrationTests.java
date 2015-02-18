@@ -36,13 +36,13 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
             String[] testCaseTestsTestGroups =
                 Stream
                     .concat(Stream.of(AnnotationUtils.getAnnotations(this.testCaseTestsClass)),
-                        Stream.of(AnnotationUtils.getAnnotations(this.testCaseTestsTestMethod))).filter((anno) -> (anno instanceof Test))
-                    .flatMap((anno) -> Stream.of(((Test) anno).groups())).distinct().toArray(String[]::new);
+                        Stream.of(AnnotationUtils.getAnnotations(this.testCaseTestsTestMethod))).filter(anno -> (anno instanceof Test))
+                    .flatMap(anno -> Stream.of(((Test) anno).groups())).distinct().toArray(String[]::new);
 
             if (Stream.of(testCaseTestsTestGroups).noneMatch(
-                (testCaseTestsTestGroup) -> Stream.of(testContext.getIncludedGroups()).anyMatch(testCaseTestsTestGroup::matches))
+                testCaseTestsTestGroup -> Stream.of(testContext.getIncludedGroups()).anyMatch(testCaseTestsTestGroup::matches))
                 || Stream.of(testCaseTestsTestGroups).anyMatch(
-                    (testCaseTestsTestGroup) -> Stream.of(testContext.getExcludedGroups()).anyMatch(testCaseTestsTestGroup::matches))) {
+                    testCaseTestsTestGroup -> Stream.of(testContext.getExcludedGroups()).anyMatch(testCaseTestsTestGroup::matches))) {
                 return ArrayUtils.EMPTY_OBJECT_ARRAY;
             }
 
@@ -59,9 +59,10 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
                 project
                     .getTestSuiteList()
                     .stream()
+                    .filter(testSuite -> !testSuite.isDisabled())
                     .flatMap(
-                        (testSuite) -> testSuite.getTestCaseList().stream().filter((testCase) -> !testCase.isDisabled())
-                            .map((testCase) -> ((WsdlTestCasePro) testCase))).collect(Collectors.toList());
+                        testSuite -> testSuite.getTestCaseList().stream().filter(testCase -> !testCase.isDisabled())
+                            .map(testCase -> ((WsdlTestCasePro) testCase))).collect(Collectors.toList());
 
             CountDownLatch projectRunLatch = new CountDownLatch(testCases.size());
             testCaseRunner.setProjectRunLatch(projectRunLatch);
@@ -76,7 +77,7 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
             projectRunThread.setDaemon(true);
             projectRunThread.start();
 
-            return testCases.stream().map((testCase) -> {
+            return testCases.stream().map(testCase -> {
                 T testCaseTestsInstance = this.testCaseTestsClassBuilder.get();
                 testCaseTestsInstance.testCaseRunner = testCaseRunner;
                 testCaseTestsInstance.projectRunTask = projectRunTask;

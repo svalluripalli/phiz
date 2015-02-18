@@ -55,16 +55,17 @@
     <!--====================================================================================================
     = PROPERTY SOURCES PLACEHOLDER CONFIGURERS
     =====================================================================================================-->
-    <beans:bean id="propSourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" abstract="true"
+    <beans:bean id="propSourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
         p:fileEncoding="#{ charsetUtf8.name() }"
-        p:ignoreUnresolvablePlaceholders="true"/>
-    
-    <beans:bean id="propSourcesPlaceholderConfigurerMain" parent="propSourcesPlaceholderConfigurer"
-        p:order="#{ T(org.springframework.core.Ordered).LOWEST_PRECEDENCE }">
+        p:ignoreUnresolvablePlaceholders="true">
         <beans:property name="locations">
-            <beans:array>
-                <beans:value>classpath*:META-INF/phiz/phiz*.properties</beans:value>
-            </beans:array>
+            <beans:bean class="gov.hhs.onc.phiz.utils.PhizResourceUtils$PhizResourceSet">
+                <beans:constructor-arg name="resources">
+                    <beans:array>
+                        <beans:value>classpath*:META-INF/phiz/phiz*.properties</beans:value>
+                    </beans:array>
+                </beans:constructor-arg>
+            </beans:bean>
         </beans:property>
     </beans:bean>
     

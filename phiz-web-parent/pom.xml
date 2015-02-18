@@ -141,19 +141,19 @@
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
-                <version>8.0.17</version>
+                <version>8.0.18</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-el</artifactId>
-                <version>8.0.17</version>
+                <version>8.0.18</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-logging-log4j</artifactId>
-                <version>8.0.17</version>
+                <version>8.0.18</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -404,7 +404,7 @@
                                             <extraArguments>
                                                 <extraArgument>-Xss4m</extraArgument>
                                                 <extraArgument>-XX:MetaspaceSize=512m</extraArgument>
-                                                <extraArgument>-javaagent:%REPO_DIR%/aspectjweaver-1.8.4.jar</extraArgument>
+                                                <extraArgument>-javaagent:%REPO_DIR%/aspectjweaver-1.8.5.jar</extraArgument>
                                                 <extraArgument>-javaagent:%REPO_DIR%/spring-instrument-4.1.4.RELEASE.jar</extraArgument>
                                             </extraArguments>
                                             <initialMemorySize>1024M</initialMemorySize>

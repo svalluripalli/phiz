@@ -637,13 +637,13 @@ empty(//iis:Hl7Message)</path>
       </con:testStep>
       <con:loadTest name="SubmitSingleMessage_Load">
         <con:settings/>
-        <con:threadCount>10</con:threadCount>
+        <con:threadCount>5</con:threadCount>
         <con:startDelay>0</con:startDelay>
         <con:sampleInterval>50</con:sampleInterval>
         <con:calculateTPSOnTimePassed>true</con:calculateTPSOnTimePassed>
         <con:resetStatisticsOnThreadCountChange>true</con:resetStatisticsOnThreadCountChange>
         <con:historyLimit>-1</con:historyLimit>
-        <con:testLimit>2</con:testLimit>
+        <con:testLimit>1</con:testLimit>
         <con:limitType>COUNT_PER_THREAD</con:limitType>
         <con:loadStrategy>
           <con:type>Simple</con:type>

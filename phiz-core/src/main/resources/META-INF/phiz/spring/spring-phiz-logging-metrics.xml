@@ -31,8 +31,6 @@
     =====================================================================================================-->
     <beans:bean id="gauge" class="com.codahale.metrics.Gauge" parent="metric" abstract="true"/>
     
-    <beans:bean id="gaugeSet" parent="metricSet" abstract="true"/>
-    
     <!--====================================================================================================
     = METRIC REGISTRIES
     =====================================================================================================-->
@@ -57,7 +55,7 @@
         c:name="cachedThreadStates">
         <beans:constructor-arg name="metric">
             <!--suppress SpringPlaceholdersInspection -->
-            <beans:bean class="com.codahale.metrics.jvm.CachedThreadStatesGaugeSet" parent="gaugeSet"
+            <beans:bean class="com.codahale.metrics.jvm.CachedThreadStatesGaugeSet" parent="metricSet"
                 c:interval="${phiz.logging.metrics.metric.cached.thread.states.interval}"
                 c:unit="#{ T(java.util.concurrent.TimeUnit).SECONDS }"/>
         </beans:constructor-arg>
@@ -66,7 +64,7 @@
     <beans:bean id="metricRegistererClassLoading" parent="metricRegisterer"
         c:name="classLoading">
         <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.ClassLoadingGaugeSet" parent="gaugeSet"/>
+            <beans:bean class="com.codahale.metrics.jvm.ClassLoadingGaugeSet" parent="metricSet"/>
         </beans:constructor-arg>
     </beans:bean>
     
@@ -94,14 +92,14 @@
     <beans:bean id="metricRegistererMemUsage" parent="metricRegisterer"
         c:name="memUsage">
         <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.MemoryUsageGaugeSet" parent="gaugeSet"/>
+            <beans:bean class="com.codahale.metrics.jvm.MemoryUsageGaugeSet" parent="metricSet"/>
         </beans:constructor-arg>
     </beans:bean>
     
     <beans:bean id="metricRegistererThreadStates" parent="metricRegisterer"
         c:name="threadStates">
         <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.ThreadStatesGaugeSet" parent="gaugeSet"/>
+            <beans:bean class="com.codahale.metrics.jvm.ThreadStatesGaugeSet" parent="metricSet"/>
         </beans:constructor-arg>
     </beans:bean>
     

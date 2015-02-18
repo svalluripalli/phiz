@@ -16,30 +16,13 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
-    = PROVIDERS
-    =====================================================================================================-->
-    <beans:bean id="securityProv" class="java.security.Provider" abstract="true"/>
-    
-    <beans:bean id="securityProvBc" class="org.bouncycastle.jce.provider.BouncyCastleProvider" parent="securityProv"/>
-    
-    <beans:bean id="securityProvBcAdd" parent="methodInvoke"
-        p:targetClass="java.security.Security"
-        p:targetMethod="addProvider">
-        <beans:property name="arguments">
-            <beans:array>
-                <beans:ref bean="securityProvBc"/>
-            </beans:array>
-        </beans:property>
-    </beans:bean>
-    
-    <!--====================================================================================================
     = SECURE RANDOMS
     =====================================================================================================-->
     <beans:bean id="secureRandom" class="java.security.SecureRandom" abstract="true"/>
     
     <beans:bean id="secureRandomSha1" class="gov.hhs.onc.phiz.crypto.impl.PhizSecureRandomFactoryBean" parent="secureRandom" lazy-init="true" scope="prototype"
         p:prototype="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN }"
         p:type="SHA1PRNG"/>
     
     <!--====================================================================================================
@@ -52,9 +35,9 @@
     =====================================================================================================-->
     <beans:bean id="keyPairGen" class="java.security.KeyPairGenerator" abstract="true"/>
     
-    <beans:bean id="keyPairGenRsa" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyPairGeneratorFactoryBean" parent="keyPairGen" depends-on="securityProvBcAdd"
+    <beans:bean id="keyPairGenRsa" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyPairGeneratorFactoryBean" parent="keyPairGen"
         p:keySize="#{ T(br.net.woodstock.rockframework.security.cert.KeySizeType).KEYSIZE_2K.size }"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).BOUNCY_CASTLE.type }"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).BC }"
         p:secureRandom-ref="secureRandomSha1"
         p:type="#{ T(br.net.woodstock.rockframework.security.crypt.KeyPairType).RSA.algorithm }"/>
     
@@ -73,9 +56,9 @@
     <!--====================================================================================================
     = CERTIFICATE REQUESTS
     =====================================================================================================-->
-    <beans:bean id="certReq" class="br.net.woodstock.rockframework.security.cert.CertificateRequest" abstract="true" depends-on="securityProvBcAdd"
+    <beans:bean id="certReq" class="br.net.woodstock.rockframework.security.cert.CertificateRequest" abstract="true"
         p:keyPair="#{ keyPairGenRsa.generateKeyPair() }"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).BOUNCY_CASTLE.type }"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).BC_NAME }"
         p:signType="SHA512_RSA"
         p:version="V3"/>
     
@@ -142,7 +125,7 @@
     <beans:bean id="keyStore" class="java.security.KeyStore" abstract="true"/>
     
     <beans:bean id="keyStoreJks" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyStoreFactoryBean" parent="keyStore" abstract="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN.type }"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN }"
         p:type="#{ T(br.net.woodstock.rockframework.security.store.KeyStoreType).JKS.type }"/>
     
     <beans:bean id="keyStoreGen" class="gov.hhs.onc.phiz.crypto.impl.GeneratedKeyStoreFactoryBean" parent="keyStoreJks" abstract="true"/>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = CREDENTIALS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="credTomcatServer" parent="credGen">
+        <beans:property name="credential">
+            <beans:bean parent="credLeaf">
+                <beans:property name="certificateRequest">
+                    <beans:bean parent="certReqLeaf">
+                        <beans:constructor-arg name="subject">
+                            <!--suppress SpringPlaceholdersInspection -->
+                            <beans:bean parent="dn"
+                                p:commonName="${phiz.tomcat.crypto.server.cred.ssl.subject.cn}"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = KEY STORES
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreTomcatServerKey" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.tomcat.crypto.server.store.key.pass}"
+        p:resource="${phiz.tomcat.crypto.server.store.key.file}">
+        <beans:property name="entryMap">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="${phiz.tomcat.crypto.server.store.key.entry.ssl.alias}">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean parent="keyStoreEntryPrivateKey"
+                        p:certificateChain="#{ credTomcatServer.certificateResponse.identity.chain[0] }"
+                        p:password="${phiz.tomcat.crypto.server.store.key.entry.ssl.pass}"
+                        p:privateKey="#{ credTomcatServer.certificateResponse.identity.privateKey }"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreTomcatServerTrust" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.tomcat.crypto.server.store.trust.pass}"
+        p:resource="${phiz.tomcat.crypto.server.store.trust.file}">
+        <beans:property name="entryMap">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="${phiz.tomcat.crypto.server.store.trust.entry.ca.alias}">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean parent="keyStoreEntryTrustedCert"
+                        p:certificate="#{ credCa.certificateResponse.identity.chain[0] }"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+</beans:beans>

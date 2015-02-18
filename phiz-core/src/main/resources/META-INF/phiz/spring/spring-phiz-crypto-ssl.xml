@@ -36,7 +36,7 @@
     <beans:bean id="keyManager" class="javax.net.ssl.KeyManager" abstract="true"/>
     
     <beans:bean id="keyManagerNewSunX509" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizKeyManagerFactoryBean" parent="keyManager" abstract="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN_JSSE }"
         p:type="NewSunX509"/>
     
     <!--====================================================================================================
@@ -67,7 +67,7 @@
     <beans:bean id="trustManager" class="javax.net.ssl.TrustManager" abstract="true"/>
     
     <beans:bean id="trustManagerPkix" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizTrustManagerFactoryBean" parent="trustManager" abstract="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN_JSSE }"
         p:type="PKIX"/>
     
     <!--====================================================================================================
@@ -92,7 +92,7 @@
     <beans:bean id="sslContext" class="javax.net.ssl.SSLContext" abstract="true"/>
     
     <beans:bean id="sslContextBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizSslContextFactoryBean" parent="sslContext" abstract="true"
-        p:provider="#{ T(br.net.woodstock.rockframework.security.ProviderType).SUN_JSSE.type }"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN_JSSE }"
         p:secureRandom-ref="secureRandomSha1"
         p:type="#{ T(gov.hhs.onc.phiz.crypto.ssl.PhizTlsVersions).TLS_1_2_NAME }"/>
     
