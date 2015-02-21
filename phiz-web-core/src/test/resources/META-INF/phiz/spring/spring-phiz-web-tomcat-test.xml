@@ -27,7 +27,7 @@
                         <beans:constructor-arg name="subject">
                             <!--suppress SpringPlaceholdersInspection -->
                             <beans:bean parent="dn"
-                                p:commonName="${phiz.tomcat.crypto.server.cred.ssl.subject.cn}"/>
+                                p:commonName="${phiz.crypto.cred.tomcat.server.ssl.subject.cn}"/>
                         </beans:constructor-arg>
                     </beans:bean>
                 </beans:property>
@@ -39,17 +39,17 @@
     = KEY STORES
     =====================================================================================================-->
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="keyStoreTomcatServerKey" parent="keyStoreGen" lazy-init="true"
-        p:password="${phiz.tomcat.crypto.server.store.key.pass}"
-        p:resource="${phiz.tomcat.crypto.server.store.key.file}">
+    <beans:bean id="keyStoreKeyTomcatServer" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.crypto.store.key.tomcat.server.pass}"
+        p:resource="${phiz.crypto.store.key.tomcat.server.file}">
         <beans:property name="entryMap">
             <beans:map>
                 <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="${phiz.tomcat.crypto.server.store.key.entry.ssl.alias}">
+                <beans:entry key="${phiz.crypto.store.key.tomcat.server.entry.ssl.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryPrivateKey"
                         p:certificateChain="#{ credTomcatServer.certificateResponse.identity.chain[0] }"
-                        p:password="${phiz.tomcat.crypto.server.store.key.entry.ssl.pass}"
+                        p:password="${phiz.crypto.store.key.tomcat.server.entry.ssl.pass}"
                         p:privateKey="#{ credTomcatServer.certificateResponse.identity.privateKey }"/>
                 </beans:entry>
             </beans:map>
@@ -57,13 +57,13 @@
     </beans:bean>
     
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="keyStoreTomcatServerTrust" parent="keyStoreGen" lazy-init="true"
-        p:password="${phiz.tomcat.crypto.server.store.trust.pass}"
-        p:resource="${phiz.tomcat.crypto.server.store.trust.file}">
+    <beans:bean id="keyStoreTrustTomcatServer" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.crypto.store.trust.tomcat.server.pass}"
+        p:resource="${phiz.crypto.store.trust.tomcat.server.file}">
         <beans:property name="entryMap">
             <beans:map>
                 <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="${phiz.tomcat.crypto.server.store.trust.entry.ca.alias}">
+                <beans:entry key="${phiz.crypto.store.trust.tomcat.server.entry.ca.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryTrustedCert"
                         p:certificate="#{ credCa.certificateResponse.identity.chain[0] }"/>

@@ -1,25 +1,15 @@
 package gov.hhs.onc.phiz.crypto.ssl.impl;
 
 import gov.hhs.onc.phiz.crypto.impl.AbstractPhizCryptoFactoryBean;
-import java.io.Closeable;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
-import org.springframework.aop.framework.ProxyFactory;
 
-public abstract class AbstractPhizCryptoSocketFactoryFactoryBean<T, U extends Closeable> extends AbstractPhizCryptoFactoryBean<T> {
+public abstract class AbstractPhizSslContextAwareFactoryBean<T> extends AbstractPhizCryptoFactoryBean<T> {
     protected SSLContext sslContext;
     protected SSLParameters sslParams;
 
-    protected AbstractPhizCryptoSocketFactoryFactoryBean(Class<T> objClass) {
+    protected AbstractPhizSslContextAwareFactoryBean(Class<T> objClass) {
         super(objClass);
-    }
-
-    protected ProxyFactory buildSocketFactoryProxyFactory(T socketFactory) {
-        ProxyFactory socketFactoryProxyFactory = new ProxyFactory();
-        socketFactoryProxyFactory.setProxyTargetClass(true);
-        socketFactoryProxyFactory.setTargetClass(this.objClass);
-
-        return socketFactoryProxyFactory;
     }
 
     public SSLContext getSslContext() {

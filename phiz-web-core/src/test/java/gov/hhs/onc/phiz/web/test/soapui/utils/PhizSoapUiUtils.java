@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.web.test.utils;
+package gov.hhs.onc.phiz.web.test.soapui.utils;
 
 import com.eviware.soapui.model.iface.MessageExchange;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansionContext;

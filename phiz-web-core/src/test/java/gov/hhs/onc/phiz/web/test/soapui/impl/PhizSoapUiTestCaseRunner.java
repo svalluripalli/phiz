@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.web.test.impl;
+package gov.hhs.onc.phiz.web.test.soapui.impl;
 
 import com.eviware.soapui.DefaultSoapUICore;
 import com.eviware.soapui.SoapUICore;
@@ -10,7 +10,6 @@ import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuitePro;
 import com.eviware.soapui.impl.wsdl.submit.RequestTransportRegistry;
 import com.eviware.soapui.impl.wsdl.support.http.HttpClientSupport;
-import com.eviware.soapui.impl.wsdl.support.http.SoapUISSLSocketFactory;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunContext;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunner;
@@ -21,6 +20,8 @@ import com.eviware.soapui.model.testsuite.LoadTest;
 import com.eviware.soapui.support.types.StringToObjectMap;
 import com.github.sebhoss.warnings.CompilerWarnings;
 import gov.hhs.onc.phiz.beans.factory.EmbeddedPlaceholderResolver;
+import gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -37,8 +38,8 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
     @Autowired
     private EmbeddedPlaceholderResolver embeddedPlaceholderResolver;
 
-    private SSLParameters sslParams;
-    private SSLSocketFactory sslSocketFactory;
+    private Map<String, SSLParameters> sslParamMap;
+    private Map<String, SSLSocketFactory> sslSocketFactoryMap;
     private boolean projectInitialized;
     private CountDownLatch projectRunLatch;
     private WsdlTestSuite testSuite;
@@ -107,11 +108,16 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
             testSuiteRunThread.start();
         }
 
+        this.initializeSslScheme(this.sslParamMap.get(testCase.getPropertyValue(PhizSoapUiProperties.SSL_PARAMS_NAME)),
+            this.sslSocketFactoryMap.get(testCase.getPropertyValue(PhizSoapUiProperties.SSL_SOCKET_FACTORY_NAME)));
+
         if (testCase.getLoadTestCount() > 0) {
             testCase.getLoadTestList().stream().forEach(LoadTest::run);
         } else {
             super.runTestCase(testCase);
         }
+
+        this.initializeSslScheme(this.sslParamMap.get(null), this.sslSocketFactoryMap.get(null));
     }
 
     @Override
@@ -120,14 +126,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
             return;
         }
 
-        org.apache.http.conn.scheme.SchemeRegistry httpSchemeReg = HttpClientSupport.getHttpClient().getConnectionManager().getSchemeRegistry();
-        org.apache.http.conn.scheme.Scheme httpsScheme = httpSchemeReg.getScheme(RequestTransportRegistry.HTTPS);
-
-        if (httpsScheme.getSchemeSocketFactory() instanceof SoapUISSLSocketFactory) {
-            httpSchemeReg.register(new org.apache.http.conn.scheme.Scheme(httpsScheme.getName(), httpsScheme.getDefaultPort(),
-                new org.apache.http.conn.ssl.SSLSocketFactory(this.sslSocketFactory, this.sslParams.getProtocols(), this.sslParams.getCipherSuites(),
-                    SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)));
-        }
+        this.initializeSslScheme(this.sslParamMap.get(null), this.sslSocketFactoryMap.get(null));
 
         super.initProject(wsdlProject);
     }
@@ -160,20 +159,13 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
         return new DefaultSoapUICore();
     }
 
-    public SSLParameters getSslParams() {
-        return this.sslParams;
-    }
+    private void initializeSslScheme(SSLParameters sslParams, SSLSocketFactory sslSocketFactory) {
+        org.apache.http.conn.scheme.SchemeRegistry httpSchemeReg = HttpClientSupport.getHttpClient().getConnectionManager().getSchemeRegistry();
+        org.apache.http.conn.scheme.Scheme httpsScheme = httpSchemeReg.getScheme(RequestTransportRegistry.HTTPS);
 
-    public void setSslParams(SSLParameters sslParams) {
-        this.sslParams = sslParams;
-    }
-
-    public SSLSocketFactory getSslSocketFactory() {
-        return this.sslSocketFactory;
-    }
-
-    public void setSslSocketFactory(SSLSocketFactory sslSocketFactory) {
-        this.sslSocketFactory = sslSocketFactory;
+        httpSchemeReg.register(new org.apache.http.conn.scheme.Scheme(httpsScheme.getName(), httpsScheme.getDefaultPort(),
+            new org.apache.http.conn.ssl.SSLSocketFactory(sslSocketFactory, sslParams.getProtocols(), sslParams.getCipherSuites(),
+                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)));
     }
 
     public CountDownLatch getProjectRunLatch() {
@@ -182,5 +174,21 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
 
     public void setProjectRunLatch(CountDownLatch testCaseRunLatch) {
         this.projectRunLatch = testCaseRunLatch;
+    }
+
+    public Map<String, SSLParameters> getSslParameterMap() {
+        return this.sslParamMap;
+    }
+
+    public void setSslParameterMap(Map<String, SSLParameters> sslParamMap) {
+        this.sslParamMap = sslParamMap;
+    }
+
+    public Map<String, SSLSocketFactory> getSslSocketFactoryMap() {
+        return this.sslSocketFactoryMap;
+    }
+
+    public void setSslSocketFactoryMap(Map<String, SSLSocketFactory> sslSocketFactoryMap) {
+        this.sslSocketFactoryMap = sslSocketFactoryMap;
     }
 }

@@ -1,11 +1,15 @@
-package gov.hhs.onc.phiz.web.test.impl;
+package gov.hhs.onc.phiz.web.test.soapui.impl;
 
 import com.eviware.soapui.impl.wsdl.WsdlProjectPro;
 import com.eviware.soapui.impl.wsdl.WsdlTestCasePro;
+import gov.hhs.onc.phiz.web.test.soapui.impl.AbstractPhizSoapUiIntegrationTests.PhizSoapUiTestCaseMethodInterceptor;
+import gov.hhs.onc.phiz.web.test.impl.AbstractPhizWebIntegrationTests;
 import java.lang.reflect.Method;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.FutureTask;
+import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -13,21 +17,36 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestContextManager;
+import org.testng.IMethodInstance;
+import org.testng.IMethodInterceptor;
 import org.testng.ITestContext;
 import org.testng.annotations.Factory;
+import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 
+@Listeners({ PhizSoapUiTestCaseMethodInterceptor.class })
 @Test(groups = { "phiz.test.it.web.soapui.all" })
 public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWebIntegrationTests {
+    public static class PhizSoapUiTestCaseMethodInterceptor implements IMethodInterceptor {
+        @Override
+        public List<IMethodInstance> intercept(List<IMethodInstance> methodInstances, ITestContext testContext) {
+            methodInstances.sort(Comparator.comparingInt(methodInstance -> ((AbstractPhizSoapUiIntegrationTests) methodInstance.getInstance()).testCaseOrder));
+
+            return methodInstances;
+        }
+    }
+
     protected abstract static class AbstractPhizSoapUiTestCaseIntegrationTestsFactory<T extends AbstractPhizSoapUiIntegrationTests> {
         protected Class<T> testCaseTestsClass;
         protected Supplier<T> testCaseTestsClassBuilder;
+        protected IntFunction<T[]> testCaseTestsArrayBuilder;
         protected Method testCaseTestsTestMethod;
 
         protected AbstractPhizSoapUiTestCaseIntegrationTestsFactory(Class<T> testCaseTestsClass, Supplier<T> testCaseTestsClassBuilder,
-            String testCaseTestsTestMethodName) throws Exception {
+            IntFunction<T[]> testCaseTestsArrayBuilder, String testCaseTestsTestMethodName) throws Exception {
             this.testCaseTestsClass = testCaseTestsClass;
             this.testCaseTestsClassBuilder = testCaseTestsClassBuilder;
+            this.testCaseTestsArrayBuilder = testCaseTestsArrayBuilder;
             this.testCaseTestsTestMethod = this.testCaseTestsClass.getMethod(testCaseTestsTestMethodName);
         }
 
@@ -77,15 +96,18 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
             projectRunThread.setDaemon(true);
             projectRunThread.start();
 
-            return testCases.stream().map(testCase -> {
-                T testCaseTestsInstance = this.testCaseTestsClassBuilder.get();
-                testCaseTestsInstance.testCaseRunner = testCaseRunner;
-                testCaseTestsInstance.projectRunTask = projectRunTask;
-                testCaseTestsInstance.projectRunLatch = projectRunLatch;
-                testCaseTestsInstance.testCase = testCase;
+            T[] testCaseTestsInstances = this.testCaseTestsArrayBuilder.apply(testCases.size());
 
-                return testCaseTestsInstance;
-            }).toArray();
+            for (int a = 0; a < testCaseTestsInstances.length; a++) {
+                testCaseTestsInstances[a] = this.testCaseTestsClassBuilder.get();
+                testCaseTestsInstances[a].testCaseRunner = testCaseRunner;
+                testCaseTestsInstances[a].projectRunTask = projectRunTask;
+                testCaseTestsInstances[a].projectRunLatch = projectRunLatch;
+                testCaseTestsInstances[a].testCase = testCases.get(a);
+                testCaseTestsInstances[a].testCaseOrder = a;
+            }
+
+            return testCaseTestsInstances;
         }
     }
 
@@ -93,6 +115,7 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
     protected FutureTask<Void> projectRunTask;
     protected CountDownLatch projectRunLatch;
     protected WsdlTestCasePro testCase;
+    protected int testCaseOrder;
 
     public void testTestCase() throws Exception {
         try {

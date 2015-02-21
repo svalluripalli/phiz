@@ -1,37 +1,27 @@
 package gov.hhs.onc.phiz.crypto.ssl.impl;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import gov.hhs.onc.phiz.aop.utils.PhizProxyUtils;
+import gov.hhs.onc.phiz.aop.utils.PhizProxyUtils.PhizMethodAdvisor;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import org.aopalliance.intercept.MethodInterceptor;
-import org.apache.commons.lang3.ClassUtils;
-import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 
-public class PhizSslServerSocketFactoryFactoryBean extends AbstractPhizCryptoSocketFactoryFactoryBean<SSLServerSocketFactory, SSLServerSocket> {
+public class PhizSslServerSocketFactoryFactoryBean extends AbstractPhizSslSocketFactoryFactoryBean<SSLServerSocketFactory, SSLServerSocket> {
+    private final static String CREATE_SERVER_SOCKET_METHOD_NAME = "createServerSocket";
+
     public PhizSslServerSocketFactoryFactoryBean() {
         super(SSLServerSocketFactory.class);
     }
 
     @Override
-    public SSLServerSocketFactory getObject() throws Exception {
-        return this.objClass.cast(this.buildSocketFactoryProxyFactory(this.sslContext.getServerSocketFactory()).getProxy());
-    }
+    protected AspectJProxyFactory buildProxyFactory() {
+        return PhizProxyUtils.buildProxyFactory(this.sslContext.getServerSocketFactory(), this.objClass, new PhizMethodAdvisor(
+            ((MethodInterceptor) serverSocketFactoryMethodInvocation -> {
+                SSLServerSocket serverSocket = ((SSLServerSocket) serverSocketFactoryMethodInvocation.proceed());
+                serverSocket.setSSLParameters(PhizSslServerSocketFactoryFactoryBean.this.sslParams);
 
-    @Override
-    protected ProxyFactory buildSocketFactoryProxyFactory(SSLServerSocketFactory socketFactory) {
-        ProxyFactory socketFactoryProxyFactory = super.buildSocketFactoryProxyFactory(socketFactory);
-        socketFactoryProxyFactory.addAdvice(((MethodInterceptor) (methodInvocation) -> {
-            Method method = methodInvocation.getMethod();
-            Object methodReturnValue = method.invoke((!Modifier.isStatic(method.getModifiers()) ? socketFactory : null), methodInvocation.getArguments());
-
-            if (ClassUtils.isAssignable(method.getReturnType(), SSLServerSocket.class)) {
-                ((SSLServerSocket) methodReturnValue).setSSLParameters(this.sslParams);
-            }
-
-            return methodReturnValue;
-        }));
-
-        return socketFactoryProxyFactory;
+                return serverSocket;
+            }), CREATE_SERVER_SOCKET_METHOD_NAME));
     }
 }

@@ -18,28 +18,10 @@
     <!--====================================================================================================
     = CREDENTIALS: CERTIFICATE AUTHORITIES
     =====================================================================================================-->
-    <beans:bean id="credCaRoot" parent="credGen">
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="credCa" parent="credGen">
         <beans:property name="credential">
             <beans:bean parent="credImpl">
-                <beans:property name="certificateRequest">
-                    <beans:bean parent="certReqCa">
-                        <beans:constructor-arg name="subject">
-                            <!--suppress SpringPlaceholdersInspection -->
-                            <beans:bean parent="dn"
-                                p:commonName="${phiz.crypto.cred.ca.root.subject.cn}"/>
-                        </beans:constructor-arg>
-                    </beans:bean>
-                </beans:property>
-            </beans:bean>
-        </beans:property>
-    </beans:bean>
-    
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="credCa" parent="credGen"
-        p:certificateResource="${phiz.crypto.cred.ca.cert.file}">
-        <beans:property name="credential">
-            <beans:bean parent="credImpl"
-                p:issuerCredential-ref="credCaRoot">
                 <beans:property name="certificateRequest">
                     <beans:bean parent="certReqCa">
                         <beans:constructor-arg name="subject">
@@ -53,35 +35,47 @@
         </beans:property>
     </beans:bean>
     
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="credCaUntrusted" parent="credGen">
+        <beans:property name="credential">
+            <beans:bean parent="credImpl">
+                <beans:property name="certificateRequest">
+                    <beans:bean parent="certReqCa">
+                        <beans:constructor-arg name="subject">
+                            <!--suppress SpringPlaceholdersInspection -->
+                            <beans:bean parent="dn"
+                                p:commonName="${phiz.crypto.cred.ca.untrusted.subject.cn}"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
     <!--====================================================================================================
     = CREDENTIALS: LEAF
     =====================================================================================================-->
     <beans:bean id="credLeaf" parent="credImpl" abstract="true"
         p:issuerCredential-ref="credCa"/>
     
+    <beans:bean id="credLeafUntrusted" parent="credImpl" abstract="true"
+        p:issuerCredential-ref="credCaUntrusted"/>
+    
     <!--====================================================================================================
     = KEY STORES: CERTIFICATE AUTHORITY
     =====================================================================================================-->
     <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="keyStoreCa" parent="keyStoreGen" lazy-init="true"
-        p:password="${phiz.crypto.store.ca.pass}"
-        p:resource="${phiz.crypto.store.ca.file}">
+        p:password="${phiz.crypto.store.key.ca.pass}"
+        p:resource="${phiz.crypto.store.key.ca.file}">
         <beans:property name="entryMap">
             <beans:map>
                 <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="${phiz.crypto.store.ca.entry.ca.root.alias}">
-                    <!--suppress SpringPlaceholdersInspection -->
-                    <beans:bean parent="keyStoreEntryPrivateKey"
-                        p:certificateChain="#{ credCaRoot.certificateResponse.identity.chain[0] }"
-                        p:password="${phiz.crypto.store.ca.entry.ca.root.pass}"
-                        p:privateKey="#{ credCaRoot.certificateResponse.identity.privateKey }"/>
-                </beans:entry>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="${phiz.crypto.store.ca.entry.ca.alias}">
+                <beans:entry key="${phiz.crypto.store.key.ca.entry.ca.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryPrivateKey"
                         p:certificateChain="#{ credCa.certificateResponse.identity.chain[0] }"
-                        p:password="${phiz.crypto.store.ca.entry.ca.pass}"
+                        p:password="${phiz.crypto.store.key.ca.entry.ca.pass}"
                         p:privateKey="#{ credCa.certificateResponse.identity.privateKey }"/>
                 </beans:entry>
             </beans:map>
