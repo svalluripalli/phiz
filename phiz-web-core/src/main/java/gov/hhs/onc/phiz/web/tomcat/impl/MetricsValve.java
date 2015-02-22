@@ -14,7 +14,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 @Component("valveMetrics")
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class MetricsValve extends ValveBase {
     @Metric(name = "http.requests.active", absolute = true)
     private Counter activeReqsCounter = new Counter();

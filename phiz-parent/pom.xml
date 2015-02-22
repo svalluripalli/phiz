@@ -330,12 +330,12 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-core</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-bindings-soap</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.sun.xml.bind</groupId>
@@ -350,27 +350,27 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http-hc</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-addr</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-policy</artifactId>
-                <version>3.0.3</version>
+                <version>3.0.4</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -1038,9 +1038,7 @@
                             <suiteXmlFile>${project.build.testngDirectory}/testng-${project.artifactId}.xml</suiteXmlFile>
                         </suiteXmlFiles>
                         <systemPropertyVariables combine.children="append">
-                            <!-- TEMP: dev -->
-                            <!--<javax.net.debug>ssl,handshake</javax.net.debug>-->
-                            
+                            <javax.net.debug>ssl,handshake</javax.net.debug>
                             <javax.net.ssl.keyStore/>
                             <javax.net.ssl.trustStore/>
                             <logback.configurationFile>META-INF/phiz/logback/logback-phiz.xml</logback.configurationFile>

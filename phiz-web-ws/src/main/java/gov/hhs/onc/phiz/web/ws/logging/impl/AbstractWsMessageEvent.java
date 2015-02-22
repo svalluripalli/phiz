@@ -10,7 +10,7 @@ public abstract class AbstractWsMessageEvent implements WsMessageEvent {
     protected PhizWsMessageDirection direction;
     protected String endpointAddr;
     protected PhizWsEndpointType endpointType;
-    protected int eventId;
+    protected long eventId;
     protected Logger logger;
     protected Map<String, Object> soapFault;
     protected Map<String, Object> soapHeaders;
@@ -47,12 +47,12 @@ public abstract class AbstractWsMessageEvent implements WsMessageEvent {
     }
 
     @Override
-    public int getEventId() {
+    public long getEventId() {
         return this.eventId;
     }
 
     @Override
-    public void setEventId(int eventId) {
+    public void setEventId(long eventId) {
         this.eventId = eventId;
     }
 

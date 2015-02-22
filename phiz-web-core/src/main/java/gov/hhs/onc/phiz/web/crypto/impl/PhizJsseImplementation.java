@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.util.Optional;
 import javax.annotation.Resource;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
@@ -27,11 +26,11 @@ import org.springframework.context.annotation.Lazy;
 public class PhizJsseImplementation extends JSSEImplementation {
     private class PhizJsseSocketFactory implements ServerSocketFactory, SSLUtil {
         private AbstractEndpoint<?> endpoint;
-        
+
         public PhizJsseSocketFactory(AbstractEndpoint<?> endpoint) {
             this.endpoint = endpoint;
         }
-        
+
         @Override
         public void handshake(Socket socket) throws IOException {
             ((SSLSocket) socket).getSession();
@@ -45,30 +44,30 @@ public class PhizJsseImplementation extends JSSEImplementation {
                 throw new SocketException(String.format("Unable to accept SSL socket: %s", e.getMessage()));
             }
         }
-        
+
         @Override
         public SSLContext createSSLContext() throws Exception {
             return PhizJsseImplementation.this.sslContext;
         }
-        
+
         @Override
         public ServerSocket createSocket(int port) throws IOException {
             this.initializeSession();
-            
+
             return PhizJsseImplementation.this.sslServerSocketFactory.createServerSocket(port);
         }
 
         @Override
         public ServerSocket createSocket(int port, int backlog) throws IOException {
             this.initializeSession();
-            
+
             return PhizJsseImplementation.this.sslServerSocketFactory.createServerSocket(port, backlog);
         }
 
         @Override
         public ServerSocket createSocket(int port, int backlog, InetAddress interfaceAddr) throws IOException {
             this.initializeSession();
-            
+
             return PhizJsseImplementation.this.sslServerSocketFactory.createServerSocket(port, backlog, interfaceAddr);
         }
 
@@ -86,7 +85,7 @@ public class PhizJsseImplementation extends JSSEImplementation {
         public KeyManager[] getKeyManagers() throws Exception {
             return PhizJsseImplementation.this.keyManagers;
         }
-        
+
         @Override
         public TrustManager[] getTrustManagers() throws Exception {
             return PhizJsseImplementation.this.trustManagers;
@@ -99,7 +98,7 @@ public class PhizJsseImplementation extends JSSEImplementation {
         }
 
         private void initializeSession() {
-            Optional.of(PhizJsseImplementation.this.sslContext.getServerSessionContext()).ifPresent(this::configureSessionContext);
+            this.configureSessionContext(PhizJsseImplementation.this.sslContext.getServerSessionContext());
         }
     }
 
@@ -108,18 +107,18 @@ public class PhizJsseImplementation extends JSSEImplementation {
     @Resource(name = "keyManagerTomcatServer")
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private KeyManager[] keyManagers;
-    
+
     @Resource(name = "trustManagerTomcatServer")
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private TrustManager[] trustManagers;
-    
-    @Resource(name = "sslParamsTomcatServer")
+
+    @Resource(name = "sslParamsServerTomcatServer")
     private SSLParameters sslParams;
-    
+
     @Resource(name = "sslContextTomcatServer")
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private SSLContext sslContext;
-    
+
     @Resource(name = "sslServerSocketFactoryTomcatServer")
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private SSLServerSocketFactory sslServerSocketFactory;

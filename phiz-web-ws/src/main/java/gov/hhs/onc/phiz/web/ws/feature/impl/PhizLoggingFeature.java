@@ -2,6 +2,7 @@ package gov.hhs.onc.phiz.web.ws.feature.impl;
 
 import com.github.sebhoss.warnings.CompilerWarnings;
 import com.sun.xml.ws.encoding.soap.SOAP12Constants;
+import gov.hhs.onc.phiz.logging.impl.AtomicEventId;
 import gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashMarkers;
 import gov.hhs.onc.phiz.web.logging.HttpEvent;
 import gov.hhs.onc.phiz.web.logging.HttpRequestEvent;
@@ -36,7 +37,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -93,11 +93,11 @@ public class PhizLoggingFeature extends AbstractFeature {
             Exchange msgExchange = msg.getExchange();
 
             if (!msgExchange.containsKey(WS_MSG_EVENT_ID_PROP_NAME)) {
-                msgExchange.put(WS_MSG_EVENT_ID_PROP_NAME, WS_MSG_EVENT_ID.incrementAndGet());
+                msgExchange.put(WS_MSG_EVENT_ID_PROP_NAME, WS_MSG_EVENT_ID.getNext());
             }
 
             // noinspection ConstantConditions
-            int wsMsgEventId = PhizWsUtils.getProperty(msg.getExchange(), WS_MSG_EVENT_ID_PROP_NAME, Integer.class);
+            long wsMsgEventId = PhizWsUtils.getProperty(msg.getExchange(), WS_MSG_EVENT_ID_PROP_NAME, Long.class);
             msg.put(WS_MSG_EVENT_ID_PROP_NAME, wsMsgEventId);
 
             try {
@@ -111,7 +111,7 @@ public class PhizLoggingFeature extends AbstractFeature {
 
         protected abstract void handleMessageInternal(SoapMessage msg, T httpEvent, U wsMsgEvent) throws Exception;
 
-        protected U createWsMessageEvent(SoapMessage msg, int wsMsgEventId) {
+        protected U createWsMessageEvent(SoapMessage msg, long wsMsgEventId) {
             U wsMsgEvent = this.wsMsgEventSupplier.get();
             wsMsgEvent.setEndpointAddress(msg.getExchange().getEndpoint().getEndpointInfo().getAddress());
             wsMsgEvent.setEventId(wsMsgEventId);
@@ -147,7 +147,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         }
 
         @Override
-        protected U createWsMessageEvent(SoapMessage msg, int wsMsgEventId) {
+        protected U createWsMessageEvent(SoapMessage msg, long wsMsgEventId) {
             U wsMsgEvent = super.createWsMessageEvent(msg, wsMsgEventId);
             wsMsgEvent.setDirection(PhizWsMessageDirection.INBOUND);
 
@@ -170,7 +170,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         }
 
         @Override
-        protected WsRequestMessageEvent createWsMessageEvent(SoapMessage msg, int wsMsgEventId) {
+        protected WsRequestMessageEvent createWsMessageEvent(SoapMessage msg, long wsMsgEventId) {
             WsRequestMessageEvent wsMsgEvent = super.createWsMessageEvent(msg, wsMsgEventId);
             wsMsgEvent.setEndpointType(PhizWsEndpointType.SERVER);
 
@@ -220,7 +220,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         }
 
         @Override
-        protected WsResponseMessageEvent createWsMessageEvent(SoapMessage msg, int wsMsgEventId) {
+        protected WsResponseMessageEvent createWsMessageEvent(SoapMessage msg, long wsMsgEventId) {
             WsResponseMessageEvent wsMsgEvent = super.createWsMessageEvent(msg, wsMsgEventId);
             wsMsgEvent.setEndpointType(PhizWsEndpointType.CLIENT);
 
@@ -290,7 +290,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         protected abstract PhizLoggingOutCallback<T, U> createCallback(SoapMessage msg, T httpEvent, U wsMsgEvent);
 
         @Override
-        protected U createWsMessageEvent(SoapMessage msg, int wsMsgEventId) {
+        protected U createWsMessageEvent(SoapMessage msg, long wsMsgEventId) {
             U wsMsgEvent = super.createWsMessageEvent(msg, wsMsgEventId);
             wsMsgEvent.setDirection(PhizWsMessageDirection.OUTBOUND);
 
@@ -332,7 +332,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         }
 
         @Override
-        protected WsResponseMessageEvent createWsMessageEvent(SoapMessage msg, int wsMsgEventId) {
+        protected WsResponseMessageEvent createWsMessageEvent(SoapMessage msg, long wsMsgEventId) {
             WsResponseMessageEvent wsMsgEvent = super.createWsMessageEvent(msg, wsMsgEventId);
             wsMsgEvent.setEndpointType(PhizWsEndpointType.SERVER);
 
@@ -379,7 +379,7 @@ public class PhizLoggingFeature extends AbstractFeature {
         }
 
         @Override
-        protected WsRequestMessageEvent createWsMessageEvent(SoapMessage msg, int wsMsgEventId) {
+        protected WsRequestMessageEvent createWsMessageEvent(SoapMessage msg, long wsMsgEventId) {
             WsRequestMessageEvent wsMsgEvent = super.createWsMessageEvent(msg, wsMsgEventId);
             wsMsgEvent.setEndpointType(PhizWsEndpointType.CLIENT);
 
@@ -389,7 +389,7 @@ public class PhizLoggingFeature extends AbstractFeature {
 
     public final static String WS_MSG_EVENT_ID_PROP_NAME = "wsMsgEventId";
 
-    private final static AtomicInteger WS_MSG_EVENT_ID = new AtomicInteger();
+    private final static AtomicEventId WS_MSG_EVENT_ID = new AtomicEventId();
 
     private final static Logger SERVER_LOGGER = LoggerFactory.getLogger(Server.class);
     private final static Logger CLIENT_LOGGER = LoggerFactory.getLogger(Client.class);

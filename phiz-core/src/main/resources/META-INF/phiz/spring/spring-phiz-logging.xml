@@ -39,7 +39,7 @@
         p:name="file">
         <beans:property name="encoder">
             <beans:bean parent="encoderPatternLayout" destroy-method="stop" init-method="start"
-                p:pattern="%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t]%xReq %p - %m%n%exRoot"/>
+                p:pattern="%d{yyyy-MM-dd HH:mm:ss z} [%C:%L %t]%xEventId %p - %m%n%exRoot"/>
         </beans:property>
     </beans:bean>
 </beans:beans>

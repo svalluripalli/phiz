@@ -43,7 +43,7 @@
     
     <conversionRule conversionWord="pColor" converterClass="gov.hhs.onc.phiz.logging.impl.PriorityColorCompositeConverter"/>
     
-    <conversionRule conversionWord="xReq" converterClass="gov.hhs.onc.phiz.logging.impl.RequestMdcConverter"/>
+    <conversionRule conversionWord="xEventId" converterClass="gov.hhs.onc.phiz.logging.impl.EventIdMdcConverter"/>
     
     <!--====================================================================================================
     = APPENDERS: CONSOLE

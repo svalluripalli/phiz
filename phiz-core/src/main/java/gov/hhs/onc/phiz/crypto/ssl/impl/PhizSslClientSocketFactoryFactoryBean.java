@@ -16,12 +16,11 @@ public class PhizSslClientSocketFactoryFactoryBean extends AbstractPhizSslSocket
 
     @Override
     protected AspectJProxyFactory buildProxyFactory() {
-        return PhizProxyUtils.buildProxyFactory(this.sslContext.getSocketFactory(), this.objClass, new PhizMethodAdvisor(
-            ((MethodInterceptor) socketFactoryMethodInvocation -> {
-                SSLSocket socket = ((SSLSocket) socketFactoryMethodInvocation.proceed());
-                socket.setSSLParameters(PhizSslClientSocketFactoryFactoryBean.this.sslParams);
+        return PhizProxyUtils.buildProxyFactory(this.sslContext.getSocketFactory(), this.objClass, new PhizMethodAdvisor(((MethodInterceptor) invocation -> {
+            SSLSocket socket = ((SSLSocket) invocation.proceed());
+            socket.setSSLParameters(this.sslParams);
 
-                return socket;
-            }), CREATE_SOCKET_METHOD_NAME));
+            return socket;
+        }), CREATE_SOCKET_METHOD_NAME));
     }
 }

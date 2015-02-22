@@ -4,12 +4,12 @@ import gov.hhs.onc.phiz.web.ws.PhizWsMessageProperties;
 import gov.hhs.onc.phiz.web.ws.utils.PhizWsUtils;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.apache.cxf.Bus;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.service.model.EndpointInfo;
+import org.apache.cxf.transport.http.Address;
 import org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit;
 import org.apache.cxf.transport.http.asyncclient.CXFHttpRequest;
 import org.apache.cxf.transports.http.configuration.HTTPClientPolicy;
@@ -50,8 +50,8 @@ public class PhizAsyncHttpConduit extends AsyncHTTPConduit {
     }
 
     @Override
-    protected void setupConnection(Message outMsg, URI uri, HTTPClientPolicy clientPolicy) throws IOException {
-        super.setupConnection(outMsg, uri, clientPolicy);
+    protected void setupConnection(Message outMsg, Address addr, HTTPClientPolicy clientPolicy) throws IOException {
+        super.setupConnection(outMsg, addr, clientPolicy);
 
         if (Objects.equals(PhizWsUtils.getProperty(outMsg, USE_ASYNC, Boolean.class), Boolean.TRUE)) {
             outMsg.put(PhizWsMessageProperties.PROTOCOL, outMsg.get(CXFHttpRequest.class).getProtocolVersion().toString());

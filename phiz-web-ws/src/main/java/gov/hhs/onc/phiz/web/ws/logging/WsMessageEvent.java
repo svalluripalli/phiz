@@ -23,9 +23,9 @@ public interface WsMessageEvent {
     public void setEndpointType(PhizWsEndpointType endpointType);
 
     @JsonProperty
-    public int getEventId();
+    public long getEventId();
 
-    public void setEventId(int eventId);
+    public void setEventId(long eventId);
 
     public Logger getLogger();
 

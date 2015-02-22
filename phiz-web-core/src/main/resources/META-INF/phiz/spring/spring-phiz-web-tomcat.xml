@@ -46,7 +46,7 @@
     <!--====================================================================================================
     = SSL PARAMETERS
     =====================================================================================================-->
-    <beans:bean id="sslParamsTomcatServer" parent="sslParamsServer"
+    <beans:bean id="sslParamsServerTomcatServer" parent="sslParamsServer"
         p:needClientAuth="true"/>
     
     <!--====================================================================================================
@@ -70,7 +70,7 @@
     =====================================================================================================-->
     <beans:bean id="sslServerSocketFactoryTomcatServer" parent="sslSocketFactoryServerBase" lazy-init="true"
         p:sslContext-ref="sslContextTomcatServer"
-        p:sslParameters-ref="sslParamsTomcatServer"/>
+        p:sslParameters-ref="sslParamsServerTomcatServer"/>
     
     <!--====================================================================================================
     = LIFECYCLE LISTENERS
@@ -110,6 +110,7 @@
         </beans:property>
         <beans:property name="contextValves">
             <beans:list>
+                <beans:ref bean="valveMdc"/>
                 <beans:ref bean="valveMetrics"/>
             </beans:list>
         </beans:property>

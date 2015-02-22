@@ -40,6 +40,13 @@
                 <beans:bean class="net.logstash.logback.composite.loggingevent.LogLevelValueJsonProvider" parent="jsonProv"/>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.LogstashMarkersJsonProvider" parent="jsonProv"/>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.MessageJsonProvider" parent="jsonProv"/>
+                <beans:bean class="gov.hhs.onc.phiz.logging.logstash.impl.PhizMdcJsonProvider" parent="jsonProv">
+                    <beans:property name="includeMdcKeyNames">
+                        <beans:list>
+                            <beans:value>#{ T(gov.hhs.onc.phiz.logging.impl.EventIdMdcConverter).EVENT_ID_MDC_KEY }</beans:value>
+                        </beans:list>
+                    </beans:property>
+                </beans:bean>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.StackTraceJsonProvider" parent="jsonProv"
                     p:throwableConverter-ref="throwableProxyConvRootCause"/>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.TagsJsonProvider" parent="jsonProv"/>
