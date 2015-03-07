@@ -25,6 +25,40 @@
         p:type="NewSunX509"/>
     
     <!--====================================================================================================
+    = CERTIFICATE PATH CHECKERS
+    =====================================================================================================-->
+    <beans:bean id="certPathChecker" class="java.security.cert.CertPathChecker" abstract="true"/>
+    
+    <beans:bean id="certPathCheckerPkix" class="java.security.cert.PKIXCertPathChecker" parent="certPathChecker" abstract="true"/>
+    
+    <!--====================================================================================================
+    = REVOCATION CHECKERS
+    =====================================================================================================-->
+    <beans:bean id="revocationChecker" class="java.security.cert.PKIXRevocationChecker" parent="certPathCheckerPkix" abstract="true"/>
+    
+    <!--suppress SpringBeanConstructorArgInspection, SpringPlaceholdersInspection -->
+    <beans:bean id="revocationCheckerBase" class="gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizRevocationChecker" parent="revocationChecker" lazy-init="true"
+        scope="prototype"
+        p:connectTimeout="${phiz.crypto.ocsp.conn.timeout}"
+        p:digestAlgorithmId="#{ T(br.net.woodstock.rockframework.security.digest.DigestType).SHA256.algorithm }"
+        p:nonceSize="32"
+        p:readTimeout="${phiz.crypto.ocsp.read.timeout}"
+        p:secureRandom-ref="secureRandomSha1">
+        <beans:property name="preferredSignatureAlgorithmIds">
+            <beans:list>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA512_RSA.algorithm }</beans:value>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA384_RSA.algorithm }</beans:value>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA256_RSA.algorithm }</beans:value>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA1_RSA.algorithm }</beans:value>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringBeanConstructorArgInspection -->
+    <beans:bean id="revocationCheckerOptional" parent="revocationCheckerBase" lazy-init="true" scope="prototype"
+        p:optional="true"/>
+    
+    <!--====================================================================================================
     = CERTIFICATE SELECTORS
     =====================================================================================================-->
     <beans:bean id="certSelector" class="java.security.cert.CertSelector" abstract="true"/>
@@ -36,10 +70,14 @@
     =====================================================================================================-->
     <beans:bean id="trustManager" class="javax.net.ssl.TrustManager" abstract="true"/>
     
-    <beans:bean id="trustManagerBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizTrustManagerFactoryBean" parent="trustManager" abstract="true"
-        p:certSelector-ref="certSelectorX509"
-        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN_JSSE }"
-        p:type="PKIX"/>
+    <beans:bean id="trustManagerBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizTrustManager" parent="trustManager" abstract="true"
+        p:certificateSelector-ref="certSelectorX509"
+        p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).BC }"
+        p:type="PKIX">
+        <beans:property name="revocationCheckerBeanName">
+            <beans:idref bean="revocationCheckerBase"/>
+        </beans:property>
+    </beans:bean>
     
     <!--====================================================================================================
     = SSL PARAMETERS

@@ -53,6 +53,20 @@
     </beans:bean>
     
     <!--====================================================================================================
+    = DATE FORMATS
+    =====================================================================================================-->
+    <beans:bean id="dateFormat" class="org.apache.commons.lang3.time.FastDateFormat" abstract="true">
+        <beans:constructor-arg name="locale" value="#{ T(java.util.Locale).ROOT }"/>
+    </beans:bean>
+    
+    <beans:bean id="dateFormatUtc" parent="dateFormat" abstract="true">
+        <beans:constructor-arg name="timeZone" ref="timeZoneUtc"/>
+    </beans:bean>
+    
+    <beans:bean id="dateFormatUtcDisplay" parent="dateFormatUtc"
+        c:pattern="yyyy-MM-dd HH:mm:ss Z"/>
+    
+    <!--====================================================================================================
     = PROPERTY SOURCES PLACEHOLDER CONFIGURERS
     =====================================================================================================-->
     <beans:bean id="propSourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"

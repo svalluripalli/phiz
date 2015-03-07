@@ -11,6 +11,7 @@ public final class PhizSoapUiProperties {
     public final static String BAD_PROTOCOL_VERSIONS_SSL_PARAMS_VALUE = "bad.protocol.versions";
 
     public final static String SSL_SOCKET_FACTORY_NAME = SSL_PREFIX + "socket.factory";
+    public final static String REVOKED_SSL_SOCKET_FACTORY_VALUE = "revoked";
     public final static String UNTRUSTED_SSL_SOCKET_FACTORY_VALUE = "untrusted";
 
     private PhizSoapUiProperties() {

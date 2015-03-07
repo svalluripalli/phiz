@@ -29,6 +29,7 @@ import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings({ CompilerWarnings.DEPRECATION })
@@ -125,6 +126,8 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
         if (this.projectInitialized) {
             return;
         }
+
+        HttpClientSupport.getHttpClient().setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
 
         this.initializeSslScheme(this.sslParamMap.get(null), this.sslSocketFactoryMap.get(null));
 

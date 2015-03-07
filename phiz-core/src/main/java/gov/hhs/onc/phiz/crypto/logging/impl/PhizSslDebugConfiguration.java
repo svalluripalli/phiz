@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.crypto.ssl.logging.impl;
+package gov.hhs.onc.phiz.crypto.logging.impl;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -50,55 +50,55 @@ public class PhizSslDebugConfiguration implements DisposableBean {
 
     private final static Logger LOGGER = ((Logger) LoggerFactory.getLogger(PhizSslDebugConfiguration.class));
 
-    private final static PhizMethodAdvisor PRINT_METHODS_ADVISOR = new PhizMethodAdvisor(
-        ((PhizMethodInterceptor) (invocation, method, methodName, args, target) -> {
-            StackTraceElement[] stackTraceElems = new Throwable().getStackTrace();
-            int numStackTraceElems = stackTraceElems.length;
-            StackTraceElement stackTraceElem;
+    private final static PhizMethodAdvisor PRINT_STREAM_METHODS_ADVISOR = new PhizMethodAdvisor(((PhizMethodInterceptor) (invocation, method, methodName, args,
+        target) -> {
+        StackTraceElement[] stackTraceElems = new Throwable().getStackTrace();
+        int numStackTraceElems = stackTraceElems.length;
+        StackTraceElement stackTraceElem;
 
-            for (int a = 0; a < numStackTraceElems; a++) {
-                if (StringUtils.startsWith((stackTraceElem = stackTraceElems[a]).getClassName(), ENHANCED_PRINT_STREAM_CLASS_NAME_PREFIX)
-                    && stackTraceElem.getMethodName().equals(methodName)) {
-                    if (!StringUtils.startsWith(stackTraceElems[++a].getClassName(), SUN_SEC_PKG_NAME_PREFIX)) {
-                        break;
-                    }
+        for (int a = 0; a < numStackTraceElems; a++) {
+            if (StringUtils.startsWith((stackTraceElem = stackTraceElems[a]).getClassName(), ENHANCED_PRINT_STREAM_CLASS_NAME_PREFIX)
+                && stackTraceElem.getMethodName().equals(methodName)) {
+                if (!StringUtils.startsWith(stackTraceElems[++a].getClassName(), SUN_SEC_PKG_NAME_PREFIX)) {
+                    break;
+                }
 
-                    if (args.length != 1) {
-                        return null;
-                    }
-
-                    while (stackTraceElems[a].getClassName().equals(DEBUG_CLASS_NAME)) {
-                        a++;
-                    }
-
-                    if (!HANDSHAKE_CLASS_NAMES.contains(stackTraceElems[a].getClassName())) {
-                        return null;
-                    }
-
-                    StringBuilder printStrBuilder = THREAD_PRINT_STR_BUILDER.get();
-                    printStrBuilder.append(args[0]);
-
-                    if (methodName.equals(PRINTLN_METHOD_NAME)) {
-                        String msg = StringUtils.trim(StringUtils.strip(printStrBuilder.toString()));
-
-                        // noinspection ConstantConditions
-                        if (!msg.isEmpty()) {
-                            LoggingEvent srcEvent = new LoggingEvent(Logger.FQCN, LOGGER, Level.TRACE, msg, null, null);
-                            srcEvent.setCallerData(ArrayUtils.subarray(stackTraceElems, a, numStackTraceElems));
-                            srcEvent.setMarker(PhizLogstashMarkers.append(PhizLogstashTags.SSL));
-
-                            LOGGER.callAppenders(srcEvent);
-                        }
-
-                        THREAD_PRINT_STR_BUILDER.remove();
-                    }
-
+                if (args.length != 1) {
                     return null;
                 }
-            }
 
-            return invocation.proceed();
-        }), PRINT_METHOD_NAME, PRINTLN_METHOD_NAME);
+                while (stackTraceElems[a].getClassName().equals(DEBUG_CLASS_NAME)) {
+                    a++;
+                }
+
+                if (!HANDSHAKE_CLASS_NAMES.contains(stackTraceElems[a].getClassName())) {
+                    return null;
+                }
+
+                StringBuilder printStrBuilder = THREAD_PRINT_STR_BUILDER.get();
+                printStrBuilder.append(args[0]);
+
+                if (methodName.equals(PRINTLN_METHOD_NAME)) {
+                    String msg = StringUtils.trim(StringUtils.strip(printStrBuilder.toString()));
+
+                    // noinspection ConstantConditions
+        if (!msg.isEmpty()) {
+            LoggingEvent srcEvent = new LoggingEvent(Logger.FQCN, LOGGER, Level.TRACE, msg, null, null);
+            srcEvent.setCallerData(ArrayUtils.subarray(stackTraceElems, a, numStackTraceElems));
+            srcEvent.setMarker(PhizLogstashMarkers.append(PhizLogstashTags.SSL));
+
+            LOGGER.callAppenders(srcEvent);
+        }
+
+        THREAD_PRINT_STR_BUILDER.remove();
+    }
+
+    return null;
+}
+}
+
+return invocation.proceed();
+}), PRINT_METHOD_NAME, PRINTLN_METHOD_NAME);
 
     @Bean(name = "sslDebugPrintStreamErr")
     public PrintStream getErrPrintStream() {
@@ -116,7 +116,7 @@ public class PhizSslDebugConfiguration implements DisposableBean {
     }
 
     private synchronized static PrintStream buildProxyPrintStream(PrintStream delegatePrintStream, Consumer<PrintStream> delegateStreamSetter) {
-        PrintStream proxyPrintStream = PhizProxyUtils.buildProxyFactory(delegatePrintStream, PrintStream.class, PRINT_METHODS_ADVISOR).getProxy();
+        PrintStream proxyPrintStream = PhizProxyUtils.buildProxyFactory(delegatePrintStream, PrintStream.class, PRINT_STREAM_METHODS_ADVISOR).getProxy();
 
         DELEGATE_PRINT_STREAM_MAP.put(delegatePrintStream, delegateStreamSetter);
 

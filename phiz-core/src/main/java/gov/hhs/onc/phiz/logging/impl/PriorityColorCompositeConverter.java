@@ -14,7 +14,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 public class PriorityColorCompositeConverter extends ForegroundCompositeConverterBase<ILoggingEvent> {
     private final static Map<Level, String> LVL_COLOR_CODE_MAP = Stream.of(new ImmutablePair<>(Level.TRACE, ANSIConstants.DEFAULT_FG),
-        new ImmutablePair<>(Level.DEBUG, ANSIConstants.WHITE_FG), new ImmutablePair<>(Level.INFO, ANSIConstants.BLUE_FG),
+        new ImmutablePair<>(Level.DEBUG, ANSIConstants.CYAN_FG), new ImmutablePair<>(Level.INFO, ANSIConstants.BLUE_FG),
         new ImmutablePair<>(Level.WARN, ANSIConstants.YELLOW_FG), new ImmutablePair<>(Level.ERROR, ANSIConstants.RED_FG)).collect(
         Collectors.toMap(Pair::getLeft, ((lvlColorCodePair) -> (ANSIConstants.BOLD + lvlColorCodePair.getRight()))));
 

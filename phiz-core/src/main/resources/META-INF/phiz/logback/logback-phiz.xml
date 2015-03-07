@@ -11,6 +11,11 @@
     <contextName>${phiz.log.context.name:-phiz}</contextName>
     
     <!--====================================================================================================
+    = PROPERTIES: ASYNC
+    =====================================================================================================-->
+    <property name="phiz.logging.async.queue.size" value="${phiz.logging.async.queue.size:-256}" scope="context"/>
+    
+    <!--====================================================================================================
     = PROPERTIES: CONSOLE
     =====================================================================================================-->
     <if condition='!isDefined("phiz.logging.console.tty") &amp;&amp; !gov.hhs.onc.phiz.context.utils.PhizApplicationUtils.isDaemon()'>
@@ -56,11 +61,25 @@
         <withJansi>true</withJansi>
     </appender>
     
+    <appender name="consoleAsync" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="console"/>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <queueSize>${phiz.logging.async.queue.size}</queueSize>
+    </appender>
+    
     <!--====================================================================================================
     = APPENDERS: FILE
     =====================================================================================================-->
     <appender name="file" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
         <beanName>appenderFileMain</beanName>
+    </appender>
+    
+    <appender name="fileAsync" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="file"/>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <queueSize>${phiz.logging.async.queue.size}</queueSize>
     </appender>
     
     <!--====================================================================================================
@@ -70,13 +89,20 @@
         <beanName>appenderFileLogstash</beanName>
     </appender>
     
+    <appender name="fileLogstashAsync" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="fileLogstash"/>
+        <discardingThreshold>0</discardingThreshold>
+        <includeCallerData>true</includeCallerData>
+        <queueSize>${phiz.logging.async.queue.size}</queueSize>
+    </appender>
+    
     <!--====================================================================================================
     = ROOT LOGGER
     =====================================================================================================-->
     <root level="warn">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </root>
     
     <!--====================================================================================================

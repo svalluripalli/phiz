@@ -36,6 +36,24 @@
     </beans:bean>
     
     <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="credSoapUiClientRevoked" parent="credGen">
+        <beans:property name="credential">
+            <beans:bean parent="credLeaf"
+                p:revocationReason="KEY_COMPROMISE">
+                <beans:property name="certificateRequest">
+                    <beans:bean parent="certReqLeaf">
+                        <beans:constructor-arg name="subject">
+                            <!--suppress SpringPlaceholdersInspection -->
+                            <beans:bean parent="dn"
+                                p:commonName="${phiz.crypto.cred.soapui.client.revoked.ssl.subject.cn}"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="credSoapUiClientUntrusted" parent="credGen">
         <beans:property name="credential">
             <beans:bean parent="credLeafUntrusted">
@@ -90,6 +108,24 @@
     </beans:bean>
     
     <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreKeySoapUiClientRevoked" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.crypto.store.key.soapui.client.revoked.pass}"
+        p:resource="${phiz.crypto.store.key.soapui.client.revoked.file}">
+        <beans:property name="entryMap">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="${phiz.crypto.store.key.soapui.client.revoked.entry.ssl.alias}">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean parent="keyStoreEntryPrivateKey"
+                        p:certificateChain="#{ credSoapUiClientRevoked.certificateResponse.identity.chain[0] }"
+                        p:password="${phiz.crypto.store.key.soapui.client.revoked.entry.ssl.pass}"
+                        p:privateKey="#{ credSoapUiClientRevoked.certificateResponse.identity.privateKey }"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="keyStoreKeySoapUiClientUntrusted" parent="keyStoreGen" lazy-init="true"
         p:password="${phiz.crypto.store.key.soapui.client.untrusted.pass}"
         p:resource="${phiz.crypto.store.key.soapui.client.untrusted.file}">
@@ -108,11 +144,11 @@
     </beans:bean>
     
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="keyStoreTrustSoapUiClientUntrusted" parent="keyStoreGen" lazy-init="true"
+    <beans:bean id="keyStoreTrustSoapUiClientUntrusted" parent="keyStoreTrustSoapUiClient" lazy-init="true"
         p:password="${phiz.crypto.store.trust.soapui.client.untrusted.pass}"
         p:resource="${phiz.crypto.store.trust.soapui.client.untrusted.file}">
         <beans:property name="entryMap">
-            <beans:map>
+            <beans:map merge="true">
                 <!--suppress SpringPlaceholdersInspection -->
                 <beans:entry key="${phiz.crypto.store.trust.soapui.client.untrusted.entry.ca.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
@@ -130,6 +166,11 @@
     <beans:bean id="keyManagerSoapUiClient" parent="keyManagerBase" lazy-init="true"
         p:keyStore-ref="keyStoreKeySoapUiClient"
         p:password="${phiz.crypto.store.key.soapui.client.entry.ssl.pass}"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyManagerSoapUiClientRevoked" parent="keyManagerBase" lazy-init="true"
+        p:keyStore-ref="keyStoreKeySoapUiClientRevoked"
+        p:password="${phiz.crypto.store.key.soapui.client.revoked.entry.ssl.pass}"/>
     
     <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="keyManagerSoapUiClientUntrusted" parent="keyManagerBase" lazy-init="true"
@@ -166,7 +207,8 @@
     <!--====================================================================================================
     = SSL CONTEXTS
     =====================================================================================================-->
-    <beans:bean id="sslContextSoapUiClient" parent="sslContextBase" lazy-init="true">
+    <beans:bean id="sslContextSoapUiClient" parent="sslContextBase" lazy-init="true"
+        p:sslParameters-ref="sslParamsClientSoapUiClient">
         <beans:property name="keyManagers">
             <beans:array>
                 <beans:ref bean="keyManagerSoapUiClient"/>
@@ -179,7 +221,15 @@
         </beans:property>
     </beans:bean>
     
-    <beans:bean id="sslContextSoapUiClientUntrusted" parent="sslContextBase" lazy-init="true">
+    <beans:bean id="sslContextSoapUiClientRevoked" parent="sslContextSoapUiClient" lazy-init="true">
+        <beans:property name="keyManagers">
+            <beans:array>
+                <beans:ref bean="keyManagerSoapUiClientRevoked"/>
+            </beans:array>
+        </beans:property>
+    </beans:bean>
+    
+    <beans:bean id="sslContextSoapUiClientUntrusted" parent="sslContextSoapUiClient" lazy-init="true">
         <beans:property name="keyManagers">
             <beans:array>
                 <beans:ref bean="keyManagerSoapUiClientUntrusted"/>
@@ -198,6 +248,9 @@
     <beans:bean id="sslSocketFactoryClientSoapUiClient" parent="sslSocketFactoryClientBase" lazy-init="true"
         p:sslContext-ref="sslContextSoapUiClient"
         p:sslParameters-ref="sslParamsClientSoapUiClient"/>
+    
+    <beans:bean id="sslSocketFactoryClientSoapUiClientRevoked" parent="sslSocketFactoryClientSoapUiClient" lazy-init="true"
+        p:sslContext-ref="sslContextSoapUiClientRevoked"/>
     
     <beans:bean id="sslSocketFactoryClientSoapUiClientUntrusted" parent="sslSocketFactoryClientSoapUiClient" lazy-init="true"
         p:sslContext-ref="sslContextSoapUiClientUntrusted"/>
@@ -243,6 +296,8 @@
                         <beans:null/>
                     </beans:key>
                 </beans:entry>
+                <beans:entry key="#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).REVOKED_SSL_SOCKET_FACTORY_VALUE }"
+                    value-ref="sslSocketFactoryClientSoapUiClientRevoked"/>
                 <beans:entry key="#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).UNTRUSTED_SSL_SOCKET_FACTORY_VALUE }"
                     value-ref="sslSocketFactoryClientSoapUiClientUntrusted"/>
             </beans:map>

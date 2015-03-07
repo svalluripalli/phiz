@@ -58,7 +58,7 @@
     <beans:bean id="credLeaf" parent="credImpl" abstract="true"
         p:issuerCredential-ref="credCa"/>
     
-    <beans:bean id="credLeafUntrusted" parent="credImpl" abstract="true"
+    <beans:bean id="credLeafUntrusted" parent="credLeaf" abstract="true"
         p:issuerCredential-ref="credCaUntrusted"/>
     
     <!--====================================================================================================
@@ -78,6 +78,27 @@
                         p:password="${phiz.crypto.store.key.ca.entry.ca.pass}"
                         p:privateKey="#{ credCa.certificateResponse.identity.privateKey }"/>
                 </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = OCSP SERVERS
+    =====================================================================================================-->
+    <beans:bean id="ocspServer" class="gov.hhs.onc.phiz.test.crypto.ssl.revocation.PhizOcspServer" abstract="true"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="ocspServerImpl" class="gov.hhs.onc.phiz.test.crypto.ssl.revocation.impl.PhizOcspServerImpl" parent="ocspServer"
+        p:host="${phiz.crypto.ocsp.host}"
+        p:maxContentLength="${phiz.crypto.ocsp.content.len.max}"
+        p:port="${phiz.crypto.ocsp.port}"
+        p:secureRandom-ref="secureRandomSha1"
+        p:signatureAlgorithmId="#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA512_RSA.algorithm }">
+        <beans:property name="channelOptions">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="#{ T(io.netty.channel.ChannelOption).SO_BACKLOG }" value="${phiz.crypto.ocsp.socket.backlog}" value-type="java.lang.Integer"/>
+                <beans:entry key="#{ T(io.netty.channel.ChannelOption).SO_REUSEADDR }" value="true" value-type="java.lang.Boolean"/>
             </beans:map>
         </beans:property>
     </beans:bean>

@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import javax.annotation.Resource;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSessionContext;
@@ -37,48 +35,44 @@ public class PhizJsseImplementation extends JSSEImplementation {
         }
 
         @Override
-        public Socket acceptSocket(ServerSocket socket) throws IOException {
-            try {
-                return socket.accept();
-            } catch (SSLException e) {
-                throw new SocketException(String.format("Unable to accept SSL socket: %s", e.getMessage()));
-            }
+        public Socket acceptSocket(ServerSocket serverSocket) throws IOException {
+            return serverSocket.accept();
         }
 
         @Override
         public SSLContext createSSLContext() throws Exception {
-            return PhizJsseImplementation.this.sslContext;
+            return PhizJsseImplementation.this.context;
         }
 
         @Override
         public ServerSocket createSocket(int port) throws IOException {
             this.initializeSession();
 
-            return PhizJsseImplementation.this.sslServerSocketFactory.createServerSocket(port);
+            return PhizJsseImplementation.this.serverSocketFactory.createServerSocket(port);
         }
 
         @Override
         public ServerSocket createSocket(int port, int backlog) throws IOException {
             this.initializeSession();
 
-            return PhizJsseImplementation.this.sslServerSocketFactory.createServerSocket(port, backlog);
+            return PhizJsseImplementation.this.serverSocketFactory.createServerSocket(port, backlog);
         }
 
         @Override
         public ServerSocket createSocket(int port, int backlog, InetAddress interfaceAddr) throws IOException {
             this.initializeSession();
 
-            return PhizJsseImplementation.this.sslServerSocketFactory.createServerSocket(port, backlog, interfaceAddr);
+            return PhizJsseImplementation.this.serverSocketFactory.createServerSocket(port, backlog, interfaceAddr);
         }
 
         @Override
         public String[] getEnableableCiphers(SSLContext context) {
-            return PhizJsseImplementation.this.sslParams.getCipherSuites();
+            return PhizJsseImplementation.this.params.getCipherSuites();
         }
 
         @Override
         public String[] getEnableableProtocols(SSLContext context) {
-            return PhizJsseImplementation.this.sslParams.getProtocols();
+            return PhizJsseImplementation.this.params.getProtocols();
         }
 
         @Override
@@ -98,7 +92,7 @@ public class PhizJsseImplementation extends JSSEImplementation {
         }
 
         private void initializeSession() {
-            this.configureSessionContext(PhizJsseImplementation.this.sslContext.getServerSessionContext());
+            this.configureSessionContext(PhizJsseImplementation.this.context.getServerSessionContext());
         }
     }
 
@@ -113,15 +107,15 @@ public class PhizJsseImplementation extends JSSEImplementation {
     private TrustManager[] trustManagers;
 
     @Resource(name = "sslParamsServerTomcatServer")
-    private SSLParameters sslParams;
+    private SSLParameters params;
 
     @Resource(name = "sslContextTomcatServer")
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
-    private SSLContext sslContext;
+    private SSLContext context;
 
     @Resource(name = "sslServerSocketFactoryTomcatServer")
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
-    private SSLServerSocketFactory sslServerSocketFactory;
+    private SSLServerSocketFactory serverSocketFactory;
 
     @Override
     public ServerSocketFactory getServerSocketFactory(AbstractEndpoint<?> endpoint) {

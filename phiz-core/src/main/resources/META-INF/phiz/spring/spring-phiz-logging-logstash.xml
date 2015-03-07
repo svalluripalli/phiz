@@ -18,17 +18,52 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = JSON MODULES
+    =====================================================================================================-->
+    <beans:bean id="jsonModule" class="com.fasterxml.jackson.databind.Module" abstract="true"/>
+    
+    <beans:bean id="jsonModuleLogstash" class="gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashModule" parent="jsonModule" abstract="true"/>
+    
+    <!--====================================================================================================
     = JSON PROVIDERS
     =====================================================================================================-->
     <beans:bean id="jsonProv" class="net.logstash.logback.composite.JsonProvider" abstract="true"/>
+    
+    <!--====================================================================================================
+    = JSON FACTORY DECORATORS
+    =====================================================================================================-->
+    <beans:bean id="jsonFactoryDecorator" class="net.logstash.logback.decorate.JsonFactoryDecorator" abstract="true"/>
+    
+    <beans:bean id="jsonFactoryDecoratorLogstash" class="gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashJsonFactoryDecorator" parent="jsonFactoryDecorator"
+        abstract="true"/>
     
     <!--====================================================================================================
     = ENCODERS
     =====================================================================================================-->
     <beans:bean id="encoderLogstash" class="gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashEncoder" parent="encoder" abstract="true"
         p:encodingCharset-ref="charsetUtf8"
-        p:jsonFactoryDecorator-ref="jsonFactoryDecoratorLogstash"
         p:lineSeparator="#{ T(org.apache.commons.lang3.StringUtils).LF }">
+        <beans:property name="jsonFactoryDecorator">
+            <beans:bean parent="jsonFactoryDecoratorLogstash">
+                <beans:property name="modules">
+                    <beans:array>
+                        <beans:bean class="com.codahale.metrics.json.HealthCheckModule" parent="jsonModule"/>
+                        <beans:bean class="com.codahale.metrics.json.MetricsModule" parent="jsonModule"
+                            c:durationUnit="#{ T(java.util.concurrent.TimeUnit).SECONDS }"
+                            c:rateUnit="#{ T(java.util.concurrent.TimeUnit).SECONDS }"
+                            c:showSamples="true"/>
+                        <beans:bean parent="jsonModuleLogstash"
+                            p:moduleName="phiz-logstash">
+                            <beans:property name="serializers">
+                                <beans:list>
+                                    <beans:ref bean="jsonSerializerMetricRegistry"/>
+                                </beans:list>
+                            </beans:property>
+                        </beans:bean>
+                    </beans:array>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
         <beans:property name="providerItems">
             <beans:list>
                 <beans:bean class="net.logstash.logback.composite.LogstashVersionJsonProvider" parent="jsonProv"/>

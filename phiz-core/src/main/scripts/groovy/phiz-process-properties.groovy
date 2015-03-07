@@ -13,7 +13,6 @@ import org.springframework.core.io.support.PropertiesLoaderUtils
 import org.springframework.core.io.support.ResourcePatternResolver
 import org.springframework.core.io.support.ResourcePatternUtils
 import org.springframework.format.support.FormattingConversionService
-import org.springframework.util.StringValueResolver
 
 def pluginContextMap = session.getPluginContext(mojoExecution.mojoDescriptor.pluginDescriptor, project)
 
@@ -25,6 +24,9 @@ pluginContextMap.put("env", env)
 
 def convService = new FormattingConversionService()
 pluginContextMap.put("convService", convService)
+
+def beanExprResolver = new StandardBeanExpressionResolver()
+pluginContextMap.put("beanExprResolver", beanExprResolver)
 
 def props = new Properties()
 props.putAll(PropertySourceUtils.getSubProperties(env.getPropertySources(), StringUtils.EMPTY))
@@ -40,23 +42,32 @@ Stream.concat(Stream.of(resourcePatternResolver.getResources("${ResourcePatternR
 
 def propResolver = new PropertiesPropertyResolver(props)
 propResolver.conversionService = convService
-propResolver.placeholderPrefix = "@{"
 pluginContextMap.put("propResolver", propResolver)
 
+def resourcePropResolver = new PropertiesPropertyResolver(props)
+resourcePropResolver.conversionService = convService
+resourcePropResolver.placeholderPrefix = "@{"
+pluginContextMap.put("resourcePropResolver", resourcePropResolver)
+
 def beanFactory = new DefaultListableBeanFactory()
-beanFactory.addEmbeddedValueResolver(new StringValueResolver() {
-    @Override
-    def String resolveStringValue(String str) {
-        return propResolver.resolveRequiredPlaceholders(str)
-    }
-})
-beanFactory.setBeanExpressionResolver(new StandardBeanExpressionResolver())
+beanFactory.addEmbeddedValueResolver(propResolver)
+beanFactory.setBeanExpressionResolver(beanExprResolver)
 pluginContextMap.put("beanFactory", beanFactory)
+
+def resourceBeanFactory = new DefaultListableBeanFactory()
+beanFactory.addEmbeddedValueResolver(resourcePropResolver)
+resourceBeanFactory.setBeanExpressionResolver(beanExprResolver)
+pluginContextMap.put("resourceBeanFactory", resourceBeanFactory)
 
 def propPlaceholderResolver = new EmbeddedPlaceholderResolverImpl()
 propPlaceholderResolver.setBeanFactory(beanFactory)
 propPlaceholderResolver.afterPropertiesSet()
 pluginContextMap.put("propPlaceholderResolver", propPlaceholderResolver)
+
+def resourcePropPlaceholderResolver = new EmbeddedPlaceholderResolverImpl()
+resourcePropPlaceholderResolver.setBeanFactory(resourceBeanFactory)
+resourcePropPlaceholderResolver.afterPropertiesSet()
+pluginContextMap.put("resourcePropPlaceholderResolver", resourcePropPlaceholderResolver)
 
 def resolvedProps = new Properties()
 resolvedProps.putAll(props.stringPropertyNames().stream().collect(Collectors.toMap({ it },

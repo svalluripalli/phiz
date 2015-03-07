@@ -7,84 +7,90 @@
     = LOGGERS: PROJECT
     =====================================================================================================-->
     <logger name="gov.hhs.onc.phiz" level="all" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <logger name="gov.hhs.onc.phiz.logging.metrics.impl.LogstashReporter" level="all" additivity="false">
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
+    
+    <!--
+    <logger name="gov.hhs.onc.phiz.crypto.ssl.logging.impl.PhizSslDebugConfiguration" level="all" additivity="false">
+        <appender-ref ref="fileLogstashAsync"/>
+    </logger>
+    -->
     
     <!--====================================================================================================
     = LOGGERS: ROCKFRAMEWORK
     =====================================================================================================-->
     <logger name="br.net.woodstock.rockframework" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <!--====================================================================================================
     = LOGGERS: METRICS
     =====================================================================================================-->
     <logger name="com.codahale.metrics" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <!--====================================================================================================
     = LOGGERS: APACHE
     =====================================================================================================-->
     <logger name="org.apache" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <!--====================================================================================================
     = LOGGERS: APACHE CXF
     =====================================================================================================-->
     <logger name="org.apache.cxf" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <logger name="org.apache.cxf.binding.soap.interceptor.Soap12FaultOutInterceptor" level="warn" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <!--====================================================================================================
     = LOGGERS: HIBERNATE
     =====================================================================================================-->
     <logger name="org.hibernate" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <logger name="org.hibernate.SQL" level="debug" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <!--====================================================================================================
     = LOGGERS: SPRING FRAMEWORK
     =====================================================================================================-->
     <logger name="org.springframework" level="info" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
     <logger name="org.springframework.context.support.PostProcessorRegistrationDelegate$BeanPostProcessorChecker" level="warn" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="file"/>
-        <appender-ref ref="fileLogstash"/>
+        <appender-ref ref="consoleAsync"/>
+        <appender-ref ref="fileAsync"/>
+        <appender-ref ref="fileLogstashAsync"/>
     </logger>
 </included>

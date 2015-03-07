@@ -41,7 +41,11 @@
     = TRUST MANAGERS
     =====================================================================================================-->
     <beans:bean id="trustManagerWsClient" parent="trustManagerBase" lazy-init="true"
-        p:keyStore-ref="keyStoreTrustWsClient"/>
+        p:keyStore-ref="keyStoreTrustWsClient">
+        <beans:property name="revocationCheckerBeanName">
+            <beans:idref bean="revocationCheckerOptional"/>
+        </beans:property>
+    </beans:bean>
     
     <!--====================================================================================================
     = SSL PARAMETERS
@@ -51,7 +55,8 @@
     <!--====================================================================================================
     = SSL CONTEXTS
     =====================================================================================================-->
-    <beans:bean id="sslContextWsClient" parent="sslContextBase" lazy-init="true">
+    <beans:bean id="sslContextWsClient" parent="sslContextBase" lazy-init="true"
+        p:sslParameters-ref="sslParamsClientWsClient">
         <beans:property name="keyManagers">
             <beans:array>
                 <beans:ref bean="keyManagerWsClient"/>
@@ -79,7 +84,6 @@
     
     <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="tlsParamsClientWs" parent="tlsParamsClient" lazy-init="true"
-        p:certAlias="${phiz.crypto.store.key.ws.client.entry.ssl.alias}"
         p:SSLSocketFactory-ref="sslSocketFactoryClientWsClient"/>
     
     <!--====================================================================================================
@@ -132,12 +136,14 @@
         </beans:property>
     </beans:bean>
     
-    <beans:bean id="conduitHttpAsync" class="gov.hhs.onc.phiz.web.ws.transport.impl.PhizAsyncHttpConduit" parent="conduitHttp" abstract="true">
+    <beans:bean id="conduitHttpAsync" class="gov.hhs.onc.phiz.web.ws.transport.impl.PhizAsyncHttpConduit" parent="conduitHttp" abstract="true"
+        p:sslContext-ref="sslContextWsClient">
         <beans:constructor-arg name="bus" ref="busPhiz"/>
         <beans:constructor-arg name="conduitFactory" ref="conduitFactoryHttpAsync"/>
     </beans:bean>
     
-    <beans:bean name="*.http-conduit" class="gov.hhs.onc.phiz.web.ws.transport.impl.PhizAsyncHttpConduit" parent="conduitHttpAsync" lazy-init="true"/>
+    <beans:bean name="*.http-conduit" class="gov.hhs.onc.phiz.web.ws.transport.impl.PhizAsyncHttpConduit" parent="conduitHttpAsync" lazy-init="true"
+        scope="prototype"/>
     
     <!--====================================================================================================
     = CLIENTS

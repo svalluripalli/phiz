@@ -1,4 +1,4 @@
-package gov.hhs.onc.phiz.test.impl;
+package gov.hhs.onc.phiz.test.data.db.impl;
 
 import gov.hhs.onc.phiz.beans.factory.EmbeddedPlaceholderResolver;
 import java.io.IOException;

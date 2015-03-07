@@ -4,12 +4,18 @@ import com.github.sebhoss.warnings.CompilerWarnings;
 import java.util.Properties;
 import javax.annotation.Nullable;
 import org.springframework.core.env.AbstractPropertyResolver;
+import org.springframework.util.StringValueResolver;
 
-public class PropertiesPropertyResolver extends AbstractPropertyResolver {
+public class PropertiesPropertyResolver extends AbstractPropertyResolver implements StringValueResolver {
     private Properties props;
 
     public PropertiesPropertyResolver(Properties props) {
         this.props = props;
+    }
+
+    @Override
+    public String resolveStringValue(String str) {
+        return this.resolveRequiredPlaceholders(str);
     }
 
     @Nullable

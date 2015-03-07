@@ -2,7 +2,6 @@ package gov.hhs.onc.phiz.crypto.ssl.impl;
 
 import gov.hhs.onc.phiz.aop.utils.PhizProxyUtils;
 import gov.hhs.onc.phiz.aop.utils.PhizProxyUtils.PhizMethodAdvisor;
-import gov.hhs.onc.phiz.crypto.impl.AbstractPhizCryptoFactoryBean;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.util.stream.Stream;
@@ -14,7 +13,7 @@ import javax.net.ssl.SSLSession;
 import javax.net.ssl.TrustManager;
 import org.aopalliance.intercept.MethodInterceptor;
 
-public class PhizSslContextFactoryBean extends AbstractPhizCryptoFactoryBean<SSLContext> {
+public class PhizSslContextFactoryBean extends AbstractPhizSslParametersAwareFactoryBean<SSLContext> {
     private final static String SSL_CONTEXT_SERVICE_TYPE = SSLContext.class.getSimpleName();
 
     private final static String BEGIN_HANDSHAKE_METHOD_NAME = "beginHandshake";
@@ -38,6 +37,7 @@ public class PhizSslContextFactoryBean extends AbstractPhizCryptoFactoryBean<SSL
         return new SSLContext(PhizProxyUtils.buildProxyFactory(contextSpi, SSLContextSpi.class,
             new PhizMethodAdvisor(((MethodInterceptor) contextInvocation -> {
                 SSLEngine engine = ((SSLEngine) contextInvocation.proceed());
+                engine.setSSLParameters(this.sslParams);
 
                 return PhizProxyUtils.buildProxyFactory(engine, SSLEngine.class, new PhizMethodAdvisor(((MethodInterceptor) engineInvocation -> {
                     SSLSession session = engine.getSession();

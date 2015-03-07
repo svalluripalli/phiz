@@ -5,6 +5,7 @@ import br.net.woodstock.rockframework.security.cert.CertificateGenerator;
 import br.net.woodstock.rockframework.security.cert.CertificateResponse;
 import gov.hhs.onc.phiz.crypto.PhizCredential;
 import java.io.OutputStreamWriter;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.openssl.jcajce.JcaPKCS8Generator;
@@ -27,7 +28,7 @@ public class GeneratedCredentialFactoryBean extends AbstractPhizCryptoFactoryBea
 
     @Override
     public PhizCredential getObject() throws Exception {
-        if (!this.cred.isSelfIssued()) {
+        if (!this.cred.isRootIssuer()) {
             this.cred.getCertificateRequest().setIssuer(this.cred.getIssuerCredential().getCertificateResponse().getIdentity());
         }
 
@@ -50,6 +51,10 @@ public class GeneratedCredentialFactoryBean extends AbstractPhizCryptoFactoryBea
                 certWriter.writeObject(new JcaMiscPEMGenerator(identity.getChain().get(0)));
                 certWriter.flush();
             }
+        }
+
+        if (this.cred.isRevoked() && (this.cred.getRevocationTime() == null)) {
+            this.cred.setRevocationTime(new Date());
         }
 
         return this.cred;

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.net.ssl.SSLEngine;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.apache.coyote.http11.Http11NioProtocol;
 import org.apache.tomcat.util.descriptor.web.LoginConfig;
+import org.apache.tomcat.util.net.NioEndpoint;
 import org.apache.tomcat.util.net.SSLImplementation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.boot.context.embedded.EmbeddedServletContainer;
@@ -73,9 +75,31 @@ public class PhizTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedSer
         }
     }
 
+    public static class PhizNioEndpoint extends NioEndpoint {
+        @Override
+        protected SSLEngine createSSLEngine() {
+            SSLEngine engine = this.getSSLContext().createSSLEngine();
+            engine.setUseClientMode(false);
+
+            this.getHandler().onCreateSSLEngine(engine);
+
+            return engine;
+        }
+    }
+
+    public static class PhizHttp11NioProtocol extends Http11NioProtocol {
+        public PhizHttp11NioProtocol() {
+            super();
+
+            ((PhizNioEndpoint) (this.endpoint = new PhizNioEndpoint())).setHandler(((Http11ConnectionHandler) this.getHandler()));
+        }
+    }
+
     public static class PhizConnector extends Connector {
         public PhizConnector() {
-            super(Http11NioProtocol.class.getName());
+            super(PhizHttp11NioProtocol.class.getName());
+
+            this.protocolHandlerClassName = Http11NioProtocol.class.getName();
         }
 
         @Override
