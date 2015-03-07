@@ -91,34 +91,8 @@
     =====================================================================================================-->
     <beans:bean id="clientPolicyHttp" class="org.apache.cxf.transports.http.configuration.HTTPClientPolicy" abstract="true"
         p:allowChunking="false"
-        p:asyncExecuteTimeoutRejection="true"
         p:cacheControl="no-cache, no-store, no-transform"
         p:connection="CLOSE"/>
-    
-    <!--====================================================================================================
-    = CONDUIT FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="conduitFactoryHttp" class="org.apache.cxf.transport.http.HTTPConduitFactory" abstract="true"/>
-    
-    <beans:bean id="conduitFactoryHttpAsync" class="gov.hhs.onc.phiz.web.ws.transport.impl.PhizAsyncHttpConduitFactory" parent="conduitFactoryHttp"
-        destroy-method="shutdown"
-        c:bus-ref="busPhiz">
-        <beans:property name="properties">
-            <beans:map>
-                <beans:entry key="#{ T(org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduit).USE_ASYNC }"
-                    value="#{ T(org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduitFactory.UseAsyncPolicy).ALWAYS }"/>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="#{ T(org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduitFactory).INTEREST_OP_QUEUED }"
-                    value="${phiz.ws.client.async.interest.op.queued}"/>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="#{ T(org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduitFactory).SELECT_INTERVAL }"
-                    value="${phiz.ws.client.async.select.interval}"/>
-                <!--suppress SpringPlaceholdersInspection -->
-                <beans:entry key="#{ T(org.apache.cxf.transport.http.asyncclient.AsyncHTTPConduitFactory).THREAD_COUNT }"
-                    value="${phiz.ws.client.async.io.thread.count}"/>
-            </beans:map>
-        </beans:property>
-    </beans:bean>
     
     <!--====================================================================================================
     = CONDUITS
@@ -127,23 +101,21 @@
     
     <beans:bean id="conduitHttp" class="org.apache.cxf.transport.http.HTTPConduit" parent="conduit" abstract="true"
         p:tlsClientParameters-ref="tlsParamsClientWs">
+        <beans:constructor-arg name="b" ref="busPhiz"/>
+        <beans:constructor-arg name="ei">
+            <beans:bean class="org.apache.cxf.service.model.EndpointInfo"/>
+        </beans:constructor-arg>
         <beans:property name="client">
             <!--suppress SpringPlaceholdersInspection -->
             <beans:bean parent="clientPolicyHttp"
-                p:asyncExecuteTimeout="${phiz.ws.client.async.exec.timeout}"
                 p:connectionTimeout="${phiz.ws.client.conn.timeout}"
                 p:receiveTimeout="${phiz.ws.client.receive.timeout}"/>
         </beans:property>
     </beans:bean>
     
-    <beans:bean id="conduitHttpAsync" class="gov.hhs.onc.phiz.web.ws.transport.impl.PhizAsyncHttpConduit" parent="conduitHttp" abstract="true"
-        p:sslContext-ref="sslContextWsClient">
-        <beans:constructor-arg name="bus" ref="busPhiz"/>
-        <beans:constructor-arg name="conduitFactory" ref="conduitFactoryHttpAsync"/>
-    </beans:bean>
+    <beans:bean id="conduitHttpUrlConn" class="org.apache.cxf.transport.http.URLConnectionHTTPConduit" parent="conduitHttp" abstract="true"/>
     
-    <beans:bean name="*.http-conduit" class="gov.hhs.onc.phiz.web.ws.transport.impl.PhizAsyncHttpConduit" parent="conduitHttpAsync" lazy-init="true"
-        scope="prototype"/>
+    <beans:bean name="*.http-conduit" class="org.apache.cxf.transport.http.URLConnectionHTTPConduit" parent="conduitHttpUrlConn" lazy-init="true"/>
     
     <!--====================================================================================================
     = CLIENTS

@@ -359,11 +359,6 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
-                <artifactId>cxf-rt-transports-http-hc</artifactId>
-                <version>3.0.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-addr</artifactId>
                 <version>3.0.4</version>
             </dependency>
@@ -371,17 +366,6 @@
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-ws-policy</artifactId>
                 <version>3.0.4</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpasyncclient</artifactId>
-                <version>4.0.2</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>commons-logging</groupId>
-                        <artifactId>commons-logging</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -1077,6 +1061,7 @@
                             <javax.net.debug>ssl,certpath,handshake</javax.net.debug>
                             <javax.net.ssl.keyStore/>
                             <javax.net.ssl.trustStore/>
+                            <jdk.tls.ephemeralDHKeySize>2048</jdk.tls.ephemeralDHKeySize>
                             <logback.configurationFile>META-INF/phiz/logback/logback-phiz.xml</logback.configurationFile>
                             <phiz.conf.ssl.dir>${project.build.directory}/surefire-ssl</phiz.conf.ssl.dir>
                             <phiz.logging.console.tty>true</phiz.logging.console.tty>
@@ -1084,6 +1069,7 @@
                             <phiz.logging.file.name>${project.artifactId}-test</phiz.logging.file.name>
                             <phiz.logging.logstash.file.name>${project.artifactId}-logstash-test</phiz.logging.logstash.file.name>
                             <phiz.mode>dev</phiz.mode>
+                            <sun.security.ssl.allowLegacyHelloMessages>false</sun.security.ssl.allowLegacyHelloMessages>
                         </systemPropertyVariables>
                         <trimStackTrace>false</trimStackTrace>
                         <workingDirectory>${project.build.directory}</workingDirectory>
@@ -1393,10 +1379,12 @@
                                             <systemProperties combine.children="append">
                                                 <systemProperty>java.net.preferIPv4Addresses=true</systemProperty>
                                                 <systemProperty>java.net.preferIPv4Stack=true</systemProperty>
+                                                <systemProperty>jdk.tls.ephemeralDHKeySize=2048</systemProperty>
                                                 <systemProperty>loader.main=gov.hhs.onc.phiz.context.impl.PhizApplication</systemProperty>
                                                 <systemProperty>logback.configurationFile=META-INF/phiz/logback/logback-phiz.xml</systemProperty>
                                                 <systemProperty>phiz.app.name=${project.artifactId}</systemProperty>
                                                 <systemProperty>phiz.logging.file.name=${project.artifactId}</systemProperty>
+                                                <systemProperty>sun.security.ssl.allowLegacyHelloMessages=false</systemProperty>
                                             </systemProperties>
                                         </jvmSettings>
                                         <mainClass>org.springframework.boot.loader.PropertiesLauncher</mainClass>

@@ -41,7 +41,7 @@
         scope="prototype"
         p:connectTimeout="${phiz.crypto.ocsp.conn.timeout}"
         p:digestAlgorithmId="#{ T(br.net.woodstock.rockframework.security.digest.DigestType).SHA256.algorithm }"
-        p:nonceSize="32"
+        p:nonceSize="${phiz.crypto.ocsp.nonce.size}"
         p:readTimeout="${phiz.crypto.ocsp.read.timeout}"
         p:secureRandom-ref="secureRandomSha1">
         <beans:property name="preferredSignatureAlgorithmIds">

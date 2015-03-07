@@ -410,10 +410,6 @@
                                             <initialMemorySize>1024M</initialMemorySize>
                                             <maxMemorySize>2048M</maxMemorySize>
                                             <maxStackSize>768M</maxStackSize>
-                                            <systemProperties>
-                                                <systemProperty>java.security.manager=</systemProperty>
-                                                <systemProperty>java.security.policy=conf/catalina-${project.artifactId}.policy</systemProperty>
-                                            </systemProperties>
                                         </jvmSettings>
                                     </daemon>
                                 </daemons>

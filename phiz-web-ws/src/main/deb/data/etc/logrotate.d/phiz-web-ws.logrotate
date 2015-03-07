@@ -1,16 +1,35 @@
-"/%{project.build.debLogDataDirectoryPath}/*.log" {
+"/%{project.build.debLogDataDirectoryPath}/*.json" {
+    compress
     copytruncate
     create 640 %{project.artifactId} adm
     daily
     dateext
     dateformat .%Y-%m-%d
-    extension .log
+    delaycompress
+    extension .json
     missingok
-    nocompress
     postrotate
         chmod 640 "$1"
         chown "%{project.artifactId}:adm" "$1"
     endscript
-    rotate 51
+    rotate 365
+    sharedscripts
+}
+
+"/%{project.build.debLogDataDirectoryPath}/*.log" {
+    compress
+    copytruncate
+    create 640 %{project.artifactId} adm
+    daily
+    dateext
+    dateformat .%Y-%m-%d
+    delaycompress
+    extension .log
+    missingok
+    postrotate
+        chmod 640 "$1"
+        chown "%{project.artifactId}:adm" "$1"
+    endscript
+    rotate 365
     sharedscripts
 }
