@@ -8,7 +8,13 @@ public class PhizKeyPairGeneratorFactoryBean extends AbstractPhizCryptoFactoryBe
     private SecureRandom secRand;
 
     public PhizKeyPairGeneratorFactoryBean() {
+        this(-1);
+    }
+
+    public PhizKeyPairGeneratorFactoryBean(int keySize) {
         super(KeyPairGenerator.class);
+
+        this.keySize = keySize;
     }
 
     @Override
@@ -21,10 +27,6 @@ public class PhizKeyPairGeneratorFactoryBean extends AbstractPhizCryptoFactoryBe
 
     public int getKeySize() {
         return this.keySize;
-    }
-
-    public void setKeySize(int keySize) {
-        this.keySize = keySize;
     }
 
     public SecureRandom getSecureRandom() {

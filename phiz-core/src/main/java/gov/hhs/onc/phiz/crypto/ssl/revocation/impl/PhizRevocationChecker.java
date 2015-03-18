@@ -2,6 +2,7 @@ package gov.hhs.onc.phiz.crypto.ssl.revocation.impl;
 
 import com.github.sebhoss.warnings.CompilerWarnings;
 import gov.hhs.onc.phiz.crypto.ssl.PhizSslLocation;
+import gov.hhs.onc.phiz.crypto.ssl.impl.AbstractPhizPathChecker;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspCertificateStatusType;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspContentTypes;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspOids;
@@ -19,28 +20,21 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertPathValidatorException.BasicReason;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateRevokedException;
-import java.security.cert.PKIXRevocationChecker;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.collections4.set.ListOrderedSet;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.HttpPost;
 import org.bouncycastle.asn1.ASN1EncodableVector;
@@ -57,8 +51,6 @@ import org.bouncycastle.asn1.x509.AuthorityInformationAccess;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.ocsp.BasicOCSPResp;
 import org.bouncycastle.cert.ocsp.CertificateStatus;
 import org.bouncycastle.cert.ocsp.OCSPException;
@@ -69,10 +61,9 @@ import org.bouncycastle.cert.ocsp.SingleResp;
 import org.bouncycastle.operator.DigestCalculator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.MimeType;
 
-public class PhizRevocationChecker extends PKIXRevocationChecker implements InitializingBean {
+public class PhizRevocationChecker extends AbstractPhizPathChecker {
     private static class OcspExtension implements java.security.cert.Extension {
         private Extension ext;
 
@@ -103,15 +94,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
 
     private final static Map<String, String> BASE_OCSP_REQ_HEADERS = new LinkedHashMap<>();
 
-    private final static List<CertPathValidatorException> SOFT_FAIL_EXCEPTIONS = Collections.unmodifiableList(Collections.emptyList());
-
     private final static Logger LOGGER = LoggerFactory.getLogger(PhizRevocationChecker.class);
-
-    @Resource(name = "dateFormatUtcDisplay")
-    private FastDateFormat displayDateFormat;
-
-    private PhizSslLocation loc;
-    private X509Certificate issuerCert;
 
     private int connectTimeout;
     private AlgorithmIdentifier digestAlgId;
@@ -120,8 +103,6 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
     private ListOrderedSet<AlgorithmIdentifier> preferredSigAlgIds;
     private int readTimeout;
     private SecureRandom secureRandom;
-    private int pathIndex;
-    private X509CertificateHolder issuerCertHolder;
     private DigestCalculator digestCalc;
     private Extension[] baseOcspReqExts;
 
@@ -131,25 +112,12 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
     }
 
     public PhizRevocationChecker(PhizSslLocation loc, X509Certificate issuerCert) {
-        this.loc = loc;
-        this.issuerCert = issuerCert;
-    }
-
-    @Override
-    public void check(Certificate cert, Collection<String> unresolvedCriticalExts) throws CertPathValidatorException {
-        this.pathIndex++;
-
-        this.checkInternal(((X509Certificate) cert));
-    }
-
-    @Override
-    public void init(boolean forward) throws CertPathValidatorException {
-        this.pathIndex = -1;
+        super(loc, issuerCert, BasicReason.UNDETERMINED_REVOCATION_STATUS);
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.issuerCertHolder = new JcaX509CertificateHolder(this.issuerCert);
+        super.afterPropertiesSet();
 
         this.digestCalc = PhizCryptoUtils.DIGEST_CALC_PROV.get(this.digestAlgId);
 
@@ -166,7 +134,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
 
     @Override
     @SuppressWarnings({ "CloneDoesntCallSuperClone" })
-    public PKIXRevocationChecker clone() {
+    public PhizRevocationChecker clone() {
         return this;
     }
 
@@ -198,31 +166,22 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
             .getString()) : null);
     }
 
-    private static CertPathValidatorException buildException(String msg) {
-        return buildException(msg, null);
-    }
-
-    private static CertPathValidatorException buildException(String msg, @Nullable Throwable cause) {
-        return new CertPathValidatorException(msg, cause, null, -1, ((cause instanceof CertificateRevokedException)
-            ? BasicReason.REVOKED : BasicReason.UNDETERMINED_REVOCATION_STATUS));
-    }
-
+    @Override
     @SuppressWarnings({ CompilerWarnings.UNCHECKED })
-    private void checkInternal(X509Certificate cert) throws CertPathValidatorException {
-        String certSubjectDnNameStr = cert.getSubjectX500Principal().getName(), certIssuerDnNameStr = cert.getIssuerX500Principal().getName();
-        BigInteger certSerialNum = cert.getSerialNumber();
+    protected void checkInternal(X509Certificate cert, String certSubjectDnNameStr, String certIssuerDnNameStr, BigInteger certSerialNum)
+        throws CertPathValidatorException {
         URL ocspResponderUrl;
 
         try {
             ocspResponderUrl = findOcspResponderUrl(cert);
         } catch (IOException e) {
-            throw buildException(String.format("Unable to determine SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP URL.",
+            throw this.buildException(String.format("Unable to determine SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP URL.",
                 this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum), e);
         }
 
         if (ocspResponderUrl == null) {
             if (!this.optional) {
-                throw buildException(String.format("SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) does not specify an OCSP URL.",
+                throw this.buildException(String.format("SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) does not specify an OCSP URL.",
                     this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum));
             } else {
                 LOGGER.info(String.format("Skipping SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) revocation checking.",
@@ -237,7 +196,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         try {
             ocspReqCertId = new PhizCertificateId(this.digestCalc, this.issuerCertHolder, certSerialNum);
         } catch (OCSPException e) {
-            throw buildException(String.format("Unable to determine SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP ID.",
+            throw this.buildException(String.format("Unable to determine SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP ID.",
                 this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum), e);
         }
 
@@ -253,7 +212,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         try {
             ocspReqContent = ocspReqBuilder.build().getEncoded();
         } catch (IOException | OCSPException e) {
-            throw buildException(String.format("Unable to build SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP request.",
+            throw this.buildException(String.format("Unable to build SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP request.",
                 this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum), e);
         }
 
@@ -262,14 +221,15 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         try {
             ocspRespWrapper = this.queryOcspResponder(ocspResponderUrl, ocspReqContent);
         } catch (IOException e) {
-            throw buildException(String.format("Unable to query SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s).",
-                this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl), e);
+            throw this.buildException(String.format(
+                "Unable to query SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s).", this.loc.getId(),
+                certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl), e);
         }
 
         OcspResponseStatusType ocspRespStatus = PhizCryptoUtils.findByTag(OcspResponseStatusType.class, ocspRespWrapper.getStatus());
 
         if (ocspRespStatus != OcspResponseStatusType.SUCCESSFUL) {
-            throw buildException(String.format(
+            throw this.buildException(String.format(
                 "Invalid SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response status (%s).", this.loc.getId(),
                 certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespStatus));
         }
@@ -277,7 +237,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         ASN1ObjectIdentifier ocspRespType = ocspRespWrapper.toASN1Structure().getResponseBytes().getResponseType();
 
         if (!ocspRespType.equals(OCSPObjectIdentifiers.id_pkix_ocsp_basic)) {
-            throw buildException(String.format(
+            throw this.buildException(String.format(
                 "Invalid SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response type (oid=%s).",
                 this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespType.getId()));
         }
@@ -287,7 +247,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         try {
             ocspResp = ((BasicOCSPResp) ocspRespWrapper.getResponseObject());
         } catch (OCSPException e) {
-            throw buildException(String.format(
+            throw this.buildException(String.format(
                 "Unable to build SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response.", this.loc.getId(),
                 certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl), e);
         }
@@ -296,21 +256,23 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         Extension nonceOcspRespExt = ocspResp.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
 
         if (nonceOcspRespExt == null) {
-            throw buildException(String
-                .format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain a nonce extension (oid=%s).",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
-                    OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
+            throw this
+                .buildException(String
+                    .format(
+                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain a nonce extension (oid=%s).",
+                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                        OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
         }
 
         byte[] nonceOcspRespExtContent = nonceOcspRespExt.getExtnValue().getOctets();
 
         if (!Arrays.equals(nonceOcspReqExtContent, nonceOcspRespExtContent)) {
-            throw buildException(String
-                .format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) nonce extension (oid=%s) value does not match (%s).",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
-                    OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId(), Hex.encodeHexString(nonceOcspRespExtContent)));
+            throw this
+                .buildException(String
+                    .format(
+                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) nonce extension (oid=%s) value does not match (%s).",
+                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                        OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId(), Hex.encodeHexString(nonceOcspRespExtContent)));
         }
 
         SingleResp ocspCertResp = null;
@@ -324,19 +286,22 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
                     ocspCertResp = availableOcspCertResp;
                 }
             } catch (OCSPException e) {
-                throw buildException(
-                    String.format(
-                        "Unable to match SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate (serialNum=%d) status.",
-                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
-                        availableOcspCertRespId.getSerialNumber()), e);
+                throw this
+                    .buildException(
+                        String
+                            .format(
+                                "Unable to match SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate (serialNum=%d) status.",
+                                this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                                availableOcspCertRespId.getSerialNumber()), e);
             }
         }
 
         if (ocspCertResp == null) {
-            throw buildException(String
-                .format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain matching certificate status.",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr));
+            throw this
+                .buildException(String
+                    .format(
+                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain matching certificate status.",
+                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr));
         }
 
         Date ocspCertRespNextUpdateTime = ocspCertResp.getNextUpdate();
@@ -369,20 +334,23 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
                         ocspCertRespRevokedStatus.getRevocationReason()) : OcspRevokeReasonType.UNSPECIFIED);
 
                 // noinspection ConstantConditions
-                throw buildException(
-                    String.format(
-                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate status (thisUpdate=%s, nextUpdate=%s) is revoked (time=%s, reason=%s).",
-                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
-                        ocspCertRespThisUpdateTimeStr, ocspCertRespNextUpdateTimeStr, this.displayDateFormat.format(ocspCertRespRevokeTime),
-                        ocspCertRespRevokeReason.name()), new CertificateRevokedException(ocspCertRespRevokeTime, ocspCertRespRevokeReason.getReason(),
-                        this.issuerCert.getSubjectX500Principal(), mapOcspResponseExtensions(ocspResp)));
+                throw this
+                    .buildException(
+                        String
+                            .format(
+                                "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate status (thisUpdate=%s, nextUpdate=%s) is revoked (time=%s, reason=%s).",
+                                this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                                ocspCertRespThisUpdateTimeStr, ocspCertRespNextUpdateTimeStr, this.displayDateFormat.format(ocspCertRespRevokeTime),
+                                ocspCertRespRevokeReason.name()), new CertificateRevokedException(ocspCertRespRevokeTime, ocspCertRespRevokeReason.getReason(),
+                            this.issuerCert.getSubjectX500Principal(), mapOcspResponseExtensions(ocspResp)));
 
             case UNKNOWN:
-                throw buildException(String
-                    .format(
-                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate status (thisUpdate=%s, nextUpdate=%s) is unknown.",
-                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
-                        ocspCertRespThisUpdateTimeStr, ocspCertRespNextUpdateTimeStr));
+                throw this
+                    .buildException(String
+                        .format(
+                            "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate status (thisUpdate=%s, nextUpdate=%s) is unknown.",
+                            this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                            ocspCertRespThisUpdateTimeStr, ocspCertRespNextUpdateTimeStr));
         }
     }
 
@@ -449,11 +417,6 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         this.digestAlgId = PhizCryptoUtils.DIGEST_ALG_ID_FINDER.find(digestAlgId);
     }
 
-    @Override
-    public boolean isForwardCheckingSupported() {
-        return false;
-    }
-
     @Nonnegative
     public int getNonceSize() {
         return this.nonceSize;
@@ -494,16 +457,5 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
 
     public void setSecureRandom(SecureRandom secureRandom) {
         this.secureRandom = secureRandom;
-    }
-
-    @Override
-    public List<CertPathValidatorException> getSoftFailExceptions() {
-        return SOFT_FAIL_EXCEPTIONS;
-    }
-
-    @Nullable
-    @Override
-    public Set<String> getSupportedExtensions() {
-        return null;
     }
 }

@@ -51,13 +51,38 @@
     <beans:bean id="certPathCheckerPkix" class="java.security.cert.PKIXCertPathChecker" parent="certPathChecker" abstract="true"/>
     
     <!--====================================================================================================
+    = CONSTRAINTS CHECKERS
+    =====================================================================================================-->
+    <!--suppress SpringBeanConstructorArgInspection -->
+    <beans:bean id="constraintsChecker" class="gov.hhs.onc.phiz.crypto.ssl.constraints.impl.PhizConstraintsChecker" parent="certPathCheckerPkix"
+        lazy-init="true" scope="prototype">
+        <beans:property name="keyTypes">
+            <beans:set>
+                <beans:value>RSA</beans:value>
+            </beans:set>
+        </beans:property>
+        <beans:property name="minimumKeySizes">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="#{ T(gov.hhs.onc.phiz.crypto.PhizKeyType).RSA }" value="${phiz.crypto.constraints.key.rsa.size.min}"/>
+            </beans:map>
+        </beans:property>
+        <beans:property name="signatureAlgorithmIds">
+            <beans:set>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA512_RSA.algorithm }</beans:value>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA384_RSA.algorithm }</beans:value>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA256_RSA.algorithm }</beans:value>
+                <beans:value>#{ T(br.net.woodstock.rockframework.security.sign.SignatureType).SHA1_RSA.algorithm }</beans:value>
+            </beans:set>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
     = REVOCATION CHECKERS
     =====================================================================================================-->
-    <beans:bean id="revocationChecker" class="java.security.cert.PKIXRevocationChecker" parent="certPathCheckerPkix" abstract="true"/>
-    
     <!--suppress SpringBeanConstructorArgInspection, SpringPlaceholdersInspection -->
-    <beans:bean id="revocationCheckerBase" class="gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizRevocationChecker" parent="revocationChecker" lazy-init="true"
-        scope="prototype"
+    <beans:bean id="revocationChecker" class="gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizRevocationChecker" parent="certPathCheckerPkix"
+        lazy-init="true" scope="prototype"
         p:connectTimeout="${phiz.crypto.ocsp.conn.timeout}"
         p:digestAlgorithmId="#{ T(br.net.woodstock.rockframework.security.digest.DigestType).SHA256.algorithm }"
         p:nonceSize="${phiz.crypto.ocsp.nonce.size}"
@@ -74,7 +99,7 @@
     </beans:bean>
     
     <!--suppress SpringBeanConstructorArgInspection -->
-    <beans:bean id="revocationCheckerOptional" parent="revocationCheckerBase" lazy-init="true" scope="prototype"
+    <beans:bean id="revocationCheckerOptional" parent="revocationChecker" lazy-init="true" scope="prototype"
         p:optional="true"/>
     
     <!--====================================================================================================
@@ -95,8 +120,11 @@
         p:certificateSelector-ref="certSelectorX509"
         p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).BC }"
         p:type="PKIX">
+        <beans:property name="constraintsCheckerBeanName">
+            <beans:idref bean="constraintsChecker"/>
+        </beans:property>
         <beans:property name="revocationCheckerBeanName">
-            <beans:idref bean="revocationCheckerBase"/>
+            <beans:idref bean="revocationChecker"/>
         </beans:property>
     </beans:bean>
     
@@ -105,6 +133,7 @@
     =====================================================================================================-->
     <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="sslParams" class="javax.net.ssl.SSLParameters" abstract="true"
+        p:algorithmConstraints-ref="constraintsPermitAll"
         p:cipherSuites="${phiz.crypto.cipher.suites}"
         p:useCipherSuitesOrder="true">
         <beans:property name="protocols">

@@ -35,11 +35,11 @@
     =====================================================================================================-->
     <beans:bean id="keyPairGen" class="java.security.KeyPairGenerator" abstract="true"/>
     
-    <beans:bean id="keyPairGenRsa" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyPairGeneratorFactoryBean" parent="keyPairGen"
-        p:keySize="#{ T(br.net.woodstock.rockframework.security.cert.KeySizeType).KEYSIZE_2K.size }"
+    <!--suppress SpringBeanConstructorArgInspection -->
+    <beans:bean id="keyPairGenBase" class="gov.hhs.onc.phiz.crypto.impl.PhizKeyPairGeneratorFactoryBean" parent="keyPairGen" lazy-init="true" scope="prototype"
         p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).BC }"
         p:secureRandom-ref="secureRandomSha1"
-        p:type="#{ T(br.net.woodstock.rockframework.security.crypt.KeyPairType).RSA.algorithm }"/>
+        p:type="#{ T(gov.hhs.onc.phiz.crypto.PhizKeyType).RSA.id }"/>
     
     <!--====================================================================================================
     = CERTIFICATES
@@ -57,7 +57,7 @@
     = CERTIFICATE REQUESTS
     =====================================================================================================-->
     <beans:bean id="certReq" class="br.net.woodstock.rockframework.security.cert.CertificateRequest" abstract="true"
-        p:keyPair="#{ keyPairGenRsa.generateKeyPair() }"
+        p:keySize="KEYSIZE_2K"
         p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).BC_NAME }"
         p:signType="SHA512_RSA"
         p:version="V3"/>
@@ -103,7 +103,11 @@
     
     <beans:bean id="credImpl" class="gov.hhs.onc.phiz.crypto.impl.PhizCredentialImpl" parent="cred" abstract="true"/>
     
-    <beans:bean id="credGen" class="gov.hhs.onc.phiz.crypto.impl.GeneratedCredentialFactoryBean" parent="cred" abstract="true"/>
+    <beans:bean id="credGen" class="gov.hhs.onc.phiz.crypto.impl.GeneratedCredentialFactoryBean" parent="cred" abstract="true">
+        <beans:property name="keyPairGeneratorBeanName">
+            <beans:idref bean="keyPairGenBase"/>
+        </beans:property>
+    </beans:bean>
     
     <!--====================================================================================================
     = KEY STORE PROTECTION

@@ -4,6 +4,7 @@ import gov.hhs.onc.phiz.crypto.logging.SslTrustEvent;
 import gov.hhs.onc.phiz.crypto.logging.impl.SslTrustEventImpl;
 import gov.hhs.onc.phiz.crypto.ssl.PhizSslLocation;
 import gov.hhs.onc.phiz.crypto.ssl.PhizSslManagerBean;
+import gov.hhs.onc.phiz.crypto.ssl.constraints.impl.PhizConstraintsChecker;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizRevocationChecker;
 import gov.hhs.onc.phiz.crypto.utils.PhizCertificatePathUtils;
 import gov.hhs.onc.phiz.crypto.utils.PhizCertificateUtils;
@@ -45,6 +46,7 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
     private BeanFactory beanFactory;
     private List<PKIXCertPathChecker> certPathCheckers;
     private X509CertSelector certSelector;
+    private String constraintsCheckerBeanName;
     private KeyStore keyStore;
     private Provider prov;
     private String revocationCheckerBeanName;
@@ -148,8 +150,12 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
                 ExtendedPKIXBuilderParameters certBuilderParams = ((ExtendedPKIXBuilderParameters) this.builderParams.clone());
                 certBuilderParams.setTargetCertConstraints(certSelector);
                 certBuilderParams.addCertStore(PhizCertificatePathUtils.buildStore(certs));
-                certBuilderParams.addCertPathChecker(((PhizRevocationChecker) this.beanFactory.getBean(this.revocationCheckerBeanName, loc,
-                    PhizCertificatePathUtils.findRootCertificate(certBuilderParams, certs[0]))));
+
+                X509Certificate issuerCert = PhizCertificatePathUtils.findRootCertificate(certBuilderParams, certs[0]);
+
+                certBuilderParams.addCertPathChecker(((PhizConstraintsChecker) this.beanFactory.getBean(this.constraintsCheckerBeanName, loc, issuerCert)));
+
+                certBuilderParams.addCertPathChecker(((PhizRevocationChecker) this.beanFactory.getBean(this.revocationCheckerBeanName, loc, issuerCert)));
 
                 CertPathBuilder builder = CertPathBuilder.getInstance(this.type, this.prov);
 
@@ -213,6 +219,14 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
 
     public void setCertificateSelector(X509CertSelector certSelector) {
         this.certSelector = certSelector;
+    }
+
+    public String getConstraintsCheckerBeanName() {
+        return this.constraintsCheckerBeanName;
+    }
+
+    public void setConstraintsCheckerBeanName(String constraintsCheckerBeanName) {
+        this.constraintsCheckerBeanName = constraintsCheckerBeanName;
     }
 
     @Override

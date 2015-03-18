@@ -313,6 +313,90 @@ empty(//iis:Hl7Message)</path>
           </con:property>
       </con:properties>
     </con:testCase>
+    <con:testCase failOnError="false" failTestCaseOnErrors="false" keepSession="false" maxResults="0" name="SubmitSingleMessage_SSL_Socket_Factory_Invalid_Key_Size" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage invalid key size SSL socket factory test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings/>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties>
+          <con:property>
+              <con:name>#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).SSL_SOCKET_FACTORY_NAME }</con:name>
+              <con:value>#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).INVALID_KEY_SIZE_SSL_SOCKET_FACTORY_VALUE }</con:value>
+          </con:property>
+      </con:properties>
+    </con:testCase>
+    <con:testCase failOnError="false" failTestCaseOnErrors="false" keepSession="false" maxResults="0" name="SubmitSingleMessage_SSL_Socket_Factory_Invalid_Sig_Alg" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
+      <con:description>SubmitSingleMessage invalid signature algorithm SSL socket factory test case.</con:description>
+      <con:settings/>
+      <con:testStep type="request" name="SubmitSingleMessage">
+        <con:settings/>
+        <con:config xsi:type="con:RequestStep" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <con:interface>IISHubBindingSoap12</con:interface>
+          <con:operation>SubmitSingleMessage</con:operation>
+          <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
+            <con:description/>
+            <con:settings/>
+            <con:encoding>UTF-8</con:encoding>
+            <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
+            <con:request><![CDATA[<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:iis="urn:cdc:iisb:2014" xmlns:iis-hub="urn:cdc:iisb:hub:2014">
+   <soap:Header>
+      <iis-hub:HubRequestHeader>
+         <iis-hub:DestinationId>${#Spring#phiz.dest.iis.dev.id}</iis-hub:DestinationId>
+      </iis-hub:HubRequestHeader>
+   </soap:Header>
+   <soap:Body>
+      <iis:SubmitSingleMessageRequest>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+      </iis:SubmitSingleMessageRequest>
+   </soap:Body>
+</soap:Envelope>]]></con:request>
+            <con:credentials>
+              <con:authType>No Authorization</con:authType>
+            </con:credentials>
+            <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+            <con:jmsPropertyConfig/>
+            <con:wsaConfig mustUnderstand="TRUE" version="200508" action="urn:cdc:iisb:hub:2014:IISHubPortType:SubmitSingleMessageRequest" generateMessageId="true"/>
+            <con:wsrmConfig version="1.2"/>
+          </con:request>
+        </con:config>
+      </con:testStep>
+      <con:properties>
+          <con:property>
+              <con:name>#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).SSL_SOCKET_FACTORY_NAME }</con:name>
+              <con:value>#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).INVALID_SIG_ALG_SSL_SOCKET_FACTORY_VALUE }</con:value>
+          </con:property>
+      </con:properties>
+    </con:testCase>
     <con:testCase failOnError="false" failTestCaseOnErrors="false" keepSession="false" maxResults="0" name="SubmitSingleMessage_SSL_Socket_Factory_Revoked" searchProperties="true" wsrmEnabled="false" wsrmVersion="1.0" wsrmAckTo="" amfAuthorisation="false" amfEndpoint="" amfLogin="" amfPassword="">
       <con:description>SubmitSingleMessage revoked SSL socket factory test case.</con:description>
       <con:settings/>

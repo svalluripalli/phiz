@@ -18,7 +18,6 @@
     <!--====================================================================================================
     = CREDENTIALS
     =====================================================================================================-->
-    <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="credSoapUiClient" parent="credGen">
         <beans:property name="credential">
             <beans:bean parent="credLeaf">
@@ -35,7 +34,40 @@
         </beans:property>
     </beans:bean>
     
-    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="credSoapUiClientInvalidKeySize" parent="credGen">
+        <beans:property name="credential">
+            <beans:bean parent="credLeaf">
+                <beans:property name="certificateRequest">
+                    <beans:bean parent="certReqLeaf"
+                        p:keySize="KEYSIZE_1K">
+                        <beans:constructor-arg name="subject">
+                            <!--suppress SpringPlaceholdersInspection -->
+                            <beans:bean parent="dn"
+                                p:commonName="${phiz.crypto.cred.soapui.client.invalid.key.size.ssl.subject.cn}"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <beans:bean id="credSoapUiClientInvalidSigAlg" parent="credGen">
+        <beans:property name="credential">
+            <beans:bean parent="credLeaf">
+                <beans:property name="certificateRequest">
+                    <beans:bean parent="certReqLeaf"
+                        p:signType="MD5_RSA">
+                        <beans:constructor-arg name="subject">
+                            <!--suppress SpringPlaceholdersInspection -->
+                            <beans:bean parent="dn"
+                                p:commonName="${phiz.crypto.cred.soapui.client.invalid.sig.alg.ssl.subject.cn}"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
     <beans:bean id="credSoapUiClientRevoked" parent="credGen">
         <beans:property name="credential">
             <beans:bean parent="credLeaf"
@@ -53,7 +85,6 @@
         </beans:property>
     </beans:bean>
     
-    <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="credSoapUiClientUntrusted" parent="credGen">
         <beans:property name="credential">
             <beans:bean parent="credLeafUntrusted">
@@ -102,6 +133,42 @@
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryTrustedCert"
                         p:certificate="#{ credCa.certificate }"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreKeySoapUiClientInvalidKeySize" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.crypto.store.key.soapui.client.invalid.key.size.pass}"
+        p:resource="${phiz.crypto.store.key.soapui.client.invalid.key.size.file}">
+        <beans:property name="entryMap">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="${phiz.crypto.store.key.soapui.client.invalid.key.size.entry.ssl.alias}">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean parent="keyStoreEntryPrivateKey"
+                        p:certificateChain="#{ credSoapUiClientInvalidKeySize.certificate }"
+                        p:password="${phiz.crypto.store.key.soapui.client.invalid.key.size.entry.ssl.pass}"
+                        p:privateKey="#{ credSoapUiClientInvalidKeySize.privateKey }"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreKeySoapUiClientInvalidSigAlg" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.crypto.store.key.soapui.client.invalid.sig.alg.pass}"
+        p:resource="${phiz.crypto.store.key.soapui.client.invalid.sig.alg.file}">
+        <beans:property name="entryMap">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="${phiz.crypto.store.key.soapui.client.invalid.sig.alg.entry.ssl.alias}">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean parent="keyStoreEntryPrivateKey"
+                        p:certificateChain="#{ credSoapUiClientInvalidSigAlg.certificate }"
+                        p:password="${phiz.crypto.store.key.soapui.client.invalid.sig.alg.entry.ssl.pass}"
+                        p:privateKey="#{ credSoapUiClientInvalidSigAlg.privateKey }"/>
                 </beans:entry>
             </beans:map>
         </beans:property>
@@ -168,6 +235,16 @@
         p:password="${phiz.crypto.store.key.soapui.client.entry.ssl.pass}"/>
     
     <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyManagerSoapUiClientInvalidKeySize" parent="keyManagerBase" lazy-init="true"
+        p:keyStore-ref="keyStoreKeySoapUiClientInvalidKeySize"
+        p:password="${phiz.crypto.store.key.soapui.client.invalid.key.size.entry.ssl.pass}"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyManagerSoapUiClientInvalidSigAlg" parent="keyManagerBase" lazy-init="true"
+        p:keyStore-ref="keyStoreKeySoapUiClientInvalidSigAlg"
+        p:password="${phiz.crypto.store.key.soapui.client.invalid.sig.alg.entry.ssl.pass}"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="keyManagerSoapUiClientRevoked" parent="keyManagerBase" lazy-init="true"
         p:keyStore-ref="keyStoreKeySoapUiClientRevoked"
         p:password="${phiz.crypto.store.key.soapui.client.revoked.entry.ssl.pass}"/>
@@ -211,6 +288,12 @@
         p:keyManagers-ref="keyManagerSoapUiClient"
         p:parameters-ref="sslParamsClientSoapUiClient"
         p:trustManagers-ref="trustManagerSoapUiClient"/>
+    
+    <beans:bean id="sslContextSoapUiClientInvalidKeySize" parent="sslContextSoapUiClient" lazy-init="true"
+        p:keyManagers-ref="keyManagerSoapUiClientInvalidKeySize"/>
+    
+    <beans:bean id="sslContextSoapUiClientInvalidSigAlg" parent="sslContextSoapUiClient" lazy-init="true"
+        p:keyManagers-ref="keyManagerSoapUiClientInvalidSigAlg"/>
     
     <beans:bean id="sslContextSoapUiClientRevoked" parent="sslContextSoapUiClient" lazy-init="true"
         p:keyManagers-ref="keyManagerSoapUiClientRevoked"/>
@@ -260,6 +343,10 @@
                         <beans:null/>
                     </beans:key>
                 </beans:entry>
+                <beans:entry key="#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).INVALID_KEY_SIZE_SSL_SOCKET_FACTORY_VALUE }"
+                    value="#{ sslContextSoapUiClientInvalidKeySize.socketFactory }"/>
+                <beans:entry key="#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).INVALID_SIG_ALG_SSL_SOCKET_FACTORY_VALUE }"
+                    value="#{ sslContextSoapUiClientInvalidSigAlg.socketFactory }"/>
                 <beans:entry key="#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).REVOKED_SSL_SOCKET_FACTORY_VALUE }"
                     value="#{ sslContextSoapUiClientRevoked.socketFactory }"/>
                 <beans:entry key="#{ T(gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties).UNTRUSTED_SSL_SOCKET_FACTORY_VALUE }"
