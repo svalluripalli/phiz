@@ -33,9 +33,9 @@
                 <beans:entry key="${phiz.crypto.store.key.ws.client.entry.ssl.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryPrivateKey"
-                        p:certificateChain="#{ credWsClient.certificateResponse.identity.chain[0] }"
+                        p:certificateChain="#{ credWsClient.certificate }"
                         p:password="${phiz.crypto.store.key.ws.client.entry.ssl.pass}"
-                        p:privateKey="#{ credWsClient.certificateResponse.identity.privateKey }"/>
+                        p:privateKey="#{ credWsClient.privateKey }"/>
                 </beans:entry>
             </beans:map>
         </beans:property>
@@ -51,7 +51,7 @@
                 <beans:entry key="${phiz.crypto.store.trust.ws.client.entry.ca.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryTrustedCert"
-                        p:certificate="#{ credCa.certificateResponse.identity.chain[0] }"/>
+                        p:certificate="#{ credCa.certificate }"/>
                 </beans:entry>
             </beans:map>
         </beans:property>

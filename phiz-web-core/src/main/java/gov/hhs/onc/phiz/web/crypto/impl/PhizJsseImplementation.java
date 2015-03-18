@@ -16,12 +16,13 @@ import org.apache.tomcat.util.net.AbstractEndpoint;
 import org.apache.tomcat.util.net.SSLUtil;
 import org.apache.tomcat.util.net.ServerSocketFactory;
 import org.apache.tomcat.util.net.jsse.JSSEImplementation;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Lazy;
 
 @Configurable
 @Lazy
-public class PhizJsseImplementation extends JSSEImplementation {
+public class PhizJsseImplementation extends JSSEImplementation implements InitializingBean {
     private class PhizJsseSocketFactory implements ServerSocketFactory, SSLUtil {
         private AbstractEndpoint<?> endpoint;
 
@@ -113,8 +114,6 @@ public class PhizJsseImplementation extends JSSEImplementation {
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private SSLContext context;
 
-    @Resource(name = "sslServerSocketFactoryTomcatServer")
-    @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private SSLServerSocketFactory serverSocketFactory;
 
     @Override
@@ -125,6 +124,11 @@ public class PhizJsseImplementation extends JSSEImplementation {
     @Override
     public SSLUtil getSSLUtil(AbstractEndpoint<?> endpoint) {
         return new PhizJsseSocketFactory(endpoint);
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        this.serverSocketFactory = this.context.getServerSocketFactory();
     }
 
     @Override

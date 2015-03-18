@@ -2,7 +2,7 @@ package gov.hhs.onc.phiz.test.crypto.ssl.revocation.impl;
 
 import com.github.sebhoss.warnings.CompilerWarnings;
 import gov.hhs.onc.phiz.crypto.PhizCredential;
-import gov.hhs.onc.phiz.crypto.PhizCryptoContentTypes;
+import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspContentTypes;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspCertificateStatusType;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspResponseStatusType;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizCertificateId;
@@ -209,7 +209,7 @@ public class PhizOcspServerImpl extends AbstractPhizServerBean implements PhizOc
 
             HttpHeaders reqMsgHeaders = reqMsg.headers();
 
-            if (!reqMsgHeaders.contains(Names.CONTENT_TYPE) || !MimeType.valueOf(reqMsgHeaders.get(Names.CONTENT_TYPE)).equals(PhizCryptoContentTypes.OCSP_REQ)) {
+            if (!reqMsgHeaders.contains(Names.CONTENT_TYPE) || !MimeType.valueOf(reqMsgHeaders.get(Names.CONTENT_TYPE)).equals(OcspContentTypes.OCSP_REQ)) {
                 this.writeResponse(context, HttpResponseStatus.BAD_REQUEST);
 
                 return;
@@ -269,7 +269,7 @@ public class PhizOcspServerImpl extends AbstractPhizServerBean implements PhizOc
             FullHttpResponse respMsg = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, respMsgStatus, respContentBuffer);
 
             HttpHeaders.setContentLength(respMsg, respContentBuffer.array().length);
-            respMsg.headers().set(Names.CONTENT_TYPE, PhizCryptoContentTypes.OCSP_RESP.toString());
+            respMsg.headers().set(Names.CONTENT_TYPE, OcspContentTypes.OCSP_RESP.toString());
 
             context.writeAndFlush(respMsg).addListener(ChannelFutureListener.CLOSE);
         }

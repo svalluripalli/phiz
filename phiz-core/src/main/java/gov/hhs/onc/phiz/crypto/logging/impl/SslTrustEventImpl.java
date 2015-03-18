@@ -1,20 +1,14 @@
 package gov.hhs.onc.phiz.crypto.logging.impl;
 
-import gov.hhs.onc.phiz.crypto.ssl.PhizSslLocation;
 import gov.hhs.onc.phiz.crypto.logging.SslTrustEvent;
 import javax.annotation.Nullable;
 
-public class SslTrustEventImpl implements SslTrustEvent {
-    protected String authType;
-    protected String[] certs;
-    protected PhizSslLocation loc;
-    protected String[] pathCerts;
-    protected String trustAnchorCert;
-    protected boolean trusted;
-
-    public SslTrustEventImpl(PhizSslLocation loc) {
-        this.loc = loc;
-    }
+public class SslTrustEventImpl extends AbstractSslEvent implements SslTrustEvent {
+    private String authType;
+    private String[] certs;
+    private String[] pathCerts;
+    private String trustAnchorCert;
+    private boolean trusted;
 
     @Nullable
     @Override
@@ -35,11 +29,6 @@ public class SslTrustEventImpl implements SslTrustEvent {
     @Override
     public void setCertificates(String[] certs) {
         this.certs = certs;
-    }
-
-    @Override
-    public PhizSslLocation getLocation() {
-        return this.loc;
     }
 
     @Nullable

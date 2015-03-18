@@ -74,9 +74,9 @@
                 <beans:entry key="${phiz.crypto.store.key.ca.entry.ca.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryPrivateKey"
-                        p:certificateChain="#{ credCa.certificateResponse.identity.chain[0] }"
+                        p:certificateChain="#{ credCa.certificate }"
                         p:password="${phiz.crypto.store.key.ca.entry.ca.pass}"
-                        p:privateKey="#{ credCa.certificateResponse.identity.privateKey }"/>
+                        p:privateKey="#{ credCa.privateKey }"/>
                 </beans:entry>
             </beans:map>
         </beans:property>

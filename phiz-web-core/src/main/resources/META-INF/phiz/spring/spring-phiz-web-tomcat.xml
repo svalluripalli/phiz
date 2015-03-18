@@ -52,25 +52,9 @@
     = SSL CONTEXTS
     =====================================================================================================-->
     <beans:bean id="sslContextTomcatServer" parent="sslContextBase" lazy-init="true"
-        p:sslParameters-ref="sslParamsServerTomcatServer">
-        <beans:property name="keyManagers">
-            <beans:array>
-                <beans:ref bean="keyManagerTomcatServer"/>
-            </beans:array>
-        </beans:property>
-        <beans:property name="trustManagers">
-            <beans:array>
-                <beans:ref bean="trustManagerTomcatServer"/>
-            </beans:array>
-        </beans:property>
-    </beans:bean>
-    
-    <!--====================================================================================================
-    = SSL SERVER SOCKET FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="sslServerSocketFactoryTomcatServer" parent="sslSocketFactoryServerBase" lazy-init="true"
-        p:sslContext-ref="sslContextTomcatServer"
-        p:sslParameters-ref="sslParamsServerTomcatServer"/>
+        p:keyManagers-ref="keyManagerTomcatServer"
+        p:parameters-ref="sslParamsServerTomcatServer"
+        p:trustManagers-ref="trustManagerTomcatServer"/>
     
     <!--====================================================================================================
     = LIFECYCLE LISTENERS

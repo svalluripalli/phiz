@@ -16,11 +16,30 @@
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
     <!--====================================================================================================
+    = SSL DEBUG PRINT STREAMS
+    =====================================================================================================-->
+    <beans:bean id="sslDebugPrintStream" class="gov.hhs.onc.phiz.crypto.logging.impl.SslDebugPrintStream" abstract="true">
+        <beans:property name="eventProcessors">
+            <beans:set>
+                <beans:ref bean="sslEventProcHelloImpl"/>
+            </beans:set>
+        </beans:property>
+    </beans:bean>
+    
+    <beans:bean id="sslDebugPrintStreamOut" parent="sslDebugPrintStream"
+        c:type="#{ T(gov.hhs.onc.phiz.crypto.logging.SslDebugPrintStreamType).OUT }"/>
+    
+    <beans:bean id="sslDebugPrintStreamErr" parent="sslDebugPrintStream"
+        c:type="#{ T(gov.hhs.onc.phiz.crypto.logging.SslDebugPrintStreamType).ERR }"/>
+    
+    <!--====================================================================================================
     = KEY MANAGERS
     =====================================================================================================-->
     <beans:bean id="keyManager" class="javax.net.ssl.KeyManager" abstract="true"/>
     
-    <beans:bean id="keyManagerBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizKeyManagerFactoryBean" parent="keyManager" abstract="true"
+    <beans:bean id="keyManagerX509Extended" class="javax.net.ssl.X509ExtendedKeyManager" parent="keyManager" abstract="true"/>
+    
+    <beans:bean id="keyManagerBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizKeyManagerFactoryBean" parent="keyManagerX509Extended" abstract="true"
         p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN_JSSE }"
         p:type="NewSunX509"/>
     
@@ -70,7 +89,9 @@
     =====================================================================================================-->
     <beans:bean id="trustManager" class="javax.net.ssl.TrustManager" abstract="true"/>
     
-    <beans:bean id="trustManagerBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizTrustManager" parent="trustManager" abstract="true"
+    <beans:bean id="trustManagerX509Extended" class="javax.net.ssl.X509ExtendedTrustManager" parent="trustManager" abstract="true"/>
+    
+    <beans:bean id="trustManagerBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizTrustManager" parent="trustManagerX509Extended" abstract="true"
         p:certificateSelector-ref="certSelectorX509"
         p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).BC }"
         p:type="PKIX">
@@ -107,20 +128,4 @@
         p:provider="#{ T(gov.hhs.onc.phiz.crypto.PhizCryptoProviders).SUN_JSSE }"
         p:secureRandom-ref="secureRandomSha1"
         p:type="#{ T(gov.hhs.onc.phiz.crypto.ssl.PhizTlsVersions).TLS_1_2_NAME }"/>
-    
-    <!--====================================================================================================
-    = SSL CLIENT SOCKET FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="sslSocketFactoryClient" class="javax.net.ssl.SSLSocketFactory" abstract="true"/>
-    
-    <beans:bean id="sslSocketFactoryClientBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizSslClientSocketFactoryFactoryBean" parent="sslSocketFactoryClient"
-        abstract="true"/>
-    
-    <!--====================================================================================================
-    = SSL SERVER SOCKET FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="sslSocketFactoryServer" class="javax.net.ssl.SSLServerSocketFactory" abstract="true"/>
-    
-    <beans:bean id="sslSocketFactoryServerBase" class="gov.hhs.onc.phiz.crypto.ssl.impl.PhizSslServerSocketFactoryFactoryBean" parent="sslSocketFactoryServer"
-        abstract="true"/>
 </beans:beans>

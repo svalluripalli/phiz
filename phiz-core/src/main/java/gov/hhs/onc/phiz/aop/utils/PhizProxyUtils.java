@@ -34,7 +34,7 @@ public final class PhizProxyUtils {
     public static interface PhizMethodInterceptor extends MethodInterceptor {
         @Nullable
         @Override
-        default public Object invoke(MethodInvocation invocation) throws Throwable {
+        public default Object invoke(MethodInvocation invocation) throws Throwable {
             Method method = invocation.getMethod();
 
             return this.invoke(invocation, method, method.getName(), invocation.getArguments(), invocation.getThis());

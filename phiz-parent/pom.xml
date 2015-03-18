@@ -1058,7 +1058,7 @@
                             <suiteXmlFile>${project.build.testngDirectory}/testng-${project.artifactId}.xml</suiteXmlFile>
                         </suiteXmlFiles>
                         <systemPropertyVariables combine.children="append">
-                            <javax.net.debug>ssl,certpath,handshake</javax.net.debug>
+                            <javax.net.debug>ssl,handshake</javax.net.debug>
                             <javax.net.ssl.keyStore/>
                             <javax.net.ssl.trustStore/>
                             <jdk.tls.ephemeralDHKeySize>2048</jdk.tls.ephemeralDHKeySize>

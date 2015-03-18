@@ -1,10 +1,10 @@
 package gov.hhs.onc.phiz.crypto.ssl.revocation.impl;
 
 import com.github.sebhoss.warnings.CompilerWarnings;
-import gov.hhs.onc.phiz.crypto.PhizCryptoContentTypes;
-import gov.hhs.onc.phiz.crypto.PhizCryptoOids;
 import gov.hhs.onc.phiz.crypto.ssl.PhizSslLocation;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspCertificateStatusType;
+import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspContentTypes;
+import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspOids;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspResponseStatusType;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspRevokeReasonType;
 import gov.hhs.onc.phiz.crypto.utils.PhizCryptoUtils;
@@ -126,8 +126,8 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
     private Extension[] baseOcspReqExts;
 
     static {
-        BASE_OCSP_REQ_HEADERS.put(HttpHeaders.ACCEPT, PhizCryptoContentTypes.OCSP_RESP.toString());
-        BASE_OCSP_REQ_HEADERS.put(HttpHeaders.CONTENT_TYPE, PhizCryptoContentTypes.OCSP_REQ.toString());
+        BASE_OCSP_REQ_HEADERS.put(HttpHeaders.ACCEPT, OcspContentTypes.OCSP_RESP.toString());
+        BASE_OCSP_REQ_HEADERS.put(HttpHeaders.CONTENT_TYPE, OcspContentTypes.OCSP_REQ.toString());
     }
 
     public PhizRevocationChecker(PhizSslLocation loc, X509Certificate issuerCert) {
@@ -159,7 +159,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         ASN1EncodableVector preferredSigAlgsVector = new ASN1EncodableVector();
         this.preferredSigAlgIds.forEach(preferredSigAlgId -> preferredSigAlgsVector.add(new DERSequence(preferredSigAlgId)));
         Extension preferredSigAlgsOcspReqExt =
-            new Extension(PhizCryptoOids.ID_PKIX_OCSP_PREF_SIG_ALGS, false, new DEROctetString(new DERSequence(preferredSigAlgsVector)));
+            new Extension(OcspOids.ID_PKIX_OCSP_PREF_SIG_ALGS, false, new DEROctetString(new DERSequence(preferredSigAlgsVector)));
 
         this.baseOcspReqExts = ArrayUtils.toArray(respTypeOcspReqExt, preferredSigAlgsOcspReqExt);
     }
@@ -225,7 +225,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
                 throw buildException(String.format("SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) does not specify an OCSP URL.",
                     this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum));
             } else {
-                LOGGER.debug(String.format("Skipping SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) revocation checking.",
+                LOGGER.info(String.format("Skipping SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) revocation checking.",
                     this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum));
 
                 return;
@@ -292,13 +292,14 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
                 certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl), e);
         }
 
+        String ocspRespProducedAtTimeStr = this.displayDateFormat.format(ocspResp.getProducedAt());
         Extension nonceOcspRespExt = ocspResp.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
 
         if (nonceOcspRespExt == null) {
             throw buildException(String
                 .format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response does not contain a nonce extension (oid=%s).",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl,
+                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain a nonce extension (oid=%s).",
+                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
                     OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
         }
 
@@ -307,8 +308,8 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         if (!Arrays.equals(nonceOcspReqExtContent, nonceOcspRespExtContent)) {
             throw buildException(String
                 .format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response nonce extension (oid=%s) value does not match (%s).",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl,
+                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) nonce extension (oid=%s) value does not match (%s).",
+                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
                     OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId(), Hex.encodeHexString(nonceOcspRespExtContent)));
         }
 
@@ -324,22 +325,23 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
                 }
             } catch (OCSPException e) {
                 throw buildException(
-                    String
-                        .format(
-                            "Unable to match SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response certificate (serialNum=%d) response.",
-                            this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl,
-                            availableOcspCertRespId.getSerialNumber()),
-                    e);
+                    String.format(
+                        "Unable to match SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate (serialNum=%d) status.",
+                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                        availableOcspCertRespId.getSerialNumber()), e);
             }
         }
 
         if (ocspCertResp == null) {
             throw buildException(String
                 .format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response does not contain matching certificate response.",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl));
+                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain matching certificate status.",
+                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr));
         }
 
+        Date ocspCertRespNextUpdateTime = ocspCertResp.getNextUpdate();
+        String ocspCertRespThisUpdateTimeStr = this.displayDateFormat.format(ocspCertResp.getThisUpdate()), ocspCertRespNextUpdateTimeStr =
+            ((ocspCertRespNextUpdateTime != null) ? this.displayDateFormat.format(ocspCertRespNextUpdateTime) : null);
         CertificateStatus ocspCertRespStatusObj = ocspCertResp.getCertStatus();
         OcspCertificateStatusType ocspCertRespStatus =
             PhizCryptoUtils.findByType(OcspCertificateStatusType.class, ((ocspCertRespStatusObj != null)
@@ -348,9 +350,14 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
         // noinspection ConstantConditions
         switch (ocspCertRespStatus) {
             case GOOD:
-                LOGGER.debug(PhizLogstashMarkers.append(PhizLogstashTags.SSL), String.format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response certificate response (status=%s).",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspCertRespStatus.name()));
+                LOGGER
+                    .info(
+                        PhizLogstashMarkers.append(PhizLogstashTags.SSL),
+                        String
+                            .format(
+                                "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate status (thisUpdate=%s, nextUpdate=%s) is good.",
+                                this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                                ocspCertRespThisUpdateTimeStr, ocspCertRespNextUpdateTimeStr));
                 break;
 
             case REVOKED:
@@ -364,16 +371,18 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
                 // noinspection ConstantConditions
                 throw buildException(
                     String.format(
-                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response certificate response (status=%s, time=%s, reason=%s).",
-                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspCertRespStatus.name(),
-                        this.displayDateFormat.format(ocspCertRespRevokeTime), ocspCertRespRevokeReason.name()), new CertificateRevokedException(
-                        ocspCertRespRevokeTime, ocspCertRespRevokeReason.getReason(), this.issuerCert.getSubjectX500Principal(),
-                        mapOcspResponseExtensions(ocspResp)));
+                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate status (thisUpdate=%s, nextUpdate=%s) is revoked (time=%s, reason=%s).",
+                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                        ocspCertRespThisUpdateTimeStr, ocspCertRespNextUpdateTimeStr, this.displayDateFormat.format(ocspCertRespRevokeTime),
+                        ocspCertRespRevokeReason.name()), new CertificateRevokedException(ocspCertRespRevokeTime, ocspCertRespRevokeReason.getReason(),
+                        this.issuerCert.getSubjectX500Principal(), mapOcspResponseExtensions(ocspResp)));
 
             case UNKNOWN:
-                throw buildException(String.format(
-                    "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response certificate response (status=%s).",
-                    this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspCertRespStatus.name()));
+                throw buildException(String
+                    .format(
+                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) certificate status (thisUpdate=%s, nextUpdate=%s) is unknown.",
+                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                        ocspCertRespThisUpdateTimeStr, ocspCertRespNextUpdateTimeStr));
         }
     }
 
@@ -409,7 +418,7 @@ public class PhizRevocationChecker extends PKIXRevocationChecker implements Init
 
         String ocspRespContentType = ocspResponderConn.getContentType();
 
-        if ((ocspRespContentType == null) || !MimeType.valueOf(ocspRespContentType).equals(PhizCryptoContentTypes.OCSP_RESP)) {
+        if ((ocspRespContentType == null) || !MimeType.valueOf(ocspRespContentType).equals(OcspContentTypes.OCSP_RESP)) {
             throw new IOException(String.format("Invalid OCSP responder (url=%s) response content type (%s).", ocspResponderUrl, ocspRespContentType));
         }
 

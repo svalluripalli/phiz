@@ -48,9 +48,9 @@
                 <beans:entry key="${phiz.crypto.store.key.tomcat.server.entry.ssl.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryPrivateKey"
-                        p:certificateChain="#{ credTomcatServer.certificateResponse.identity.chain[0] }"
+                        p:certificateChain="#{ credTomcatServer.certificate }"
                         p:password="${phiz.crypto.store.key.tomcat.server.entry.ssl.pass}"
-                        p:privateKey="#{ credTomcatServer.certificateResponse.identity.privateKey }"/>
+                        p:privateKey="#{ credTomcatServer.privateKey }"/>
                 </beans:entry>
             </beans:map>
         </beans:property>
@@ -66,7 +66,7 @@
                 <beans:entry key="${phiz.crypto.store.trust.tomcat.server.entry.ca.alias}">
                     <!--suppress SpringPlaceholdersInspection -->
                     <beans:bean parent="keyStoreEntryTrustedCert"
-                        p:certificate="#{ credCa.certificateResponse.identity.chain[0] }"/>
+                        p:certificate="#{ credCa.certificate }"/>
                 </beans:entry>
             </beans:map>
         </beans:property>

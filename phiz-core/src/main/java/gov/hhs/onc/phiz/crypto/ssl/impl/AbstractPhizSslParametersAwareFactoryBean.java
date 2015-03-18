@@ -4,17 +4,17 @@ import gov.hhs.onc.phiz.crypto.impl.AbstractPhizCryptoFactoryBean;
 import javax.net.ssl.SSLParameters;
 
 public abstract class AbstractPhizSslParametersAwareFactoryBean<T> extends AbstractPhizCryptoFactoryBean<T> {
-    protected SSLParameters sslParams;
+    protected SSLParameters params;
 
     protected AbstractPhizSslParametersAwareFactoryBean(Class<T> objClass) {
         super(objClass);
     }
 
-    public SSLParameters getSslParameters() {
-        return this.sslParams;
+    public SSLParameters getParameters() {
+        return this.params;
     }
 
-    public void setSslParameters(SSLParameters sslParams) {
-        this.sslParams = sslParams;
+    public void setParameters(SSLParameters params) {
+        this.params = params;
     }
 }

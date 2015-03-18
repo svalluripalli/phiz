@@ -2,8 +2,9 @@ package gov.hhs.onc.phiz.crypto.ssl.impl;
 
 import gov.hhs.onc.phiz.crypto.logging.SslTrustEvent;
 import gov.hhs.onc.phiz.crypto.logging.impl.SslTrustEventImpl;
-import gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizRevocationChecker;
 import gov.hhs.onc.phiz.crypto.ssl.PhizSslLocation;
+import gov.hhs.onc.phiz.crypto.ssl.PhizSslManagerBean;
+import gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizRevocationChecker;
 import gov.hhs.onc.phiz.crypto.utils.PhizCertificatePathUtils;
 import gov.hhs.onc.phiz.crypto.utils.PhizCertificateUtils;
 import gov.hhs.onc.phiz.logging.logstash.PhizLogstashTags;
@@ -37,9 +38,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
-import org.springframework.beans.factory.InitializingBean;
 
-public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFactoryAware, InitializingBean {
+public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFactoryAware, PhizSslManagerBean<ExtendedPKIXBuilderParameters> {
     private final static Logger LOGGER = LoggerFactory.getLogger(PhizTrustManager.class);
 
     private BeanFactory beanFactory;
@@ -97,8 +97,10 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
 
     private <T> void checkTrusted(PhizSslLocation loc, X509Certificate[] certs, String authType, @Nullable T component,
         @Nullable Function<T, Boolean> componentAvailableMapper, @Nullable Function<T, SSLSession> handshakeSessionMapper) throws CertificateException {
-        SslTrustEvent event = new SslTrustEventImpl(loc);
         String certSubjectDnNamesStr = null, certIssuerDnNamesStr = null, certSerialNumsStr = null;
+
+        SslTrustEvent event = new SslTrustEventImpl();
+        event.setLocation(loc);
 
         try {
             event.setAuthType(authType);
@@ -161,7 +163,7 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
                 event.setTrusted(true);
 
                 LOGGER
-                    .debug(
+                    .info(
                         PhizLogstashMarkers.append(PhizLogstashTags.SSL, event),
                         String
                             .format(
@@ -191,6 +193,11 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
         this.beanFactory = beanFactory;
     }
 
+    @Override
+    public ExtendedPKIXBuilderParameters getBuilderParameters() {
+        return this.builderParams;
+    }
+
     @Nullable
     public List<PKIXCertPathChecker> getCertificatePathCheckers() {
         return this.certPathCheckers;
@@ -208,18 +215,22 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
         this.certSelector = certSelector;
     }
 
+    @Override
     public KeyStore getKeyStore() {
         return this.keyStore;
     }
 
+    @Override
     public void setKeyStore(KeyStore keyStore) {
         this.keyStore = keyStore;
     }
 
+    @Override
     public Provider getProvider() {
         return this.prov;
     }
 
+    @Override
     public void setProvider(Provider prov) {
         this.prov = prov;
     }
@@ -232,10 +243,12 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
         this.revocationCheckerBeanName = revocationCheckerBeanName;
     }
 
+    @Override
     public String getType() {
         return this.type;
     }
 
+    @Override
     public void setType(String type) {
         this.type = type;
     }

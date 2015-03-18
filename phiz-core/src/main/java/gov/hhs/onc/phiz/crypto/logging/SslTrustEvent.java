@@ -1,12 +1,11 @@
 package gov.hhs.onc.phiz.crypto.logging;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import gov.hhs.onc.phiz.crypto.ssl.PhizSslLocation;
 import gov.hhs.onc.phiz.logging.logstash.MarkerObjectFieldName;
 import javax.annotation.Nullable;
 
 @MarkerObjectFieldName("sslTrust")
-public interface SslTrustEvent {
+public interface SslTrustEvent extends SslEvent {
     @JsonProperty
     @Nullable
     public String getAuthType();
@@ -17,9 +16,6 @@ public interface SslTrustEvent {
     public String[] getCertificates();
 
     public void setCertificates(String[] certs);
-
-    @JsonProperty
-    public PhizSslLocation getLocation();
 
     @JsonProperty
     @Nullable

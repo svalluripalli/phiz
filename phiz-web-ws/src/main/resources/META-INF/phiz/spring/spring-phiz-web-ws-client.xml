@@ -56,25 +56,9 @@
     = SSL CONTEXTS
     =====================================================================================================-->
     <beans:bean id="sslContextWsClient" parent="sslContextBase" lazy-init="true"
-        p:sslParameters-ref="sslParamsClientWsClient">
-        <beans:property name="keyManagers">
-            <beans:array>
-                <beans:ref bean="keyManagerWsClient"/>
-            </beans:array>
-        </beans:property>
-        <beans:property name="trustManagers">
-            <beans:array>
-                <beans:ref bean="trustManagerWsClient"/>
-            </beans:array>
-        </beans:property>
-    </beans:bean>
-    
-    <!--====================================================================================================
-    = SSL CLIENT SOCKET FACTORIES
-    =====================================================================================================-->
-    <beans:bean id="sslSocketFactoryClientWsClient" parent="sslSocketFactoryClientBase" lazy-init="true"
-        p:sslContext-ref="sslContextWsClient"
-        p:sslParameters-ref="sslParamsClientWsClient"/>
+        p:keyManagers-ref="keyManagerWsClient"
+        p:parameters-ref="sslParamsClientWsClient"
+        p:trustManagers-ref="trustManagerWsClient"/>
     
     <!--====================================================================================================
     = TLS PARAMETERS: CLIENT
@@ -84,7 +68,7 @@
     
     <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="tlsParamsClientWs" parent="tlsParamsClient" lazy-init="true"
-        p:SSLSocketFactory-ref="sslSocketFactoryClientWsClient"/>
+        p:SSLSocketFactory="#{ sslContextWsClient.socketFactory }"/>
     
     <!--====================================================================================================
     = CLIENT POLICIES

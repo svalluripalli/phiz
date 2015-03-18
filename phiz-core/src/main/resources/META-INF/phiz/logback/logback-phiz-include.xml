@@ -16,12 +16,6 @@
         <appender-ref ref="fileLogstashAsync"/>
     </logger>
     
-    <!--
-    <logger name="gov.hhs.onc.phiz.crypto.ssl.logging.impl.PhizSslDebugConfiguration" level="all" additivity="false">
-        <appender-ref ref="fileLogstashAsync"/>
-    </logger>
-    -->
-    
     <!--====================================================================================================
     = LOGGERS: ROCKFRAMEWORK
     =====================================================================================================-->
