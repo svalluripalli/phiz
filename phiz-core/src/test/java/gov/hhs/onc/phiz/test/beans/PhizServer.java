@@ -1,8 +1,9 @@
 package gov.hhs.onc.phiz.test.beans;
 
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.SmartLifecycle;
 
-public interface PhizServerBean extends SmartLifecycle {
+public interface PhizServer extends InitializingBean, SmartLifecycle {
     public String getHost();
 
     public void setHost(String host);

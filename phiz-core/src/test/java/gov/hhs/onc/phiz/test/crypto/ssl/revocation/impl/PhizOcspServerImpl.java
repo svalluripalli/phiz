@@ -1,39 +1,27 @@
 package gov.hhs.onc.phiz.test.crypto.ssl.revocation.impl;
 
-import com.github.sebhoss.warnings.CompilerWarnings;
 import gov.hhs.onc.phiz.crypto.PhizCredential;
-import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspContentTypes;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspCertificateStatusType;
+import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspContentTypes;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspResponseStatusType;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.impl.PhizCertificateId;
 import gov.hhs.onc.phiz.crypto.utils.PhizCryptoUtils;
 import gov.hhs.onc.phiz.logging.logstash.PhizLogstashTags;
 import gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashMarkers;
-import gov.hhs.onc.phiz.test.beans.impl.AbstractPhizServerBean;
+import gov.hhs.onc.phiz.test.beans.impl.AbstractPhizHttpServer;
 import gov.hhs.onc.phiz.test.crypto.ssl.revocation.PhizOcspServer;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
 import io.netty.channel.ChannelPipeline;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.SimpleChannelInboundHandler;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders.Names;
 import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import java.io.IOException;
@@ -46,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
-import javax.annotation.Nonnegative;
 import javax.annotation.Nullable;
 import org.apache.commons.lang3.ArrayUtils;
 import org.bouncycastle.asn1.ocsp.OCSPObjectIdentifiers;
@@ -73,7 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.util.MimeType;
 
-public class PhizOcspServerImpl extends AbstractPhizServerBean implements PhizOcspServer {
+public class PhizOcspServerImpl extends AbstractPhizHttpServer implements PhizOcspServer {
     private class PhizOcspCredentialWrapper {
         private PhizOcspCredentialWrapper issuerCredWrapper;
         private PhizCredential cred;
@@ -284,10 +271,6 @@ public class PhizOcspServerImpl extends AbstractPhizServerBean implements PhizOc
     @SuppressWarnings({ "SpringJavaAutowiringInspection" })
     private List<PhizCredential> creds;
 
-    private Map<ChannelOption<?>, Object> channelOpts;
-    private String host;
-    private int maxContentLen;
-    private int port;
     private SecureRandom secureRandom;
     private AlgorithmIdentifier sigAlgId;
     private AlgorithmIdentifier digestAlgId;
@@ -296,12 +279,6 @@ public class PhizOcspServerImpl extends AbstractPhizServerBean implements PhizOc
     private boolean credsInitialized;
     private Map<X509Certificate, PhizOcspCredentialWrapper> issuerCredWrappers;
     private Map<PhizCertificateId, PhizOcspCredentialWrapper> credWrappers;
-    private Channel channel;
-
-    @Override
-    public boolean isRunning() {
-        return ((this.channel != null) && this.channel.isActive());
-    }
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -312,80 +289,10 @@ public class PhizOcspServerImpl extends AbstractPhizServerBean implements PhizOc
     }
 
     @Override
-    protected void stopInternal() throws Exception {
-        this.channel.close();
-    }
+    protected void initializePipeline(ChannelPipeline channelPipeline) {
+        super.initializePipeline(channelPipeline);
 
-    @Override
-    @SuppressWarnings({ CompilerWarnings.UNCHECKED })
-    protected void startInternal() throws Exception {
-        EventLoopGroup acceptorEventLoopGroup = new NioEventLoopGroup(1), workerEventLoopGroup = new NioEventLoopGroup();
-
-        try {
-            ServerBootstrap serverBootstrap = new ServerBootstrap();
-
-            this.channelOpts.forEach((channelOpt, channelOptValue) -> serverBootstrap.option(((ChannelOption<Object>) channelOpt), channelOptValue));
-
-            serverBootstrap.group(acceptorEventLoopGroup, workerEventLoopGroup).channel(NioServerSocketChannel.class)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel channel) throws Exception {
-                        ChannelPipeline channelPipeline = channel.pipeline();
-                        channelPipeline.addLast(new HttpRequestDecoder());
-                        channelPipeline.addLast(new HttpResponseEncoder());
-                        channelPipeline.addLast(new HttpObjectAggregator(PhizOcspServerImpl.this.maxContentLen));
-                        channelPipeline.addLast(new PhizOcspServerHandler());
-                    }
-                });
-
-            this.channel = serverBootstrap.bind(this.host, this.port).sync().channel();
-        } catch (Exception e) {
-            acceptorEventLoopGroup.shutdownGracefully();
-            workerEventLoopGroup.shutdownGracefully();
-
-            throw e;
-        }
-    }
-
-    @Override
-    public Map<ChannelOption<?>, Object> getChannelOptions() {
-        return this.channelOpts;
-    }
-
-    @Override
-    public void setChannelOptions(Map<ChannelOption<?>, Object> channelOpts) {
-        this.channelOpts = channelOpts;
-    }
-
-    @Override
-    public String getHost() {
-        return this.host;
-    }
-
-    @Override
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    @Nonnegative
-    @Override
-    public int getMaxContentLength() {
-        return this.maxContentLen;
-    }
-
-    @Override
-    public void setMaxContentLength(@Nonnegative int maxContentLen) {
-        this.maxContentLen = maxContentLen;
-    }
-
-    @Override
-    public int getPort() {
-        return this.port;
-    }
-
-    @Override
-    public void setPort(int port) {
-        this.port = port;
+        channelPipeline.addLast(new PhizOcspServerHandler());
     }
 
     @Override

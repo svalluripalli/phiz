@@ -15,4 +15,29 @@
         http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
     
+    <!--====================================================================================================
+    = SERVERS
+    =====================================================================================================-->
+    <beans:bean id="server" class="gov.hhs.onc.phiz.test.beans.PhizServer" abstract="true"/>
+    
+    <!--====================================================================================================
+    = CHANNEL SERVERS
+    =====================================================================================================-->
+    <beans:bean id="channelServer" class="gov.hhs.onc.phiz.test.beans.PhizChannelServer" parent="server" abstract="true">
+        <beans:property name="channelOptions">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="#{ T(io.netty.channel.ChannelOption).SO_BACKLOG }" value="${phiz.server.channel.socket.backlog}"
+                    value-type="java.lang.Integer"/>
+                <beans:entry key="#{ T(io.netty.channel.ChannelOption).SO_REUSEADDR }" value="true" value-type="java.lang.Boolean"/>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = HTTP SERVERS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="httpServer" class="gov.hhs.onc.phiz.test.beans.PhizHttpServer" parent="channelServer" abstract="true"
+        p:maxContentLength="${phiz.server.http.content.len.max}"/>
 </beans:beans>

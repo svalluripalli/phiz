@@ -4,7 +4,10 @@ import gov.hhs.onc.phiz.context.PhizProperties;
 
 public final class PhizSoapUiProperties {
     public final static String PREFIX = PhizProperties.PREFIX + "test.soapui.";
+    public final static String EXCEPTION_PREFIX = PREFIX + "exception.";
     public final static String SSL_PREFIX = PREFIX + "ssl.";
+
+    public final static String EXCEPTION_CLASSES_NAME = EXCEPTION_PREFIX + "classes";
 
     public final static String SSL_PARAMS_NAME = SSL_PREFIX + "params";
     public final static String BAD_CIPHER_SUITES_SSL_PARAMS_VALUE = "bad.cipher.suites";

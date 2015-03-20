@@ -1,10 +1,10 @@
 package gov.hhs.onc.phiz.test.beans.impl;
 
-import gov.hhs.onc.phiz.test.beans.PhizServerBean;
+import gov.hhs.onc.phiz.test.beans.PhizServer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.FatalBeanException;
 
-public abstract class AbstractPhizServerBean implements PhizServerBean {
+public abstract class AbstractPhizServer implements PhizServer {
     protected int phase;
 
     @Override
@@ -38,6 +38,10 @@ public abstract class AbstractPhizServerBean implements PhizServerBean {
                 throw new FatalBeanException(String.format("Unable to start server (host=%s, port=%d).", this.getHost(), this.getPort()), e);
             }
         }
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
     }
 
     protected abstract void stopInternal() throws Exception;

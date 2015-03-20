@@ -2,6 +2,8 @@ package gov.hhs.onc.phiz.web.ws.iis.hub.impl;
 
 import gov.hhs.onc.phiz.destination.PhizDestination;
 import gov.hhs.onc.phiz.destination.PhizDestinationRegistry;
+import gov.hhs.onc.phiz.net.PhizSchemes;
+import gov.hhs.onc.phiz.utils.PhizExceptionUtils;
 import gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders;
 import gov.hhs.onc.phiz.web.ws.feature.impl.PhizLoggingFeature;
 import gov.hhs.onc.phiz.web.ws.iis.hub.IisHubService;
@@ -26,20 +28,20 @@ import gov.hhs.onc.phiz.ws.iis.hub.impl.HubResponseHeaderTypeImpl;
 import gov.hhs.onc.phiz.ws.iis.hub.impl.ObjectFactory;
 import gov.hhs.onc.phiz.ws.iis.hub.impl.UnknownDestinationFaultTypeImpl;
 import gov.hhs.onc.phiz.xml.PhizXmlNs;
+import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import javax.jws.WebService;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.Holder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.binding.soap.SoapMessage;
@@ -82,19 +84,31 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         hubRespHeader.value = respPair.getRight();
     }
 
-    private Pair<SubmitSingleMessageResponseType, HubResponseHeaderType> submitSingleMessageInternal(SubmitSingleMessageRequestType reqParams,
-        HubRequestHeaderType hubReqHeader) throws DestinationConnectionFault, HubClientFault, MessageTooLargeFault, SecurityFault, UnknownDestinationFault {
-        String destId = hubReqHeader.getDestinationId();
-        PhizDestination dest = this.destReg.findById(destId);
+    private static Exchange buildClientExchange(SoapMessage reqMsg) {
+        Exchange clientExchange = new ExchangeImpl();
+        clientExchange.put(PhizLoggingFeature.WS_MSG_EVENT_ID_PROP_NAME, reqMsg.getExchange().get(PhizLoggingFeature.WS_MSG_EVENT_ID_PROP_NAME));
 
-        if (dest == null) {
-            throw new UnknownDestinationFault("IIS destination ID is not registered.", new UnknownDestinationFaultTypeImpl(destId));
-        }
+        return clientExchange;
+    }
 
-        WrappedMessageContext reqMsgContext = PhizWsUtils.getMessageContext(this.wsContext);
-        SoapMessage reqMsg = ((SoapMessage) reqMsgContext.getWrappedMessage());
-        HttpServletRequest servletReq = PhizWsUtils.getProperty(reqMsgContext, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class);
-        URI destUri = dest.getUri();
+    private static void initializeClientRequestContext(Map<String, Object> clientReqContext, SoapMessage reqMsg) {
+        clientReqContext.put(
+            Message.PROTOCOL_HEADERS,
+            Headers
+                .getSetProtocolHeaders(reqMsg)
+                .entrySet()
+                .stream()
+                .filter(
+                    ((Entry<String, List<String>> reqHttpHeaderEntry) -> StringUtils.startsWithIgnoreCase(reqHttpHeaderEntry.getKey(),
+                        PhizWsHttpHeaders.EXT_IIS_HUB_PREFIX))).collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+
+        AddressingProperties clientReqAddrProps = new AddressingProperties(Names.WSA_NAMESPACE_NAME);
+        clientReqAddrProps.setAction(ContextUtils.getAttributedURI(PhizWsAddressingActions.SUBMIT_SINGLE_MSG_REQ));
+        clientReqAddrProps.setMessageID(ContextUtils.retrieveMAPs(reqMsg, false, false).getMessageID());
+        clientReqContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, clientReqAddrProps);
+    }
+
+    private static String processDestinationUri(HttpServletRequest servletReq, String destId, URI destUri) throws DestinationConnectionFault, SecurityFault {
         String destUriStr = destUri.toString();
 
         if (!destUri.isAbsolute()) {
@@ -110,28 +124,36 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
             }
         }
 
-        Client client = ((Client) this.appContext.getBean(this.clientBeanName, destUriStr));
-        Map<String, Object> clientReqContext = client.getRequestContext();
+        String destUriScheme = destUri.getScheme();
 
-        clientReqContext.put(
-            Message.PROTOCOL_HEADERS,
-            Headers
-                .getSetProtocolHeaders(reqMsg)
-                .entrySet()
-                .stream()
-                .filter(
-                    ((Entry<String, List<String>> reqHttpHeaderEntry) -> StringUtils.startsWithIgnoreCase(reqHttpHeaderEntry.getKey(),
-                        PhizWsHttpHeaders.EXT_IIS_HUB_PREFIX))).collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
+        if (!destUriScheme.equalsIgnoreCase(PhizSchemes.HTTPS)) {
+            throw new DestinationConnectionFault(String.format("Invalid IIS destination URI scheme: %s", destUriScheme),
+                new DestinationConnectionFaultTypeImpl(destId, destUriStr));
+        }
 
-        AddressingProperties clientReqAddrProps = new AddressingProperties(Names.WSA_NAMESPACE_NAME);
-        clientReqAddrProps.setAction(ContextUtils.getAttributedURI(PhizWsAddressingActions.SUBMIT_SINGLE_MSG_REQ));
-        clientReqAddrProps.setMessageID(ContextUtils.retrieveMAPs(reqMsg, false, false).getMessageID());
-        clientReqContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, clientReqAddrProps);
+        return destUriStr;
+    }
 
-        Exchange clientExchange = new ExchangeImpl();
-        clientExchange.put(PhizLoggingFeature.WS_MSG_EVENT_ID_PROP_NAME, reqMsg.getExchange().get(PhizLoggingFeature.WS_MSG_EVENT_ID_PROP_NAME));
+    private Pair<SubmitSingleMessageResponseType, HubResponseHeaderType> submitSingleMessageInternal(SubmitSingleMessageRequestType reqParams,
+        HubRequestHeaderType hubReqHeader) throws DestinationConnectionFault, HubClientFault, MessageTooLargeFault, SecurityFault, UnknownDestinationFault {
+        String destId = hubReqHeader.getDestinationId();
+        PhizDestination dest = this.destReg.findById(destId);
+
+        if (dest == null) {
+            throw new UnknownDestinationFault("IIS destination ID is not registered.", new UnknownDestinationFaultTypeImpl(destId));
+        }
+
+        WrappedMessageContext reqMsgContext = PhizWsUtils.getMessageContext(this.wsContext);
+        SoapMessage reqMsg = ((SoapMessage) reqMsgContext.getWrappedMessage());
+        URI destUri = dest.getUri();
+        String destUriStr =
+            processDestinationUri(PhizWsUtils.getProperty(reqMsgContext, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class), destId, destUri);
+        Client client = ((Client) this.beanFactory.getBean(this.clientBeanName, destUriStr));
+
+        initializeClientRequestContext(client.getRequestContext(), reqMsg);
 
         ClientCallback clientReqCallback = new ClientCallback();
+        Exchange clientExchange = buildClientExchange(reqMsg);
 
         try {
             try {
@@ -145,16 +167,24 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         } catch (DestinationConnectionFault | HubClientFault | MessageTooLargeFault | SecurityFault | UnknownDestinationFault e) {
             throw e;
         } catch (Throwable e) {
-            SocketTimeoutException clientReqTimeoutException =
-                ((SocketTimeoutException) Stream.of(ExceptionUtils.getThrowables(e))
-                    .filter(clientReqExceptionCause -> (clientReqExceptionCause instanceof SocketTimeoutException)).findFirst().orElse(null));
+            Throwable rootCause = PhizExceptionUtils.getRootCause(e);
 
-            if (clientReqTimeoutException != null) {
-                throw new DestinationConnectionFault("Connection to IIS destination web service timed out.", new DestinationConnectionFaultTypeImpl(destId,
-                    destUriStr), clientReqTimeoutException);
-            } else {
-                throw new HubClientFault("Unable to invoke IIS destination web service.", new HubClientFaultTypeImpl(destId, destUriStr), e);
+            if (rootCause instanceof UnknownHostException) {
+                throw new DestinationConnectionFault(String.format("Unable to resolve IIS destination URI host name: %s", rootCause.getMessage()),
+                    new DestinationConnectionFaultTypeImpl(destId, destUriStr), e);
             }
+
+            if (rootCause instanceof SocketTimeoutException) {
+                throw new DestinationConnectionFault("Connection attempt to IIS destination web service timed out.", new DestinationConnectionFaultTypeImpl(
+                    destId, destUriStr), e);
+            }
+
+            if (rootCause instanceof ConnectException) {
+                throw new DestinationConnectionFault("Unable to connect to IIS destination web service.", new DestinationConnectionFaultTypeImpl(destId,
+                    destUriStr), e);
+            }
+
+            throw new HubClientFault("Unable to invoke IIS destination web service.", new HubClientFaultTypeImpl(destId, destUriStr), e);
         }
     }
 }

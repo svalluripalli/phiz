@@ -9,21 +9,18 @@ import javax.annotation.Resource;
 import javax.xml.ws.WebServiceContext;
 import org.apache.cxf.Bus;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 
 public abstract class AbstractIisService implements IisService {
     @Autowired
     protected ObjectFactory objFactory;
 
-    @Resource(name = "busPhiz")
-    protected Bus bus;
-
     @Resource
     protected WebServiceContext wsContext;
 
-    protected AbstractApplicationContext appContext;
+    protected BeanFactory beanFactory;
+    protected Bus bus;
 
     @Override
     public ConnectivityTestResponseType connectivityTest(ConnectivityTestRequestType reqParams) throws UnsupportedOperationFault {
@@ -38,7 +35,17 @@ public abstract class AbstractIisService implements IisService {
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext appContext) throws BeansException {
-        this.appContext = ((AbstractApplicationContext) appContext);
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+
+    @Override
+    public Bus getBus() {
+        return this.bus;
+    }
+
+    @Override
+    public void setBus(Bus bus) {
+        this.bus = bus;
     }
 }

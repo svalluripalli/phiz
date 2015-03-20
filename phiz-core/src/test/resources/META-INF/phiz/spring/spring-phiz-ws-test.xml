@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = CREDENTIALS
+    =====================================================================================================-->
+    <beans:bean id="credTimeoutServer" parent="credGen">
+        <beans:property name="credential">
+            <beans:bean parent="credLeaf">
+                <beans:property name="certificateRequest">
+                    <beans:bean parent="certReqLeaf">
+                        <beans:constructor-arg name="subject">
+                            <!--suppress SpringPlaceholdersInspection -->
+                            <beans:bean parent="dn"
+                                p:commonName="${phiz.crypto.cred.timeout.server.ssl.subject.cn}"/>
+                        </beans:constructor-arg>
+                    </beans:bean>
+                </beans:property>
+            </beans:bean>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = KEY STORES
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreKeyTimeoutServer" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.crypto.store.key.timeout.server.pass}"
+        p:resource="${phiz.crypto.store.key.timeout.server.file}">
+        <beans:property name="entryMap">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="${phiz.crypto.store.key.timeout.server.entry.ssl.alias}">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean parent="keyStoreEntryPrivateKey"
+                        p:certificateChain="#{ credTimeoutServer.certificate }"
+                        p:password="${phiz.crypto.store.key.timeout.server.entry.ssl.pass}"
+                        p:privateKey="#{ credTimeoutServer.privateKey }"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyStoreTrustTimeoutServer" parent="keyStoreGen" lazy-init="true"
+        p:password="${phiz.crypto.store.trust.timeout.server.pass}"
+        p:resource="${phiz.crypto.store.trust.timeout.server.file}">
+        <beans:property name="entryMap">
+            <beans:map>
+                <!--suppress SpringPlaceholdersInspection -->
+                <beans:entry key="${phiz.crypto.store.trust.timeout.server.entry.ca.alias}">
+                    <!--suppress SpringPlaceholdersInspection -->
+                    <beans:bean parent="keyStoreEntryTrustedCert"
+                        p:certificate="#{ credCa.certificate }"/>
+                </beans:entry>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = KEY MANAGERS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="keyManagerTimeoutServer" parent="keyManagerBase" lazy-init="true"
+        p:keyStore-ref="keyStoreKeyTimeoutServer"
+        p:password="${phiz.crypto.store.key.timeout.server.entry.ssl.pass}"/>
+    
+    <!--====================================================================================================
+    = TRUST MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="trustManagerTimeoutServer" parent="trustManagerBase" lazy-init="true"
+        p:keyStore-ref="keyStoreTrustTimeoutServer"/>
+    
+    <!--====================================================================================================
+    = SSL PARAMETERS
+    =====================================================================================================-->
+    <beans:bean id="sslParamsServerTimeoutServer" parent="sslParamsServer"/>
+    
+    <!--====================================================================================================
+    = SSL CONTEXTS
+    =====================================================================================================-->
+    <beans:bean id="sslContextTimeoutServer" parent="sslContextBase" lazy-init="true"
+        p:keyManagers-ref="keyManagerTimeoutServer"
+        p:parameters-ref="sslParamsServerTimeoutServer"
+        p:trustManagers-ref="trustManagerTimeoutServer"/>
+    
+    <!--====================================================================================================
+    = TIMEOUT SERVERS
+    =====================================================================================================-->
+    <beans:bean id="timeoutServer" class="gov.hhs.onc.phiz.test.ws.PhizTimeoutServer" parent="httpServer" abstract="true"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="timeoutServerImpl" class="gov.hhs.onc.phiz.test.ws.impl.PhizTimeoutServerImpl" parent="timeoutServer"
+        p:host="${phiz.server.timeout.host.name}"
+        p:port="${phiz.server.timeout.port.https}"
+        p:sslEngine="#{ sslContextTimeoutServer.createSSLEngine() }"/>
+</beans:beans>

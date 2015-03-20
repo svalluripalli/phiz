@@ -1,39 +1,58 @@
 package gov.hhs.onc.phiz.web.test.soapui.impl;
 
 import com.eviware.soapui.DefaultSoapUICore;
+import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.SoapUICore;
 import com.eviware.soapui.SoapUIProTestCaseRunner;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
 import com.eviware.soapui.impl.wsdl.WsdlProjectPro;
 import com.eviware.soapui.impl.wsdl.WsdlProjectProFactory;
+import com.eviware.soapui.impl.wsdl.WsdlRequest;
+import com.eviware.soapui.impl.wsdl.WsdlSubmit;
+import com.eviware.soapui.impl.wsdl.WsdlTestCasePro;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuitePro;
 import com.eviware.soapui.impl.wsdl.submit.RequestTransportRegistry;
 import com.eviware.soapui.impl.wsdl.support.http.HttpClientSupport;
-import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestRunContext;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunContext;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunner;
+import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestRequest;
+import com.eviware.soapui.impl.wsdl.teststeps.WsdlTestStepResult;
+import com.eviware.soapui.model.iface.Submit;
+import com.eviware.soapui.model.iface.SubmitContext;
+import com.eviware.soapui.model.iface.SubmitListener;
 import com.eviware.soapui.model.project.ProjectFactoryRegistry;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpander;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
 import com.eviware.soapui.model.testsuite.LoadTest;
+import com.eviware.soapui.model.testsuite.TestCaseRunContext;
+import com.eviware.soapui.model.testsuite.TestCaseRunner;
+import com.eviware.soapui.model.testsuite.TestStepResult;
+import com.eviware.soapui.model.testsuite.TestStepResult.TestStepStatus;
+import com.eviware.soapui.model.testsuite.TestSuite;
 import com.eviware.soapui.support.types.StringToObjectMap;
 import com.github.sebhoss.warnings.CompilerWarnings;
 import gov.hhs.onc.phiz.beans.factory.EmbeddedPlaceholderResolver;
 import gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties;
+import gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiTestCaseContext;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSocketFactory;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings({ CompilerWarnings.DEPRECATION })
-public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
+public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements SubmitListener {
     private final static String SPRING_REF_PROP_NAME_PREFIX = PropertyExpansion.SCOPE_PREFIX + "Spring" + PropertyExpansion.PROPERTY_SEPARATOR;
 
     @Autowired
@@ -46,9 +65,65 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
     private WsdlTestSuite testSuite;
     private CountDownLatch testSuiteRunLatch;
     private FutureTask<Void> testSuiteRunTask;
+    private Map<String, PhizSoapUiTestCaseContext> testCaseContextMap;
+    private Map<String, WsdlSubmit<WsdlRequest>> testCaseSubmitMap;
+    private Map<String, Exception> testCaseExceptionMap;
 
     public PhizSoapUiTestCaseRunner() {
         super();
+    }
+
+    @Override
+    public void afterRun(TestCaseRunner testCaseRunner, TestCaseRunContext testCaseRunContext) {
+
+        super.afterRun(testCaseRunner, testCaseRunContext);
+    }
+
+    @Override
+    public void afterStep(TestCaseRunner testCaseRunner, TestCaseRunContext testCaseRunContext, TestStepResult testStepResult) {
+        String testCaseName;
+        PhizSoapUiTestCaseContext testCaseContext;
+
+        if ((testStepResult.getStatus() == TestStepStatus.FAILED)
+            && (testCaseContext = this.testCaseContextMap.get((testCaseName = testCaseRunContext.getTestCase().getName()))).isTestCaseExceptionExpected()) {
+            Exception testStepException = ((Exception) testStepResult.getError());
+
+            if (testStepException == null) {
+                testStepException = this.testCaseSubmitMap.get(testCaseName).getError();
+            }
+
+            if (testStepException != null) {
+                final Class<? extends Exception> testStepExceptionClass = testStepException.getClass();
+
+                // noinspection ConstantConditions
+                if (Stream.of(testCaseContext.getTestCaseExceptionClasses()).anyMatch(
+                    testCaseExceptionClass -> testCaseExceptionClass.isAssignableFrom(testStepExceptionClass))) {
+                    ((WsdlTestStepResult) testStepResult).setStatus(TestStepStatus.OK);
+
+                    this.testCaseExceptionMap.put(testCaseName, testStepException);
+                }
+            }
+        }
+
+        super.afterStep(testCaseRunner, testCaseRunContext, testStepResult);
+    }
+
+    @Override
+    @SuppressWarnings({ CompilerWarnings.UNCHECKED })
+    public void afterSubmit(Submit submit, SubmitContext submitContext) {
+        this.testCaseSubmitMap.put(((WsdlTestRequest) submit.getRequest()).getTestCase().getName(), ((WsdlSubmit<WsdlRequest>) submit));
+    }
+
+    @Override
+    public boolean beforeSubmit(Submit submit, SubmitContext submitContext) {
+        return true;
+    }
+
+    @Override
+    public void beforeRun(TestCaseRunner testCaseRunner, TestCaseRunContext testCaseRunContext) {
+        this.testCaseContextMap.get(testCaseRunContext.getTestCase().getName()).setTestCaseRunContext(((WsdlTestRunContext) testCaseRunContext));
+
+        super.beforeRun(testCaseRunner, testCaseRunContext);
     }
 
     public boolean run(WsdlProjectPro project) throws Exception {
@@ -64,11 +139,11 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
         return this.run();
     }
 
-    @Override
-    public void runTestCase(WsdlTestCase testCase) {
-        WsdlTestSuite testCaseTestSuite = testCase.getTestSuite();
+    public void runTestCase(PhizSoapUiTestCaseContext testCaseContext) throws Exception {
+        WsdlTestCasePro testCase = testCaseContext.getTestCase();
+        WsdlTestSuite testSuite = testCase.getTestSuite();
 
-        if ((this.testSuite == null) || !testCaseTestSuite.getName().equals(this.testSuite.getName())) {
+        if ((this.testSuite == null) || !testSuite.getName().equals(this.testSuite.getName())) {
             if (this.testSuite != null) {
                 this.testSuiteRunLatch.countDown();
 
@@ -78,7 +153,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
                 }
             }
 
-            this.testSuite = testCaseTestSuite;
+            this.testSuite = testSuite;
             this.testSuiteRunLatch = new CountDownLatch(1);
 
             this.testSuiteRunTask = new FutureTask<>(() -> {
@@ -115,23 +190,41 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner {
         if (testCase.getLoadTestCount() > 0) {
             testCase.getLoadTestList().stream().forEach(LoadTest::run);
         } else {
-            super.runTestCase(testCase);
+            String testCaseName = testCase.getName();
+
+            this.testCaseContextMap.put(testCaseName, testCaseContext);
+
+            this.runTestCase(testCase);
+
+            if (this.testCaseExceptionMap.containsKey(testCaseName)) {
+                throw this.testCaseExceptionMap.get(testCaseName);
+            }
         }
 
         this.initializeSslScheme(this.sslParamMap.get(null), this.sslSocketFactoryMap.get(null));
     }
 
     @Override
-    public void initProject(WsdlProject wsdlProject) {
+    public void initProject(WsdlProject project) {
         if (this.projectInitialized) {
             return;
         }
+
+        SoapUI.getListenerRegistry().addSingletonListener(SubmitListener.class, this);
 
         HttpClientSupport.getHttpClient().setHttpRequestRetryHandler(new DefaultHttpRequestRetryHandler(0, false));
 
         this.initializeSslScheme(this.sslParamMap.get(null), this.sslSocketFactoryMap.get(null));
 
-        super.initProject(wsdlProject);
+        // noinspection ConstantConditions
+        int numTestCases =
+            IntStream.of(ArrayUtils.toPrimitive(project.getTestSuiteList().stream().map(TestSuite::getTestCaseCount).toArray(Integer[]::new))).sum();
+
+        this.testCaseContextMap = new ConcurrentHashMap<>(numTestCases);
+        this.testCaseSubmitMap = new ConcurrentHashMap<>(numTestCases);
+        this.testCaseExceptionMap = new ConcurrentHashMap<>(numTestCases);
+
+        super.initProject(project);
     }
 
     @Override

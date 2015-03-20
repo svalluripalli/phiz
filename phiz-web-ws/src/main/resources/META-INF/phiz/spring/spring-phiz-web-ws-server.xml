@@ -19,7 +19,8 @@
     <!--====================================================================================================
     = SERVICES: IIS
     =====================================================================================================-->
-    <beans:bean id="serviceIis" class="gov.hhs.onc.phiz.web.ws.iis.IisService" abstract="true"/>
+    <beans:bean id="serviceIis" class="gov.hhs.onc.phiz.web.ws.iis.IisService" abstract="true"
+        p:bus-ref="busPhiz"/>
     
     <beans:bean id="serviceIisDev" class="gov.hhs.onc.phiz.web.ws.iis.impl.DevIisService" parent="serviceIis"/>
     

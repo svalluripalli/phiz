@@ -1,6 +1,6 @@
 package gov.hhs.onc.phiz.test.data.db.impl;
 
-import gov.hhs.onc.phiz.test.beans.impl.AbstractPhizServerBean;
+import gov.hhs.onc.phiz.test.beans.impl.AbstractPhizServer;
 import gov.hhs.onc.phiz.test.data.db.PhizHsqlServer;
 import java.io.File;
 import org.hsqldb.server.Server;
@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.util.ResourceUtils;
 
-public class PhizHsqlServerImpl extends AbstractPhizServerBean implements PhizHsqlServer {
+public class PhizHsqlServerImpl extends AbstractPhizServer implements PhizHsqlServer {
     private static class PhizHsqlServerWrapper extends Server {
         {
             this.setDaemon(true);

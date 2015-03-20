@@ -1,10 +1,9 @@
 package gov.hhs.onc.phiz.test.data.db;
 
-import gov.hhs.onc.phiz.test.beans.PhizServerBean;
+import gov.hhs.onc.phiz.test.beans.PhizServer;
 import java.io.File;
-import org.springframework.beans.factory.InitializingBean;
 
-public interface PhizHsqlServer extends InitializingBean, PhizServerBean {
+public interface PhizHsqlServer extends PhizServer {
     public String getDatabaseName();
 
     public void setDatabaseName(String dbName);

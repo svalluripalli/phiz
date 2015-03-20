@@ -18,7 +18,7 @@
     <!--====================================================================================================
     = HYPERSQL SERVERS
     =====================================================================================================-->
-    <beans:bean id="hsqlServer" class="gov.hhs.onc.phiz.test.data.db.PhizHsqlServer" abstract="true"/>
+    <beans:bean id="hsqlServer" class="gov.hhs.onc.phiz.test.data.db.PhizHsqlServer" parent="server" abstract="true"/>
     
     <!--suppress SpringPlaceholdersInspection -->
     <beans:bean id="hsqlServerImpl" class="gov.hhs.onc.phiz.test.data.db.impl.PhizHsqlServerImpl" parent="hsqlServer" destroy-method="stop" init-method="start"
