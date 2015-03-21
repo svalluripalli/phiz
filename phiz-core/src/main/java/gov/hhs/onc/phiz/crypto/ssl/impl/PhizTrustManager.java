@@ -33,14 +33,13 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.X509ExtendedTrustManager;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.x509.ExtendedPKIXBuilderParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 
-public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFactoryAware, PhizSslManagerBean<ExtendedPKIXBuilderParameters> {
+public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFactoryAware, PhizSslManagerBean<PKIXBuilderParameters> {
     private final static Logger LOGGER = LoggerFactory.getLogger(PhizTrustManager.class);
 
     private BeanFactory beanFactory;
@@ -51,7 +50,7 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
     private Provider prov;
     private String revocationCheckerBeanName;
     private String type;
-    private ExtendedPKIXBuilderParameters builderParams;
+    private PKIXBuilderParameters builderParams;
 
     @Override
     public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
@@ -90,8 +89,7 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.builderParams =
-            ((ExtendedPKIXBuilderParameters) ExtendedPKIXBuilderParameters.getInstance(new PKIXBuilderParameters(this.keyStore, this.certSelector)));
+        this.builderParams = new PKIXBuilderParameters(this.keyStore, this.certSelector);
         this.builderParams.setRevocationEnabled(false);
 
         Optional.ofNullable(this.certPathCheckers).ifPresent(certPathCheckers -> certPathCheckers.stream().forEach(this.builderParams::addCertPathChecker));
@@ -147,11 +145,11 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
                 X509CertSelector certSelector = new X509CertSelector();
                 certSelector.setCertificate(certs[0]);
 
-                ExtendedPKIXBuilderParameters certBuilderParams = ((ExtendedPKIXBuilderParameters) this.builderParams.clone());
+                PKIXBuilderParameters certBuilderParams = ((PKIXBuilderParameters) this.builderParams.clone());
                 certBuilderParams.setTargetCertConstraints(certSelector);
                 certBuilderParams.addCertStore(PhizCertificatePathUtils.buildStore(certs));
 
-                X509Certificate issuerCert = PhizCertificatePathUtils.findRootCertificate(certBuilderParams, certs[0]);
+                X509Certificate issuerCert = PhizCertificatePathUtils.findRootCertificate(certs[0], certBuilderParams);
 
                 certBuilderParams.addCertPathChecker(((PhizConstraintsChecker) this.beanFactory.getBean(this.constraintsCheckerBeanName, loc, issuerCert)));
 
@@ -200,7 +198,7 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
     }
 
     @Override
-    public ExtendedPKIXBuilderParameters getBuilderParameters() {
+    public PKIXBuilderParameters getBuilderParameters() {
         return this.builderParams;
     }
 

@@ -4,6 +4,6 @@ Section: java
 Priority: optional
 Architecture: all
 Maintainer: PHIZ Project <phiz-project@esacinc.com>
-Homepage: [[url]]
+Homepage: http://code.google.com/p/phiz/
 Depends: authbind, logrotate, oracle-java8-installer, oracle-java8-unlimited-jce-policy
 Description: Public Health Immunization Data Exchange (PHIZ) web services web application Debian package.

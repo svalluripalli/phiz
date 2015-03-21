@@ -5,7 +5,6 @@ import gov.hhs.onc.phiz.crypto.ssl.PhizSslLocation;
 import gov.hhs.onc.phiz.crypto.ssl.impl.AbstractPhizPathChecker;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspCertificateStatusType;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspContentTypes;
-import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspOids;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspResponseStatusType;
 import gov.hhs.onc.phiz.crypto.ssl.revocation.OcspRevokeReasonType;
 import gov.hhs.onc.phiz.crypto.utils.PhizCryptoUtils;
@@ -127,7 +126,7 @@ public class PhizRevocationChecker extends AbstractPhizPathChecker {
         ASN1EncodableVector preferredSigAlgsVector = new ASN1EncodableVector();
         this.preferredSigAlgIds.forEach(preferredSigAlgId -> preferredSigAlgsVector.add(new DERSequence(preferredSigAlgId)));
         Extension preferredSigAlgsOcspReqExt =
-            new Extension(OcspOids.ID_PKIX_OCSP_PREF_SIG_ALGS, false, new DEROctetString(new DERSequence(preferredSigAlgsVector)));
+            new Extension(OCSPObjectIdentifiers.id_pkix_ocsp_pref_sig_algs, false, new DEROctetString(new DERSequence(preferredSigAlgsVector)));
 
         this.baseOcspReqExts = ArrayUtils.toArray(respTypeOcspReqExt, preferredSigAlgsOcspReqExt);
     }
