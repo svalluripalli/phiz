@@ -1,0 +1,92 @@
+#!/bin/bash
+
+set -e
+
+function _openssl_assert_available() {
+    {
+        local opensslExecFile="$(which "${OPENSSL_EXEC_FILE_NAME}")"
+        [[ ( -f "${opensslExecFile}" ) && ( -x "${opensslExecFile}" ) ]]
+        
+        local opensslVersion="$(_openssl "version")"
+        [[ -n "${opensslVersion}" ]]
+    } || _exit "OpenSSL command line (cmd=${OPENSSL_EXEC_FILE_NAME}) is not available."
+}
+
+function _openssl() {
+    "${OPENSSL_EXEC_FILE_NAME}" "$@"
+}
+
+function _exit() {
+    local msg="$1"
+    shift
+    
+    declare -i status=${1:-1}
+    (($# == 0)) || shift
+    
+    _print "${msg}" 1>&2
+    
+    exit ${status}
+}
+
+function _print() {
+    local msg="$1"
+    shift
+    
+    printf "--" '%s\n' "${msg}"
+}
+
+readonly OPENSSL_EXEC_FILE_NAME="openssl"
+
+readonly DOMAIN_PATTERN='[[:alnum:]\-\.]{3,}'
+readonly SUBJ_STATE_PATTERN='[A-Z]{2}'
+readonly SUBJ_ORG_PATTERN='[[:alnum:]_\-\. ]+'
+
+readonly SUBJ_COUNTRY="US"
+
+_openssl_assert_available
+
+scriptFile="${BASH_SOURCE}"
+scriptFileName="$(basename "${scriptFile}")"
+
+if (($# == 0)); then
+    _exit "$(cat <<EOF
+Usage: ${scriptFileName} <domain> {<subject state>} {<subject organization>}
+  <domain>                    Required. The Fully Qualified Domain Name (FQDN) to use for the certificate.
+  {<subject state>}           Optional. The 2 letter state code to use for the certificate subject.
+  {<subject organization>}    Optional. The organization name to use for the certificate subject.
+EOF
+    )" 0
+fi
+
+domain="$1"
+[[ "${domain}" =~ ${DOMAIN_PATTERN} ]] || _exit "Invalid domain: ${domain}"
+
+subjState="${2:-}"
+[[ -z "${subjState}" ]] || { [[ "${subjState}" =~ ${SUBJ_STATE_PATTERN} ]] || _exit "Invalid subject state code: ${subjState}"; }
+
+subjOrg="${3:-}"
+[[ -z "${subjOrg}" ]] || { [[ "${subjOrg}" =~ ${SUBJ_ORG_PATTERN} ]] || _exit "Invalid subject organization: ${subjOrg}"; }
+
+binDir="$(dirname "${scriptFile}")"
+baseDir="${binDir%/*}"
+outDir="${baseDir}/out"
+
+[[ -e "${outDir}" ]] || { mkdir "${outDir}" || true; }
+[[ -d "${outDir}" ]] || _exit "Output directory path is not a directory: ${outDir}"
+
+keyFile="${outDir}/${domain}_key.pem"
+[[ ! -e "${keyFile}" ]] || _exit "Private key file already exists: ${keyFile}"
+
+csrFile="${outDir}/${domain}.csr"
+[[ ! -e "${csrFile}" ]] || _exit "Certificate Signing Request (CSR) file already exists: ${csrFile}"
+
+_openssl \
+    "req" \
+    -keyform "pem" \
+    -keyout "$keyFile" \
+    -newkey "rsa:2048" \
+    -nodes \
+    -out "$csrFile" \
+    -passout "pass:" \
+    -subj "/C=${SUBJ_COUNTRY}/ST=${subjState}/L=/O=${subjOrg}/OU=/CN=${domain}" \
+    -verbose
