@@ -57,7 +57,7 @@
             <!--suppress SpringPlaceholdersInspection -->
             <beans:bean class="com.codahale.metrics.jvm.CachedThreadStatesGaugeSet" parent="metricSet"
                 c:interval="${phiz.logging.metrics.metric.cached.thread.states.interval}"
-                c:unit="#{ T(java.util.concurrent.TimeUnit).SECONDS }"/>
+                c:unit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"/>
         </beans:constructor-arg>
     </beans:bean>
     
@@ -108,13 +108,21 @@
     =====================================================================================================-->
     <beans:bean id="reporter" class="com.codahale.metrics.Reporter" abstract="true"/>
     
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="reporterLogstash" class="gov.hhs.onc.phiz.logging.metrics.impl.LogstashReporter" parent="reporter" depends-on="appenderFileLogstash"
-        c:metricRegistry-ref="metricRegistry"
-        p:period="${phiz.logging.metrics.reporter.logstash.interval}"/>
-    
     <!--====================================================================================================
     = CONTEXT
     =====================================================================================================-->
     <metrics:annotation-driven expose-proxy="true" metric-registry="metricRegistry" proxy-target-class="true"/>
+    
+    <!--====================================================================================================
+    = PROFILE: LOGSTASH FILE LOGGING
+    =====================================================================================================-->
+    <beans:beans profile="phiz.profile.logging.file.logstash">
+        <!--====================================================================================================
+        = REPORTERS
+        =====================================================================================================-->
+        <!--suppress SpringPlaceholdersInspection -->
+        <beans:bean id="reporterLogstash" class="gov.hhs.onc.phiz.logging.metrics.impl.LogstashReporter" parent="reporter" depends-on="appenderFileLogstash"
+            c:metricRegistry-ref="metricRegistry"
+            p:period="${phiz.logging.metrics.reporter.logstash.interval}"/>
+    </beans:beans>
 </beans:beans>

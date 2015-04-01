@@ -113,7 +113,7 @@
             <dependency>
                 <groupId>args4j</groupId>
                 <artifactId>args4j</artifactId>
-                <version>2.0.31</version>
+                <version>2.32</version>
             </dependency>
             <dependency>
                 <groupId>br.net.woodstock.rockframework</groupId>
@@ -128,27 +128,27 @@
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
-                <version>1.1.2</version>
+                <version>1.1.3</version>
             </dependency>
             <dependency>
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-core</artifactId>
-                <version>1.1.2</version>
+                <version>1.1.3</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-annotations</artifactId>
-                <version>2.5.1</version>
+                <version>2.5.2</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.5.1</version>
+                <version>2.5.2</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.5.1</version>
+                <version>2.5.2</version>
             </dependency>
             <dependency>
                 <groupId>com.github.sebhoss</groupId>
@@ -163,7 +163,7 @@
             <dependency>
                 <groupId>com.google.code.spring-crypto-utils</groupId>
                 <artifactId>spring-crypto-utils</artifactId>
-                <version>1.3.6</version>
+                <version>1.4.0</version>
             </dependency>
             <dependency>
                 <groupId>com.mchange</groupId>
@@ -297,6 +297,11 @@
                 <version>2.2.12</version>
             </dependency>
             <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.7</version>
+            </dependency>
+            <dependency>
                 <groupId>net.logstash.logback</groupId>
                 <artifactId>logstash-logback-encoder</artifactId>
                 <version>4.2</version>
@@ -370,7 +375,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.4</version>
+                <version>4.4.1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -411,7 +416,7 @@
             <dependency>
                 <groupId>org.codehaus.groovy</groupId>
                 <artifactId>groovy-all</artifactId>
-                <version>2.4.2</version>
+                <version>2.4.3</version>
             </dependency>
             <dependency>
                 <groupId>org.codehaus.janino</groupId>
@@ -472,7 +477,7 @@
             <dependency>
                 <groupId>org.postgresql</groupId>
                 <artifactId>postgresql</artifactId>
-                <version>9.4-1200-jdbc41</version>
+                <version>9.4-1201-jdbc41</version>
                 <exclusions>
                     <exclusion>
                         <groupId>com.github.dblock.waffle</groupId>
@@ -487,27 +492,27 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.10</version>
+                <version>1.7.12</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>jul-to-slf4j</artifactId>
-                <version>1.7.10</version>
+                <version>1.7.12</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>log4j-over-slf4j</artifactId>
-                <version>1.7.10</version>
+                <version>1.7.12</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.10</version>
+                <version>1.7.12</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
-                <version>4.1.5.RELEASE</version>
+                <version>4.1.6.RELEASE</version>
                 <exclusions>
                     <exclusion>
                         <groupId>commons-logging</groupId>
@@ -522,19 +527,19 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-framework-bom</artifactId>
-                <version>4.1.5.RELEASE</version>
+                <version>4.1.6.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-instrument</artifactId>
-                <version>4.1.5.RELEASE</version>
+                <version>4.1.6.RELEASE</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
-                <version>1.2.2.RELEASE</version>
+                <version>1.2.3.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -622,7 +627,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.2</version>
+                    <version>3.3</version>
                     <inherited>true</inherited>
                     <configuration>
                         <compilerArgs>
@@ -765,7 +770,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>2.5</version>
+                    <version>2.6</version>
                     <inherited>true</inherited>
                     <executions>
                         <execution>
@@ -858,6 +863,7 @@
                                         <filtering>true</filtering>
                                         <includes>
                                             <include>etc/default/${project.artifactId}</include>
+                                            <include>etc/init.d/${project.artifactId}</include>
                                             <include>etc/logrotate.d/${project.artifactId}.logrotate</include>
                                             <include>**/*.properties</include>
                                             <include>**/*.xml</include>
@@ -867,6 +873,7 @@
                                         <directory>${project.build.debDataSourceDirectory}</directory>
                                         <excludes>
                                             <exclude>etc/default/${project.artifactId}</exclude>
+                                            <exclude>etc/init.d/${project.artifactId}</exclude>
                                             <exclude>etc/logrotate.d/${project.artifactId}.logrotate</exclude>
                                             <exclude>**/*.properties</exclude>
                                             <exclude>**/*.xml</exclude>
@@ -1094,7 +1101,7 @@
                             <inherited>true</inherited>
                             <configuration>
                                 <argLine>
-                                    -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -javaagent:lib/aspectjweaver-1.8.5.jar -javaagent:lib/spring-instrument-4.1.5.RELEASE.jar
+                                    -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 -XX:ConcGCThreads=4 -javaagent:lib/aspectjweaver-1.8.5.jar -javaagent:lib/spring-instrument-4.1.6.RELEASE.jar
                                 </argLine>
                                 <reportNameSuffix>it</reportNameSuffix>
                                 <skip>true</skip>
@@ -1105,7 +1112,7 @@
                 <plugin>
                     <groupId>org.codehaus.gmavenplus</groupId>
                     <artifactId>gmavenplus-plugin</artifactId>
-                    <version>1.3</version>
+                    <version>1.5</version>
                     <inherited>true</inherited>
                     <dependencies>
                         <dependency>
@@ -1131,7 +1138,7 @@
                         <dependency>
                             <groupId>org.codehaus.groovy</groupId>
                             <artifactId>groovy-all</artifactId>
-                            <version>2.4.2</version>
+                            <version>2.4.3</version>
                             <scope>runtime</scope>
                         </dependency>
                     </dependencies>
@@ -1150,7 +1157,7 @@
                     </configuration>
                     <executions>
                         <execution>
-                            <id>process-resources-app-scripts</id>
+                            <id>process-resources-app</id>
                             <phase>process-resources</phase>
                             <goals>
                                 <goal>execute</goal>
@@ -1158,7 +1165,7 @@
                             <inherited>true</inherited>
                             <configuration>
                                 <scripts>
-                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources-app-scripts.groovy</script>
+                                    <script>file://${project.basedir.all}/phiz-core/src/main/scripts/groovy/phiz-process-resources-app.groovy</script>
                                 </scripts>
                             </configuration>
                         </execution>
@@ -1451,7 +1458,7 @@
                 <plugin>
                     <groupId>org.vafer</groupId>
                     <artifactId>jdeb</artifactId>
-                    <version>1.3</version>
+                    <version>1.4</version>
                     <inherited>true</inherited>
                     <executions>
                         <execution>
@@ -1466,11 +1473,22 @@
                                     <data>
                                         <src>${project.build.debDataDirectory}/etc</src>
                                         <type>directory</type>
+                                        <excludes>init.d/*</excludes>
                                         <conffile>true</conffile>
                                         <missingSrc>ignore</missingSrc>
                                         <mapper>
                                             <type>perm</type>
                                             <prefix>/etc</prefix>
+                                        </mapper>
+                                    </data>
+                                    <data>
+                                        <src>${project.build.debDataDirectory}/etc/init.d</src>
+                                        <type>directory</type>
+                                        <missingSrc>ignore</missingSrc>
+                                        <mapper>
+                                            <type>perm</type>
+                                            <prefix>/etc/init.d</prefix>
+                                            <filemode>755</filemode>
                                         </mapper>
                                     </data>
                                     <data>

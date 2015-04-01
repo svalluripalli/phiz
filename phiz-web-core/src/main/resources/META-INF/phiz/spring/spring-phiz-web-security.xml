@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:sec="http://www.springframework.org/schema/security"
+    xmlns:task="http://www.springframework.org/schema/task"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    
+    <!--====================================================================================================
+    = AUTHENTICATION PROVIDERS
+    =====================================================================================================-->
+    <beans:bean id="authProv" class="org.springframework.security.authentication.AuthenticationProvider" abstract="true"/>
+    
+    <beans:bean id="authProvAnon" class="org.springframework.security.authentication.AnonymousAuthenticationProvider" parent="authProv"
+        c:key="AUTH_ANON"/>
+    
+    <!--====================================================================================================
+    = AUTHENTICATION MANAGERS
+    =====================================================================================================-->
+    <beans:bean id="authManager" class="org.springframework.security.authentication.AuthenticationManager" abstract="true"/>
+    
+    <beans:bean id="authManagerProv" class="org.springframework.security.authentication.ProviderManager" parent="authManager" abstract="true"/>
+    
+    <beans:bean id="authManagerProvAnon" parent="authManagerProv">
+        <beans:constructor-arg name="providers">
+            <beans:list>
+                <beans:ref bean="authProvAnon"/>
+            </beans:list>
+        </beans:constructor-arg>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = AUTHENTICATION ENTRY POINTS
+    =====================================================================================================-->
+    <beans:bean id="authEntryPoint" class="org.springframework.security.web.AuthenticationEntryPoint" abstract="true"/>
+    
+    <beans:bean id="authEntryPointForbidden" class="org.springframework.security.web.authentication.Http403ForbiddenEntryPoint" parent="authEntryPoint"/>
+    
+    <!--====================================================================================================
+    = HTTP SECURITY
+    =====================================================================================================-->
+    <sec:http authentication-manager-ref="authManagerProvAnon" entry-point-ref="authEntryPointForbidden">
+        <sec:csrf disabled="true"/>
+        <sec:headers>
+            <sec:cache-control/>
+            <sec:content-type-options/>
+            <sec:frame-options policy="DENY"/>
+            <sec:hsts max-age-seconds="0"/>
+            <sec:xss-protection block="true"/>
+        </sec:headers>
+        <sec:intercept-url pattern="/**" access="permitAll"/>
+    </sec:http>
+    
+    <!--====================================================================================================
+    = REGISTRATION BEANS: FILTER
+    =====================================================================================================-->
+    <beans:bean id="regBeanFilterSecurity" parent="regBeanFilter"
+        p:filter-ref="#{ T(org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer).DEFAULT_FILTER_NAME }"/>
+</beans:beans>

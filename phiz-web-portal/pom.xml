@@ -90,6 +90,10 @@
             <artifactId>javax.servlet.jsp.jstl-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-collections4</artifactId>
         </dependency>
@@ -443,7 +447,7 @@
                 <artifactId>gmavenplus-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>process-resources-app-scripts</id>
+                        <id>process-resources-app</id>
                     </execution>
                     <execution>
                         <id>process-properties</id>
@@ -510,15 +514,6 @@
                 <executions>
                     <execution>
                         <id>jdeb</id>
-                        <configuration>
-                            <dataSet>
-                                <data>
-                                    <type>link</type>
-                                    <linkName>/etc/init.d/${project.artifactId}</linkName>
-                                    <linkTarget>../../${project.build.debShareBinDataDirectoryPath}/${project.artifactId}</linkTarget>
-                                </data>
-                            </dataSet>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

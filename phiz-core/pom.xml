@@ -125,6 +125,10 @@
             <artifactId>jaxb-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
         </dependency>
@@ -602,7 +606,7 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>process-resources-app-scripts</id>
+                        <id>process-resources-app</id>
                         <phase>none</phase>
                     </execution>
                     <execution>

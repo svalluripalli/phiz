@@ -9,6 +9,7 @@ import gov.hhs.onc.phiz.web.logging.HttpRequestEvent;
 import gov.hhs.onc.phiz.web.logging.HttpResponseEvent;
 import gov.hhs.onc.phiz.web.logging.impl.HttpRequestEventImpl;
 import gov.hhs.onc.phiz.web.logging.impl.HttpResponseEventImpl;
+import gov.hhs.onc.phiz.web.servlet.utils.PhizServletUtils;
 import gov.hhs.onc.phiz.web.tomcat.impl.PhizTomcatEmbeddedServletContainerFactory.PhizRequest;
 import gov.hhs.onc.phiz.web.tomcat.impl.PhizTomcatEmbeddedServletContainerFactory.PhizRequestFacade;
 import gov.hhs.onc.phiz.web.tomcat.impl.PhizTomcatEmbeddedServletContainerFactory.PhizResponse;
@@ -40,6 +41,8 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import org.apache.commons.collections4.EnumerationUtils;
@@ -180,7 +183,9 @@ public class PhizLoggingFeature extends AbstractFeature {
         @Override
         protected HttpRequestEvent createHttpEvent(SoapMessage msg) {
             // noinspection ConstantConditions
-            PhizRequest httpServletReq = PhizWsUtils.getProperty(msg, AbstractHTTPDestination.HTTP_REQUEST, PhizRequestFacade.class).getRequest();
+            PhizRequest httpServletReq =
+                ((PhizRequestFacade) PhizServletUtils.unwrapRequest(PhizWsUtils
+                    .getProperty(msg, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class))).getRequest();
 
             HttpRequestEvent httpEvent = super.createHttpEvent(msg);
             // noinspection ConstantConditions
@@ -314,7 +319,9 @@ public class PhizLoggingFeature extends AbstractFeature {
         protected PhizLoggingOutCallback<HttpResponseEvent, WsResponseMessageEvent> createCallback(SoapMessage msg, HttpResponseEvent httpEvent,
             WsResponseMessageEvent wsMsgEvent) {
             // noinspection ConstantConditions
-            PhizResponse httpServletResp = PhizWsUtils.getProperty(msg, AbstractHTTPDestination.HTTP_RESPONSE, PhizResponseFacade.class).getResponse();
+            PhizResponse httpServletResp =
+                ((PhizResponseFacade) PhizServletUtils.unwrapResponse(PhizWsUtils.getProperty(msg, AbstractHTTPDestination.HTTP_RESPONSE,
+                    HttpServletResponse.class))).getResponse();
 
             return new PhizLoggingOutCallback<>(msg, httpEvent, wsMsgEvent, (callbackMsg, callbackHttpEvent) -> {
                 // noinspection ConstantConditions

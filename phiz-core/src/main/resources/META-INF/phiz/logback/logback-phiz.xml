@@ -24,6 +24,18 @@
         </then>
     </if>
     
+    <property name="phiz.logging.console.enabled" value="${phiz.logging.console.enabled:-${phiz.logging.console.tty}}" scope="context"/>
+    
+    <!--====================================================================================================
+    = PROPERTIES: FILE
+    =====================================================================================================-->
+    <property name="phiz.logging.file.enabled" value="${phiz.logging.file.enabled:-true}" scope="context"/>
+    
+    <!--====================================================================================================
+    = PROPERTIES: LOGSTASH FILE
+    =====================================================================================================-->
+    <property name="phiz.logging.file.logstash.enabled" value="${phiz.logging.file.logstash.enabled:-true}" scope="context"/>
+    
     <!--====================================================================================================
     = STATUS LISTENERS
     =====================================================================================================-->
@@ -53,48 +65,75 @@
     <!--====================================================================================================
     = APPENDERS: CONSOLE
     =====================================================================================================-->
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%pColor(%p){${phiz.logging.console.tty:-false}} - %m%n%exRoot</pattern>
-        </encoder>
-        <target>System.out</target>
-        <withJansi>true</withJansi>
-    </appender>
-    
-    <appender name="consoleAsync" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="console"/>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>true</includeCallerData>
-        <queueSize>${phiz.logging.async.queue.size}</queueSize>
-    </appender>
+    <if condition='org.apache.commons.lang3.BooleanUtils.toBoolean(p("phiz.logging.console.enabled"))'>
+        <then>
+            <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+                <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+                    <pattern>%pColor(%p){${phiz.logging.console.tty:-false}} - %m%n%exRoot</pattern>
+                </encoder>
+                <target>System.out</target>
+                <withJansi>true</withJansi>
+            </appender>
+            
+            <appender name="consoleAsync" class="ch.qos.logback.classic.AsyncAppender">
+                <appender-ref ref="console"/>
+                <discardingThreshold>0</discardingThreshold>
+                <includeCallerData>true</includeCallerData>
+                <queueSize>${phiz.logging.async.queue.size}</queueSize>
+            </appender>
+        </then>
+        <else>
+            <appender name="console" class="ch.qos.logback.core.helpers.NOPAppender"/>
+            
+            <appender name="consoleAsync" class="ch.qos.logback.core.helpers.NOPAppender"/>
+        </else>
+    </if>
     
     <!--====================================================================================================
     = APPENDERS: FILE
     =====================================================================================================-->
-    <appender name="file" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
-        <beanName>appenderFileMain</beanName>
-    </appender>
-    
-    <appender name="fileAsync" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="file"/>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>true</includeCallerData>
-        <queueSize>${phiz.logging.async.queue.size}</queueSize>
-    </appender>
+    <if condition='org.apache.commons.lang3.BooleanUtils.toBoolean(p("phiz.logging.file.enabled"))'>
+        <then>
+            <appender name="file" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
+                <beanName>appenderFileMain</beanName>
+            </appender>
+            
+            <appender name="fileAsync" class="ch.qos.logback.classic.AsyncAppender">
+                <appender-ref ref="file"/>
+                <discardingThreshold>0</discardingThreshold>
+                <includeCallerData>true</includeCallerData>
+                <queueSize>${phiz.logging.async.queue.size}</queueSize>
+            </appender>
+        </then>
+        <else>
+            <appender name="file" class="ch.qos.logback.core.helpers.NOPAppender"/>
+            
+            <appender name="fileAsync" class="ch.qos.logback.core.helpers.NOPAppender"/>
+        </else>
+    </if>
     
     <!--====================================================================================================
-    = APPENDERS: LOGSTASH
+    = APPENDERS: LOGSTASH FILE
     =====================================================================================================-->
-    <appender name="fileLogstash" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
-        <beanName>appenderFileLogstash</beanName>
-    </appender>
-    
-    <appender name="fileLogstashAsync" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="fileLogstash"/>
-        <discardingThreshold>0</discardingThreshold>
-        <includeCallerData>true</includeCallerData>
-        <queueSize>${phiz.logging.async.queue.size}</queueSize>
-    </appender>
+    <if condition='org.apache.commons.lang3.BooleanUtils.toBoolean(p("phiz.logging.file.logstash.enabled"))'>
+        <then>
+            <appender name="fileLogstash" class="ch.qos.logback.ext.spring.DelegatingLogbackAppender">
+                <beanName>appenderFileLogstash</beanName>
+            </appender>
+            
+            <appender name="fileLogstashAsync" class="ch.qos.logback.classic.AsyncAppender">
+                <appender-ref ref="fileLogstash"/>
+                <discardingThreshold>0</discardingThreshold>
+                <includeCallerData>true</includeCallerData>
+                <queueSize>${phiz.logging.async.queue.size}</queueSize>
+            </appender>
+        </then>
+        <else>
+            <appender name="fileLogstash" class="ch.qos.logback.core.helpers.NOPAppender"/>
+            
+            <appender name="fileLogstashAsync" class="ch.qos.logback.core.helpers.NOPAppender"/>
+        </else>
+    </if>
     
     <!--====================================================================================================
     = ROOT LOGGER

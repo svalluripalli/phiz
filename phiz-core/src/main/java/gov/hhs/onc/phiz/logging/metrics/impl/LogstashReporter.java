@@ -28,7 +28,7 @@ public class LogstashReporter extends ScheduledReporter implements SmartLifecycl
     private boolean running;
 
     public LogstashReporter(MetricRegistry metricRegistry) {
-        super(metricRegistry, "reporterLogstash", MetricFilter.ALL, TimeUnit.SECONDS, TimeUnit.SECONDS);
+        super(metricRegistry, "reporterLogstash", MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
 
         this.metricRegistry = metricRegistry;
     }
@@ -62,7 +62,7 @@ public class LogstashReporter extends ScheduledReporter implements SmartLifecycl
     @Override
     public void start() {
         if (!this.isRunning()) {
-            this.start(this.period, TimeUnit.SECONDS);
+            this.start(this.period, TimeUnit.MILLISECONDS);
 
             this.running = true;
         }

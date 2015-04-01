@@ -1,30 +1,21 @@
 package gov.hhs.onc.phiz.web.servlet.utils;
 
-import java.util.ArrayList;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.collections4.EnumerationUtils;
-import org.springframework.http.HttpHeaders;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 public final class PhizServletUtils {
     private PhizServletUtils() {
     }
 
-    public static HttpHeaders getHeaders(HttpServletResponse servletResp) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.putAll(servletResp.getHeaderNames().stream()
-            .collect(Collectors.toMap(Function.<String> identity(), (String headerName) -> new ArrayList<>(servletResp.getHeaders(headerName)))));
-
-        return headers;
+    public static HttpServletResponse unwrapResponse(HttpServletResponse servletResp) {
+        return ((servletResp instanceof HttpServletResponseWrapper) ? unwrapResponse(((HttpServletResponse) ((HttpServletResponseWrapper) servletResp)
+            .getResponse())) : servletResp);
     }
 
-    public static HttpHeaders getHeaders(HttpServletRequest servletReq) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.putAll(EnumerationUtils.toList(servletReq.getHeaderNames()).stream()
-            .collect(Collectors.toMap(Function.<String> identity(), (headerName) -> EnumerationUtils.toList(servletReq.getHeaders(headerName)))));
-
-        return headers;
+    public static HttpServletRequest unwrapRequest(HttpServletRequest servletReq) {
+        return ((servletReq instanceof HttpServletRequestWrapper)
+            ? unwrapRequest(((HttpServletRequest) ((HttpServletRequestWrapper) servletReq).getRequest())) : servletReq);
     }
 }

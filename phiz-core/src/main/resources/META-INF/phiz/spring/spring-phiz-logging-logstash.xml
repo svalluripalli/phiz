@@ -49,8 +49,8 @@
                     <beans:array>
                         <beans:bean class="com.codahale.metrics.json.HealthCheckModule" parent="jsonModule"/>
                         <beans:bean class="com.codahale.metrics.json.MetricsModule" parent="jsonModule"
-                            c:durationUnit="#{ T(java.util.concurrent.TimeUnit).SECONDS }"
-                            c:rateUnit="#{ T(java.util.concurrent.TimeUnit).SECONDS }"
+                            c:durationUnit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"
+                            c:rateUnit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"
                             c:showSamples="true"/>
                         <beans:bean parent="jsonModuleLogstash"
                             p:moduleName="phiz-logstash">
@@ -91,14 +91,19 @@
     </beans:bean>
     
     <!--====================================================================================================
-    = APPENDERS
+    = PROFILE: LOGSTASH FILE LOGGING
     =====================================================================================================-->
-    <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="appenderFileLogstash" parent="appenderFile" destroy-method="stop" init-method="start"
-        p:file="${phiz.logging.logstash.file.dir}/${phiz.logging.logstash.file.name}${phiz.logging.logstash.file.name.ext}"
-        p:name="fileLogstash">
-        <beans:property name="encoder">
-            <beans:bean parent="encoderLogstash" destroy-method="stop" init-method="start"/>
-        </beans:property>
-    </beans:bean>
+    <beans:beans profile="phiz.profile.logging.file.logstash">
+        <!--====================================================================================================
+        = APPENDERS
+        =====================================================================================================-->
+        <!--suppress SpringPlaceholdersInspection -->
+        <beans:bean id="appenderFileLogstash" parent="appenderFile" destroy-method="stop" init-method="start"
+            p:file="${phiz.logging.logstash.file.dir}/${phiz.logging.logstash.file.name}${phiz.logging.logstash.file.name.ext}"
+            p:name="fileLogstash">
+            <beans:property name="encoder">
+                <beans:bean parent="encoderLogstash" destroy-method="stop" init-method="start"/>
+            </beans:property>
+        </beans:bean>
+    </beans:beans>
 </beans:beans>

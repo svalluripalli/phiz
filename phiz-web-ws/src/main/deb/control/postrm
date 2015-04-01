@@ -10,10 +10,10 @@ rootDir="$(pwd)"
 rootDir="${rootDir#*/}"
 
 case "$1" in
-    abort-install|abort-upgrade|disappear|failed-upgrade|upgrade)
+    abort-install|abort-upgrade|disappear|failed-upgrade)
         ;;
     
-    purge|remove)
+    purge|remove|upgrade)
         update-rc.d "${pkgName}" "remove"
         ;;&
     

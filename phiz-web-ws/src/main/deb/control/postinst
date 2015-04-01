@@ -39,6 +39,11 @@ case "$1" in
                 -s "/bin/false" \
                 "${pkgUser}"
         
+        authbindSslPortFile="${rootDir}/etc/authbind/byport/443"
+        
+        chmod 500 "${authbindSslPortFile}"
+        chown "${pkgUser}" "${authbindSslPortFile}"
+        
         chown -R "${pkgUser}:${pkgGroup}" "${cacheDir}"
         chown -R "${pkgUser}:${adminGroup}" "${logDir}"
         chown -R "${pkgUser}:${pkgGroup}" "${runDir}"

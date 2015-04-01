@@ -23,8 +23,10 @@
         p:loadOnStartup="1"
         p:name="servletCxf">
         <beans:property name="servlet">
+            <!--suppress SpringPlaceholdersInspection -->
             <beans:bean class="gov.hhs.onc.phiz.web.ws.servlet.impl.PhizCxfServlet" parent="servletHttp"
-                p:bus-ref="busPhiz"/>
+                p:bus-ref="busPhiz"
+                p:faviconResource="${phiz.webapp.static.images.favicon.file}"/>
         </beans:property>
         <beans:property name="servletSecurity">
             <beans:bean parent="servletSec">
