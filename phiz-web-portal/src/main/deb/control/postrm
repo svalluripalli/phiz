@@ -14,7 +14,7 @@ case "$1" in
         ;;
     
     purge|remove|upgrade)
-        update-rc.d "${pkgName}" "remove"
+        update-rc.d -f "${pkgName}" "remove"
         ;;&
     
     purge)

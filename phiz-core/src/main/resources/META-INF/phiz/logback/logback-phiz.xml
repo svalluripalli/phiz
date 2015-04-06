@@ -13,7 +13,7 @@
     <!--====================================================================================================
     = PROPERTIES: ASYNC
     =====================================================================================================-->
-    <property name="phiz.logging.async.queue.size" value="${phiz.logging.async.queue.size:-256}" scope="context"/>
+    <property name="phiz.logging.async.queue.size" value="${phiz.logging.async.queue.size:-16}" scope="context"/>
     
     <!--====================================================================================================
     = PROPERTIES: CONSOLE

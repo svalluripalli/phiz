@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import javax.annotation.Resource;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSessionContext;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.TrustManager;
@@ -32,12 +35,24 @@ public class PhizJsseImplementation extends JSSEImplementation implements Initia
 
         @Override
         public void handshake(Socket socket) throws IOException {
-            ((SSLSocket) socket).getSession();
+            SSLSocket sslSocket = ((SSLSocket) socket);
+            SSLSession session = sslSocket.getSession();
+
+            if (session.getCipherSuite().equals(HANDSHAKE_FAILED_CIPHER_SUITE)) {
+                throw new IOException(String.format("SSL socket (remoteAddr=%s) handshake failed.", socket.getRemoteSocketAddress()));
+            }
+
+            sslSocket.setEnabledCipherSuites(new String[0]);
         }
 
         @Override
         public Socket acceptSocket(ServerSocket serverSocket) throws IOException {
-            return serverSocket.accept();
+            try {
+                return serverSocket.accept();
+            } catch (SSLException e) {
+                throw new SocketException(String.format("SSL server socket (addr=%s) handshake failed: %s", serverSocket.getLocalSocketAddress(),
+                    e.getMessage()));
+            }
         }
 
         @Override
@@ -96,6 +111,8 @@ public class PhizJsseImplementation extends JSSEImplementation implements Initia
             this.configureSessionContext(PhizJsseImplementation.this.context.getServerSessionContext());
         }
     }
+
+    private final static String HANDSHAKE_FAILED_CIPHER_SUITE = "SSL_NULL_WITH_NULL_NULL";
 
     private final static String IMPL_NAME = "PHIZ JSSE";
 

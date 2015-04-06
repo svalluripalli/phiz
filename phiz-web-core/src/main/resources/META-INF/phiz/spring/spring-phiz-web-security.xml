@@ -52,7 +52,7 @@
     =====================================================================================================-->
     <sec:http authentication-manager-ref="authManagerProvAnon" entry-point-ref="authEntryPointForbidden">
         <sec:csrf disabled="true"/>
-        <sec:headers>
+        <sec:headers defaults-disabled="true">
             <sec:cache-control/>
             <sec:content-type-options/>
             <sec:frame-options policy="DENY"/>

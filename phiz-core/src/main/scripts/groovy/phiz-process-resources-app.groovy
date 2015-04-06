@@ -10,7 +10,7 @@ ant.fileset(dir: "${project.properties["project.build.appassemblerDaemonsJswDire
 
 ant.fileset(dir: "${project.properties["project.build.appassemblerDaemonsJswDirectory"]}/conf", erroronmissingdir: false,
     includes: "wrapper-${project.artifactId}.conf").each{
-    it.file.write(StringUtils.trim(it.file.text) + "\n\n#include conf/wrapper-${project.artifactId}-override.conf\n\n")
+    it.file.write(StringUtils.trim(it.file.text) + "\n\n#include ../conf/wrapper-${project.artifactId}-override.conf\n\n")
 }
 
 ant.fileset(dir: "${project.properties["project.build.appassemblerProgramsDirectory"]}/bin", erroronmissingdir: false,

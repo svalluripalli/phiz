@@ -11,4 +11,4 @@
 
 set -e
 
-"%{project.build.debShareBinDataDirectoryPath}/%{project.artifactId}" "$@"
+"/%{project.build.debShareBinDataDirectoryPath}/%{project.artifactId}" "$@"

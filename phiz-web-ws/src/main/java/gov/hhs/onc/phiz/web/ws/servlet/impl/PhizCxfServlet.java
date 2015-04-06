@@ -38,7 +38,7 @@ public class PhizCxfServlet extends CXFNonSpringServlet implements InitializingB
     @Override
     protected void handleRequest(HttpServletRequest servletReq, HttpServletResponse servletResp) throws ServletException {
         if (!Objects.equals(servletReq.getPathInfo(), FAVICON_URL_PATH)) {
-            this.invoke(servletReq, servletResp);
+            this.invoke(this.checkXForwardedHeaders(servletReq), servletResp);
 
             return;
         }
