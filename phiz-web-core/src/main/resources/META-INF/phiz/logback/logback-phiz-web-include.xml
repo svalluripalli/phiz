@@ -3,4 +3,18 @@
     debug="false"
     xmlns="ch.qos.logback">
     
+    <!--====================================================================================================
+    = LOGGERS: APACHE TOMCAT
+    =====================================================================================================-->
+    <logger name="org.apache.catalina" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+        <appender-ref ref="fileLogstash"/>
+    </logger>
+    
+    <logger name="org.apache.tomcat" level="info" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+        <appender-ref ref="fileLogstash"/>
+    </logger>
 </included>

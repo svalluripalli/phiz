@@ -2,6 +2,7 @@ package gov.hhs.onc.phiz.crypto.ssl.impl;
 
 import gov.hhs.onc.phiz.aop.utils.PhizProxyUtils;
 import gov.hhs.onc.phiz.aop.utils.PhizProxyUtils.PhizMethodAdvisor;
+import gov.hhs.onc.phiz.crypto.impl.AbstractPhizCryptoFactoryBean;
 import gov.hhs.onc.phiz.crypto.utils.PhizCertificateUtils;
 import gov.hhs.onc.phiz.logging.logstash.PhizLogstashTags;
 import gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashMarkers;
@@ -16,6 +17,7 @@ import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLContextSpi;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -28,7 +30,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PhizSslContextFactoryBean extends AbstractPhizSslParametersAwareFactoryBean<SSLContext> {
+public class PhizSslContextFactoryBean extends AbstractPhizCryptoFactoryBean<SSLContext> {
     private final static String SSL_CONTEXT_SERVICE_TYPE = SSLContext.class.getSimpleName();
 
     private final static String ENGINE_CREATE_SSL_ENGINE_METHOD_NAME = "engineCreateSSLEngine";
@@ -46,6 +48,7 @@ public class PhizSslContextFactoryBean extends AbstractPhizSslParametersAwareFac
     private FastDateFormat displayDateFormat;
 
     private KeyManager[] keyManagers;
+    private SSLParameters params;
     private SecureRandom secureRandom;
     private TrustManager[] trustManagers;
 
@@ -133,6 +136,14 @@ public class PhizSslContextFactoryBean extends AbstractPhizSslParametersAwareFac
 
     public void setKeyManagers(KeyManager ... keyManagers) {
         this.keyManagers = keyManagers;
+    }
+
+    public SSLParameters getParameters() {
+        return this.params;
+    }
+
+    public void setParameters(SSLParameters params) {
+        this.params = params;
     }
 
     public SecureRandom getSecureRandom() {

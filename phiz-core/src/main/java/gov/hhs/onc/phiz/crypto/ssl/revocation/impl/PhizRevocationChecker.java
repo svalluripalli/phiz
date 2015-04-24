@@ -97,6 +97,7 @@ public class PhizRevocationChecker extends AbstractPhizPathChecker {
 
     private int connectTimeout;
     private AlgorithmIdentifier digestAlgId;
+    private boolean nonceOptional;
     private int nonceSize;
     private boolean optional;
     private ListOrderedSet<AlgorithmIdentifier> preferredSigAlgIds;
@@ -255,23 +256,25 @@ public class PhizRevocationChecker extends AbstractPhizPathChecker {
         Extension nonceOcspRespExt = ocspResp.getExtension(OCSPObjectIdentifiers.id_pkix_ocsp_nonce);
 
         if (nonceOcspRespExt == null) {
-            throw this
-                .buildException(String
-                    .format(
-                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain a nonce extension (oid=%s).",
-                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
-                        OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
-        }
+            if (!this.nonceOptional) {
+                throw this
+                    .buildException(String
+                        .format(
+                            "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) does not contain a nonce extension (oid=%s).",
+                            this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                            OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId()));
+            }
+        } else {
+            byte[] nonceOcspRespExtContent = nonceOcspRespExt.getExtnValue().getOctets();
 
-        byte[] nonceOcspRespExtContent = nonceOcspRespExt.getExtnValue().getOctets();
-
-        if (!Arrays.equals(nonceOcspReqExtContent, nonceOcspRespExtContent)) {
-            throw this
-                .buildException(String
-                    .format(
-                        "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) nonce extension (oid=%s) value does not match (%s).",
-                        this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
-                        OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId(), Hex.encodeHexString(nonceOcspRespExtContent)));
+            if (!Arrays.equals(nonceOcspReqExtContent, nonceOcspRespExtContent)) {
+                throw this
+                    .buildException(String
+                        .format(
+                            "SSL %s certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) OCSP responder (url=%s) response (producedAt=%s) nonce extension (oid=%s) value does not match (%s).",
+                            this.loc.getId(), certSubjectDnNameStr, certIssuerDnNameStr, certSerialNum, ocspResponderUrl, ocspRespProducedAtTimeStr,
+                            OCSPObjectIdentifiers.id_pkix_ocsp_nonce.getId(), Hex.encodeHexString(nonceOcspRespExtContent)));
+            }
         }
 
         SingleResp ocspCertResp = null;
@@ -414,6 +417,14 @@ public class PhizRevocationChecker extends AbstractPhizPathChecker {
 
     public void setDigestAlgorithmId(String digestAlgId) {
         this.digestAlgId = PhizCryptoUtils.DIGEST_ALG_ID_FINDER.find(digestAlgId);
+    }
+
+    public boolean isNonceOptional() {
+        return this.nonceOptional;
+    }
+
+    public void setNonceOptional(boolean nonceOptional) {
+        this.nonceOptional = nonceOptional;
     }
 
     @Nonnegative

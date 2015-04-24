@@ -7,8 +7,8 @@
     = LOGGERS: EVIWARE
     =====================================================================================================-->
     <logger name="com.eviware" level="info" additivity="false">
-        <appender-ref ref="consoleAsync"/>
-        <appender-ref ref="fileAsync"/>
-        <appender-ref ref="fileLogstashAsync"/>
+        <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
+        <appender-ref ref="fileLogstash"/>
     </logger>
 </included>

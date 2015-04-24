@@ -9,6 +9,5 @@
 # Description:       Start %{project.artifactId}.
 ### END INIT INFO
 
-set -e
-
+SHELL="/bin/sh" \
 "/%{project.build.debShareBinDataDirectoryPath}/%{project.artifactId}" "$@"
