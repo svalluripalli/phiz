@@ -21,7 +21,7 @@ public final class PhizLogstashMarkers {
             if (markerObj instanceof Marker) {
                 nextMarker = ((Marker) markerObj);
             } else if (markerObj instanceof String) {
-                nextMarker = MarkerFactory.getMarker(((String) markerObj));
+                nextMarker = MarkerFactory.getDetachedMarker(((String) markerObj));
             } else {
                 nextMarker = Markers.append(buildFieldName(markerObj), markerObj);
             }
