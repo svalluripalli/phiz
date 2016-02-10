@@ -4,8 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.SessionFactory;
 import org.hibernate.type.BasicType;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
-import org.springframework.orm.hibernate4.LocalSessionFactoryBuilder;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.hibernate5.LocalSessionFactoryBuilder;
 
 public class PhizLocalSessionFactoryBean extends LocalSessionFactoryBean {
     private Set<BasicType> basicTypes = new HashSet<>();

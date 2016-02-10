@@ -3,17 +3,14 @@ package gov.hhs.onc.phiz.web.test.soapui.impl;
 import com.eviware.soapui.DefaultSoapUICore;
 import com.eviware.soapui.SoapUI;
 import com.eviware.soapui.SoapUICore;
-import com.eviware.soapui.SoapUIProTestCaseRunner;
 import com.eviware.soapui.impl.wsdl.WsdlProject;
-import com.eviware.soapui.impl.wsdl.WsdlProjectPro;
-import com.eviware.soapui.impl.wsdl.WsdlProjectProFactory;
+import com.eviware.soapui.impl.wsdl.WsdlProjectFactory;
 import com.eviware.soapui.impl.wsdl.WsdlRequest;
 import com.eviware.soapui.impl.wsdl.WsdlSubmit;
-import com.eviware.soapui.impl.wsdl.WsdlTestCasePro;
 import com.eviware.soapui.impl.wsdl.WsdlTestSuite;
-import com.eviware.soapui.impl.wsdl.WsdlTestSuitePro;
 import com.eviware.soapui.impl.wsdl.submit.RequestTransportRegistry;
 import com.eviware.soapui.impl.wsdl.support.http.HttpClientSupport;
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestRunContext;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunContext;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestSuiteRunner;
@@ -25,13 +22,13 @@ import com.eviware.soapui.model.iface.SubmitListener;
 import com.eviware.soapui.model.project.ProjectFactoryRegistry;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpander;
 import com.eviware.soapui.model.propertyexpansion.PropertyExpansion;
-import com.eviware.soapui.model.testsuite.LoadTest;
 import com.eviware.soapui.model.testsuite.TestCaseRunContext;
 import com.eviware.soapui.model.testsuite.TestCaseRunner;
 import com.eviware.soapui.model.testsuite.TestStepResult;
 import com.eviware.soapui.model.testsuite.TestStepResult.TestStepStatus;
 import com.eviware.soapui.model.testsuite.TestSuite;
 import com.eviware.soapui.support.types.StringToObjectMap;
+import com.eviware.soapui.tools.SoapUITestCaseRunner;
 import com.github.sebhoss.warnings.CompilerWarnings;
 import gov.hhs.onc.phiz.beans.factory.EmbeddedPlaceholderResolver;
 import gov.hhs.onc.phiz.web.test.soapui.PhizSoapUiProperties;
@@ -52,7 +49,7 @@ import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @SuppressWarnings({ CompilerWarnings.DEPRECATION })
-public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements SubmitListener {
+public class PhizSoapUiTestCaseRunner extends SoapUITestCaseRunner implements SubmitListener {
     private final static String SPRING_REF_PROP_NAME_PREFIX = PropertyExpansion.SCOPE_PREFIX + "Spring" + PropertyExpansion.PROPERTY_SEPARATOR;
 
     @Autowired
@@ -74,12 +71,6 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
     }
 
     @Override
-    public void afterRun(TestCaseRunner testCaseRunner, TestCaseRunContext testCaseRunContext) {
-
-        super.afterRun(testCaseRunner, testCaseRunContext);
-    }
-
-    @Override
     public void afterStep(TestCaseRunner testCaseRunner, TestCaseRunContext testCaseRunContext, TestStepResult testStepResult) {
         String testCaseName;
         PhizSoapUiTestCaseContext testCaseContext;
@@ -96,8 +87,8 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
                 final Class<? extends Exception> testStepExceptionClass = testStepException.getClass();
 
                 // noinspection ConstantConditions
-                if (Stream.of(testCaseContext.getTestCaseExceptionClasses()).anyMatch(
-                    testCaseExceptionClass -> testCaseExceptionClass.isAssignableFrom(testStepExceptionClass))) {
+                if (Stream.of(testCaseContext.getTestCaseExceptionClasses())
+                    .anyMatch(testCaseExceptionClass -> testCaseExceptionClass.isAssignableFrom(testStepExceptionClass))) {
                     ((WsdlTestStepResult) testStepResult).setStatus(TestStepStatus.OK);
 
                     this.testCaseExceptionMap.put(testCaseName, testStepException);
@@ -126,10 +117,10 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
         super.beforeRun(testCaseRunner, testCaseRunContext);
     }
 
-    public boolean run(WsdlProjectPro project) throws Exception {
-        ProjectFactoryRegistry.registrerProjectFactory(WsdlProjectProFactory.WSDL_TYPE, new WsdlProjectProFactory() {
+    public boolean run(WsdlProject project) throws Exception {
+        ProjectFactoryRegistry.registrerProjectFactory(WsdlProjectFactory.WSDL_TYPE, new WsdlProjectFactory() {
             @Override
-            public WsdlProjectPro createNew(String projectFile, String projectPass) {
+            public WsdlProject createNew(String projectFile, String projectPass) {
                 return project;
             }
         });
@@ -140,7 +131,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
     }
 
     public void runTestCase(PhizSoapUiTestCaseContext testCaseContext) throws Exception {
-        WsdlTestCasePro testCase = testCaseContext.getTestCase();
+        WsdlTestCase testCase = testCaseContext.getTestCase();
         WsdlTestSuite testSuite = testCase.getTestSuite();
 
         if ((this.testSuite == null) || !testSuite.getName().equals(this.testSuite.getName())) {
@@ -157,7 +148,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
             this.testSuiteRunLatch = new CountDownLatch(1);
 
             this.testSuiteRunTask = new FutureTask<>(() -> {
-                this.runSuite(new WsdlTestSuitePro(((WsdlProject) testCase.getProject()), this.testSuite.getConfig()) {
+                this.runSuite(new WsdlTestSuite(((WsdlProject) testCase.getProject()), this.testSuite.getConfig()) {
                     @Override
                     public WsdlTestSuiteRunner run(StringToObjectMap context, boolean async) {
                         WsdlTestSuiteRunner testSuiteRunner = new WsdlTestSuiteRunner(this, context) {
@@ -188,7 +179,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
             this.sslSocketFactoryMap.get(testCase.getPropertyValue(PhizSoapUiProperties.SSL_SOCKET_FACTORY_NAME)));
 
         if (testCase.getLoadTestCount() > 0) {
-            testCase.getLoadTestList().stream().forEach(LoadTest::run);
+            testCase.getLoadTestList().stream().forEach(loadTest -> loadTest.run().waitUntilFinished());
         } else {
             String testCaseName = testCase.getName();
 
@@ -205,7 +196,7 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
     }
 
     @Override
-    public void initProject(WsdlProject project) {
+    public void initProject(WsdlProject project) throws Exception {
         if (this.projectInitialized) {
             return;
         }
@@ -237,11 +228,10 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
 
     @Override
     protected void initProjectProperties(WsdlProject project) {
-        PropertyExpander.getDefaultExpander().addResolver(
-            (propExpContext, propName, globalOverride) -> {
-                return (StringUtils.startsWith(propName, SPRING_REF_PROP_NAME_PREFIX) ? this.embeddedPlaceholderResolver.resolvePlaceholders(
-                    StringUtils.removeStart(propName, SPRING_REF_PROP_NAME_PREFIX), true) : null);
-            });
+        PropertyExpander.getDefaultExpander().addResolver((propExpContext, propName, globalOverride) -> {
+            return (StringUtils.startsWith(propName, SPRING_REF_PROP_NAME_PREFIX)
+                ? this.embeddedPlaceholderResolver.resolvePlaceholders(StringUtils.removeStart(propName, SPRING_REF_PROP_NAME_PREFIX), true) : null);
+        });
 
         super.initProjectProperties(project);
     }
@@ -259,9 +249,9 @@ public class PhizSoapUiTestCaseRunner extends SoapUIProTestCaseRunner implements
         org.apache.http.conn.scheme.SchemeRegistry httpSchemeReg = HttpClientSupport.getHttpClient().getConnectionManager().getSchemeRegistry();
         org.apache.http.conn.scheme.Scheme httpsScheme = httpSchemeReg.getScheme(RequestTransportRegistry.HTTPS);
 
-        httpSchemeReg.register(new org.apache.http.conn.scheme.Scheme(httpsScheme.getName(), httpsScheme.getDefaultPort(),
-            new org.apache.http.conn.ssl.SSLSocketFactory(sslSocketFactory, sslParams.getProtocols(), sslParams.getCipherSuites(),
-                SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)));
+        httpSchemeReg
+            .register(new org.apache.http.conn.scheme.Scheme(httpsScheme.getName(), httpsScheme.getDefaultPort(), new org.apache.http.conn.ssl.SSLSocketFactory(
+                sslSocketFactory, sslParams.getProtocols(), sslParams.getCipherSuites(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)));
     }
 
     public CountDownLatch getProjectRunLatch() {

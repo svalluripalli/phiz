@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:c="http://www.springframework.org/schema/c"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <!--====================================================================================================
+    = MODULES
+    =====================================================================================================-->
+    <beans:bean id="module" class="com.fasterxml.jackson.databind.Module" abstract="true"/>
+    
+    <beans:bean id="moduleSimple" class="com.fasterxml.jackson.databind.module.SimpleModule" parent="module" abstract="true">
+        <beans:constructor-arg name="version" value="#{ T(com.fasterxml.jackson.core.Version).unknownVersion() }"/>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = OBJECT MAPPERS
+    =====================================================================================================-->
+    <beans:bean id="objMapper" class="com.fasterxml.jackson.databind.ObjectMapper" abstract="true"/>
+    
+    <beans:bean id="objMapperBase" class="gov.hhs.onc.phiz.json.impl.PhizObjectMapperFactoryBean" abstract="true"
+        p:autoDetectFields="false"
+        p:autoDetectGettersSetters="false"
+        p:serializationInclusion="NON_DEFAULT">
+        <beans:property name="features">
+            <beans:map>
+                <beans:entry key="#{ T(com.fasterxml.jackson.databind.MapperFeature).AUTO_DETECT_CREATORS }" value="false"/>
+                <beans:entry key="#{ T(com.fasterxml.jackson.databind.MapperFeature).AUTO_DETECT_IS_GETTERS }" value="false"/>
+            </beans:map>
+        </beans:property>
+    </beans:bean>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="objMapperPretty" parent="objMapperBase" abstract="true"
+        p:indentOutput="true"
+        p:indentSize="${phiz.transform.content.pretty.indent.size}"/>
+</beans:beans>

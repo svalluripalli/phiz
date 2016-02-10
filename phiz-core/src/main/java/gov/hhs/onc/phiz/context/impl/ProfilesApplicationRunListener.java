@@ -38,11 +38,11 @@ public class ProfilesApplicationRunListener extends AbstractPhizApplicationRunLi
 
         switch (modeName) {
             case PhizProperties.DEV_MODE_VALUE:
-                modeProfileName = PhizProfiles.DEV_MODE;
+                modeProfileName = PhizProfiles.MODE_DEV;
                 break;
 
             case PhizProperties.PROD_MODE_VALUE:
-                modeProfileName = PhizProfiles.PROD_MODE;
+                modeProfileName = PhizProfiles.MODE_PROD;
                 break;
 
             default:

@@ -17,7 +17,7 @@ public class WebProfilesApplicationRunListener extends AbstractPhizApplicationRu
     @Override
     public void contextPrepared(ConfigurableApplicationContext appContext) {
         if (appContext instanceof WebApplicationContext) {
-            appContext.getEnvironment().addActiveProfile(PhizProfiles.WEB_CONTEXT);
+            appContext.getEnvironment().addActiveProfile(PhizProfiles.CONTEXT_WEB);
         }
     }
 }

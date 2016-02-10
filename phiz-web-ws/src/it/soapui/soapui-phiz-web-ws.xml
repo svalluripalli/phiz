@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<con:soapui-project activeEnvironment="Default" name="soapui-phiz-web-ws" resourceRoot="${projectDir}" soapui-version="5.1.2" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config">
+<con:soapui-project activeEnvironment="Default" name="soapui-phiz-web-ws" resourceRoot="${projectDir}" soapui-version="5.2.1" abortOnError="false" runType="SEQUENTIAL" xmlns:con="http://eviware.com/soapui/config">
   <con:description>Public Health Immunization Data Exchange (PHIZ) web services web application SoapUI project.</con:description>
   <con:settings/>
   <con:interface xsi:type="con:WsdlInterface" wsaVersion="200508" name="IISHubBindingSoap12" type="wsdl" bindingName="{urn:cdc:iisb:hub:2014}IISHubBindingSoap12" soapVersion="1_2" anonymous="optional" definition="${#Spring#phiz.tomcat.ws.iis.hub.wsdl.url}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -62,15 +62,9 @@
                 <assertFaultToRefParams>false</assertFaultToRefParams>
               </con:configuration>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis:EchoBack)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis:EchoBack)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
@@ -140,23 +134,17 @@ empty(//iis:EchoBack)</path>
             </con:assertion>
             <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis:Hl7Message)", "true")</scriptText>
+              </con:configuration>
+            </con:assertion>
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
+              <con:configuration>
                 <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertAddressingMessageIdsMatch(context, messageExchange)</scriptText>
               </con:configuration>
             </con:assertion>
             <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
                 <scriptText>messageExchange.requestContent == messageExchange.responseContent</scriptText>
-              </con:configuration>
-            </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
-              <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis:Hl7Message)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -208,14 +196,9 @@ empty(//iis:Hl7Message)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace soap='http://www.w3.org/2003/05/soap-envelope';
-//soap:Fault/soap:Code/soap:Value/text()</path>
-                <content>ns1:MessageAddressingHeaderRequired</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "//soap:Fault/soap:Code/soap:Subcode/soap:Value/text()", "ns1:MessageAddressingHeaderRequired")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -542,15 +525,9 @@ empty(//iis:Hl7Message)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis-hub:DestinationConnectionFault)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis-hub:DestinationConnectionFault)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -602,15 +579,9 @@ empty(//iis-hub:DestinationConnectionFault)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis-hub:DestinationConnectionFault)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis-hub:DestinationConnectionFault)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -636,9 +607,9 @@ empty(//iis-hub:DestinationConnectionFault)</path>
           <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
             <con:description/>
             <con:settings>
-                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
-                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_MSG_TOO_LARGE_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
-                </con:setting>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+                    <con:entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_MSG_TOO_LARGE_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/>
+                </xml-fragment>]]></con:setting>
             </con:settings>
             <con:encoding>UTF-8</con:encoding>
             <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
@@ -666,15 +637,9 @@ empty(//iis-hub:DestinationConnectionFault)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis:MessageTooLargeFault)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis:MessageTooLargeFault)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -700,9 +665,9 @@ empty(//iis:MessageTooLargeFault)</path>
           <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
             <con:description/>
             <con:settings>
-                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
-                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_SEC_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
-                </con:setting>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+                    <con:entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_SEC_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/>
+                </xml-fragment>]]></con:setting>
             </con:settings>
             <con:encoding>UTF-8</con:encoding>
             <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
@@ -730,15 +695,9 @@ empty(//iis:MessageTooLargeFault)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis:SecurityFault)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis:SecurityFault)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -764,9 +723,9 @@ empty(//iis:SecurityFault)</path>
           <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
             <con:description/>
             <con:settings>
-                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
-                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_DEST_CONN_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
-                </con:setting>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+                    <con:entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_DEST_CONN_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/>
+                </xml-fragment>]]></con:setting>
             </con:settings>
             <con:encoding>UTF-8</con:encoding>
             <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
@@ -794,15 +753,9 @@ empty(//iis:SecurityFault)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis-hub:DestinationConnectionFault)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis-hub:DestinationConnectionFault)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -828,9 +781,9 @@ empty(//iis-hub:DestinationConnectionFault)</path>
           <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
             <con:description/>
             <con:settings>
-                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
-                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_HUB_CLIENT_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
-                </con:setting>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+                    <con:entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_HUB_CLIENT_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/>
+                </xml-fragment>]]></con:setting>
             </con:settings>
             <con:encoding>UTF-8</con:encoding>
             <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
@@ -858,15 +811,9 @@ empty(//iis-hub:DestinationConnectionFault)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis-hub:HubClientFault)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis-hub:HubClientFault)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -892,9 +839,9 @@ empty(//iis-hub:HubClientFault)</path>
           <con:request name="SubmitSingleMessage" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
             <con:description/>
             <con:settings>
-                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">
-                    &lt;entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_UNKNOWN_DEST_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/&gt;
-                </con:setting>
+                <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config">
+                    <con:entry key="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_NAME }}" value="${#Spring##{ T(gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders).EXT_IIS_HUB_DEV_ACTION_UNKNOWN_DEST_FAULT_VALUE }}" xmlns="http://eviware.com/soapui/config"/>
+                </xml-fragment>]]></con:setting>
             </con:settings>
             <con:encoding>UTF-8</con:encoding>
             <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
@@ -922,15 +869,9 @@ empty(//iis-hub:HubClientFault)</path>
             <con:assertion type="Not SOAP Fault Assertion" name="SOAP Fault">
                 <con:configuration/>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis-hub:UnknownDestinationFault)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis-hub:UnknownDestinationFault)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:credentials>
@@ -962,7 +903,7 @@ empty(//iis-hub:UnknownDestinationFault)</path>
           <con:request name="SubmitSingleMessage_Load" outgoingWss="" incomingWss="" timeout="" sslKeystore="" useWsAddressing="true" useWsReliableMessaging="false" wssPasswordType="">
             <con:description/>
             <con:settings>
-              <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting>
+              <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers"><![CDATA[<xml-fragment xmlns:con="http://eviware.com/soapui/config"/>]]></con:setting>
             </con:settings>
             <con:encoding>UTF-8</con:encoding>
             <con:endpoint>${#Spring#phiz.tomcat.ws.iis.hub.url}</con:endpoint>
@@ -974,7 +915,7 @@ empty(//iis-hub:UnknownDestinationFault)</path>
    </soap:Header>
    <soap:Body>
       <iis:SubmitSingleMessageRequest>
-         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}</iis:Hl7Message>
+         <iis:Hl7Message>${=project.name}_${=testSuite.name}_${=testCase.name}_${=testStep.name}_${=request.name}_${=context.ThreadIndex}</iis:Hl7Message>
       </iis:SubmitSingleMessageRequest>
    </soap:Body>
 </soap:Envelope>]]></con:request>
@@ -1000,15 +941,9 @@ empty(//iis-hub:UnknownDestinationFault)</path>
                 <assertFaultToRefParams>false</assertFaultToRefParams>
               </con:configuration>
             </con:assertion>
-            <con:assertion type="XPath Match" name="XPath Match">
+            <con:assertion type="GroovyScriptAssertion" name="Script Assertion">
               <con:configuration>
-                <path>declare namespace iis='urn:cdc:iisb:2014';
-declare namespace iis-hub='urn:cdc:iisb:hub:2014';
-empty(//iis:Hl7Message)</path>
-                <content>false</content>
-                <allowWildcards>false</allowWildcards>
-                <ignoreNamspaceDifferences>false</ignoreNamspaceDifferences>
-                <ignoreComments>false</ignoreComments>
+                <scriptText>gov.hhs.onc.phiz.web.test.soapui.utils.PhizSoapUiUtils.assertNodeValuesMatch(context, messageExchange.responseContentAsXml, "exists(//iis:Hl7Message)", "true")</scriptText>
               </con:configuration>
             </con:assertion>
             <con:assertion type="GroovyScriptAssertion" name="Script Assertion">

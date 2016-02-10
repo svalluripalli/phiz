@@ -28,7 +28,7 @@ public class LogstashReporter extends ScheduledReporter implements SmartLifecycl
     private boolean running;
 
     public LogstashReporter(MetricRegistry metricRegistry) {
-        super(metricRegistry, "reporterLogstash", MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
+        super(metricRegistry, "reporter-logstash", MetricFilter.ALL, TimeUnit.MILLISECONDS, TimeUnit.MILLISECONDS);
 
         this.metricRegistry = metricRegistry;
     }
@@ -37,8 +37,7 @@ public class LogstashReporter extends ScheduledReporter implements SmartLifecycl
     @SuppressWarnings({ CompilerWarnings.RAWTYPES })
     public void report(SortedMap<String, Gauge> gauges, SortedMap<String, Counter> counters, SortedMap<String, Histogram> histograms,
         SortedMap<String, Meter> meters, SortedMap<String, Timer> timers) {
-        LOGGER.info(
-            PhizLogstashMarkers.append(PhizLogstashTags.METRICS, Markers.append(METRICS_FIELD_NAME, this.metricRegistry)),
+        LOGGER.info(PhizLogstashMarkers.append(PhizLogstashTags.METRICS, Markers.append(METRICS_FIELD_NAME, this.metricRegistry)),
             String.format("Metrics (numGauges=%d, numCounters=%d, numHistograms=%d, numMeters=%d, numTimers=%d).", gauges.size(), counters.size(),
                 histograms.size(), meters.size(), timers.size()));
     }

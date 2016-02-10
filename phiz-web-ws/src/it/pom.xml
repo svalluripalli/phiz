@@ -43,6 +43,9 @@
                         <id>test-integration</id>
                         <configuration>
                             <skip>%{skipTests}</skip>
+                            <suiteXmlFiles combine.children="override">
+                                <suiteXmlFile>${project.build.directory}/testng/testng-%{project.artifactId}-it.xml</suiteXmlFile>
+                            </suiteXmlFiles>
                             <systemPropertyVariables>
                                 <phiz.logging.file.name>%{project.artifactId}-test-it</phiz.logging.file.name>
                                 <phiz.logging.logstash.file.name>%{project.artifactId}-logstash-test-it</phiz.logging.logstash.file.name>
@@ -52,16 +55,6 @@
                             </systemPropertyVariables>
                             <workingDirectory>%{project.build.testDebShareDataDirectory}</workingDirectory>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.kuali.maven.plugins</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>read-pom-properties</id>
-                        <phase>none</phase>
                     </execution>
                 </executions>
             </plugin>

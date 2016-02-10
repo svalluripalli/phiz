@@ -4,7 +4,7 @@ import gov.hhs.onc.phiz.crypto.logging.SslDebugPrintStreamType;
 import gov.hhs.onc.phiz.crypto.logging.SslEventProcessor;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +13,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -81,9 +80,6 @@ public class SslDebugPrintStream extends PrintStream implements DisposableBean, 
 
     private final static Map<SslDebugPrintStreamType, ThreadLocal<StringBuilder>> THREAD_BUILDER_MAP = Stream.of(SslDebugPrintStreamType.values()).collect(
         Collectors.toMap(Function.<SslDebugPrintStreamType> identity(), type -> ThreadLocal.withInitial(() -> new StringBuilder(64))));
-
-    @Resource(name = "charsetUtf8")
-    private Charset charset;
 
     private SslDebugPrintStreamType type;
     private Set<SslEventProcessor<?>> eventProcs = new TreeSet<>(AnnotationAwareOrderComparator.INSTANCE);
@@ -231,7 +227,7 @@ public class SslDebugPrintStream extends PrintStream implements DisposableBean, 
     public void write(@SuppressWarnings({ "NullableProblems" }) byte[] data, int dataOffset, int dataLen) {
         switch (processInvocation().getStatus()) {
             case ACCEPT:
-                processData(this.type, new String(data, this.charset).toCharArray());
+                processData(this.type, new String(data, StandardCharsets.UTF_8).toCharArray());
                 break;
 
             case PROPAGATE:

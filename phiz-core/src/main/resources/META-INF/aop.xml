@@ -1,4 +1,12 @@
 <!DOCTYPE aspectj PUBLIC "-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
 <aspectj>
-    <weaver options="-warn:none -Xset:weaveJavaxPackages=true"/>
+    <weaver options="-nowarn">
+        <include within="gov.hhs.onc.phiz..*"/>
+        <include within="org.apache.coyote..*"/>
+        <include within="org.apache.tomcat..*"/>
+    </weaver>
+    
+    <aspects>
+        <include within="org.springframework..*"/>
+    </aspects>
 </aspectj>

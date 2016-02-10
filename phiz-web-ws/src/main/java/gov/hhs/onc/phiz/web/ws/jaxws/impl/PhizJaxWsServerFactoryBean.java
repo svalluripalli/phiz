@@ -7,14 +7,25 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.SmartFactoryBean;
 
 public class PhizJaxWsServerFactoryBean extends JaxWsServerFactoryBean implements DisposableBean, InitializingBean, SmartFactoryBean<Server> {
+    private Server server;
+
     @Override
     public Server getObject() throws Exception {
-        return this.create();
+        return this.server;
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        if (this.server != null) {
+            this.server.destroy();
+
+            this.server = null;
+        }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.init();
+        this.server = this.create();
     }
 
     @Override

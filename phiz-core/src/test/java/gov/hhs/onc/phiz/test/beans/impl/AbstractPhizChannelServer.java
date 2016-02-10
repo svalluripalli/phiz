@@ -12,11 +12,14 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.util.Map;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 public abstract class AbstractPhizChannelServer extends AbstractPhizServer implements PhizChannelServer {
     protected Map<ChannelOption<?>, Object> channelOpts;
     protected String host;
     protected int port;
+    protected ThreadPoolTaskExecutor reqTaskExec;
+    protected ThreadPoolTaskExecutor taskExec;
     protected Channel channel;
 
     @Override
@@ -32,7 +35,8 @@ public abstract class AbstractPhizChannelServer extends AbstractPhizServer imple
     @Override
     @SuppressWarnings({ CompilerWarnings.UNCHECKED })
     protected void startInternal() throws Exception {
-        EventLoopGroup acceptorEventLoopGroup = new NioEventLoopGroup(1), workerEventLoopGroup = new NioEventLoopGroup();
+        EventLoopGroup acceptorEventLoopGroup = new NioEventLoopGroup(1, this.taskExec),
+            workerEventLoopGroup = new NioEventLoopGroup(this.reqTaskExec.getMaxPoolSize(), this.reqTaskExec);
 
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
@@ -86,5 +90,25 @@ public abstract class AbstractPhizChannelServer extends AbstractPhizServer imple
     @Override
     public void setPort(int port) {
         this.port = port;
+    }
+
+    @Override
+    public ThreadPoolTaskExecutor getRequestTaskExecutor() {
+        return this.reqTaskExec;
+    }
+
+    @Override
+    public void setRequestTaskExecutor(ThreadPoolTaskExecutor reqTaskExec) {
+        this.reqTaskExec = reqTaskExec;
+    }
+
+    @Override
+    public ThreadPoolTaskExecutor getTaskExecutor() {
+        return this.taskExec;
+    }
+
+    @Override
+    public void setTaskExecutor(ThreadPoolTaskExecutor taskExec) {
+        this.taskExec = taskExec;
     }
 }

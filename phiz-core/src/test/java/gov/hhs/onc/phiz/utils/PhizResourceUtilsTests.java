@@ -42,18 +42,17 @@ public class PhizResourceUtilsTests extends AbstractPhizTests {
 
     @Test(dependsOnMethods = { "testExtractFilePath" })
     public void testSortByLocation() throws Exception {
-        Resource[] resourcesExpected =
-            ArrayUtils.toArray(this.testJarResource1, this.testJarResource2, this.testJarResource3, this.testFileResource1, this.testFileResource2,
-                this.testFileResource3), resources = ArrayUtils.clone(resourcesExpected);
+        Resource[] resourcesExpected = ArrayUtils.toArray(this.testJarResource1, this.testFileResource1, this.testJarResource2, this.testFileResource2,
+            this.testJarResource3, this.testFileResource3), resources = ArrayUtils.clone(resourcesExpected);
 
         // noinspection ConstantConditions
         List<Resource> resourceList = Arrays.asList(resources);
         Collections.shuffle(resourceList);
         resourceList.sort(PhizResourceUtils.LOC_COMPARATOR);
 
-        Assert.assertEquals((resources = resourceList.toArray(new Resource[resourceList.size()])), resourcesExpected, String.format(
-            "Unable to sort resources by overridden locations: expected=[%s], actual=[%s]", StringUtils.join(resourcesExpected, "; "),
-            StringUtils.join(resources, "; ")));
+        Assert.assertEquals((resources = resourceList.toArray(new Resource[resourceList.size()])), resourcesExpected,
+            String.format("Unable to sort resources by overridden locations: expected=[%s], actual=[%s]", StringUtils.join(resourcesExpected, "; "),
+                StringUtils.join(resources, "; ")));
     }
 
     @Test(dependsOnMethods = { "testExtractMetaInfPath" })

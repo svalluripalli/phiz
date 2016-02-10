@@ -75,17 +75,16 @@ public class PhizOcspServerImpl extends AbstractPhizHttpServer implements PhizOc
             this(null, cred);
         }
 
-        public PhizOcspCredentialWrapper(@Nullable PhizOcspCredentialWrapper issuerCredWrapper, PhizCredential cred) throws CertificateEncodingException,
-            IOException, OperatorCreationException, OCSPException {
+        public PhizOcspCredentialWrapper(@Nullable PhizOcspCredentialWrapper issuerCredWrapper, PhizCredential cred)
+            throws CertificateEncodingException, IOException, OperatorCreationException, OCSPException {
             // noinspection ConstantConditions
             this.certHolder = new JcaX509CertificateHolder((this.cert = (this.cred = cred).getCertificate()));
 
             boolean credIssuer = this.cred.isIssuer();
 
             // noinspection ConstantConditions
-            this.certId =
-                new PhizCertificateId(PhizOcspServerImpl.this.digestCalc, (credIssuer
-                    ? this.certHolder : (this.issuerCredWrapper = issuerCredWrapper).getCertificateHolder()), this.cert.getSerialNumber());
+            this.certId = new PhizCertificateId(PhizCryptoUtils.DIGEST_CALC_PROV.get(PhizOcspServerImpl.this.digestAlgId),
+                (credIssuer ? this.certHolder : (this.issuerCredWrapper = issuerCredWrapper).getCertificateHolder()), this.cert.getSerialNumber());
 
             this.certStatus = this.cred.getCertificateStatus();
 
@@ -153,11 +152,15 @@ public class PhizOcspServerImpl extends AbstractPhizHttpServer implements PhizOc
             BasicOCSPRespBuilder respBuilder = new BasicOCSPRespBuilder(this.credWrapper.getIssuerCredentialWrapper().getResponderId());
             respBuilder.setResponseExtensions(this.exts);
 
+            BcContentSignerBuilder contentSignerBuilder = new BcRSAContentSignerBuilder(PhizOcspServerImpl.this.sigAlgId, PhizOcspServerImpl.this.digestAlgId);
+            contentSignerBuilder.setSecureRandom(PhizOcspServerImpl.this.secureRandom);
+
             // noinspection ConstantConditions
-            this.writeResponse(
-                context,
+            this.writeResponse(context,
                 RESP_WRAPPER_BUILDER.build(OcspResponseStatusType.INTERNAL_ERROR.getTag(),
-                    respBuilder.build(this.issuerCredWrapper.getContentSigner(), ArrayUtils.toArray(this.credWrapper.getCertificateHolder()), new Date()))
+                    respBuilder.build(
+                        contentSignerBuilder.build(PrivateKeyFactory.createKey(this.issuerCredWrapper.getCredential().getPrivateKey().getEncoded())),
+                        ArrayUtils.toArray(this.credWrapper.getCertificateHolder()), new Date()))
                     .getEncoded());
         }
 
@@ -177,11 +180,10 @@ public class PhizOcspServerImpl extends AbstractPhizHttpServer implements PhizOc
                     for (PhizCredential cred : PhizOcspServerImpl.this.creds.stream().filter(((Predicate<PhizCredential>) PhizCredential::isIssuer).negate())
                         .toArray(PhizCredential[]::new)) {
                         // noinspection ConstantConditions
-                        PhizOcspServerImpl.this.credWrappers
-                            .put(
-                                (credWrapper =
-                                    new PhizOcspCredentialWrapper(PhizOcspServerImpl.this.issuerCredWrappers.get(cred.getIssuerCredential().getCertificate()),
-                                        cred)).getCertificateId(), credWrapper);
+                        PhizOcspServerImpl.this.credWrappers.put(
+                            (credWrapper = new PhizOcspCredentialWrapper(
+                                PhizOcspServerImpl.this.issuerCredWrappers.get(cred.getIssuerCredential().getCertificate()), cred)).getCertificateId(),
+                            credWrapper);
                     }
 
                     PhizOcspServerImpl.this.credsInitialized = true;
@@ -223,25 +225,30 @@ public class PhizOcspServerImpl extends AbstractPhizHttpServer implements PhizOc
 
             this.issuerCredWrapper = (this.credWrapper = PhizOcspServerImpl.this.credWrappers.get(certId)).getIssuerCredentialWrapper();
 
-            X509Certificate cert = credWrapper.getCertificate();
+            X509Certificate cert = this.credWrapper.getCertificate();
             String certSubjectDnName = cert.getSubjectX500Principal().getName(), certIssuerDnName = cert.getIssuerX500Principal().getName();
-            CertificateStatus certStatus = credWrapper.getCertificateStatus();
+            CertificateStatus certStatus = this.credWrapper.getCertificateStatus();
 
             // noinspection ConstantConditions
-            BasicOCSPRespBuilder respBuilder = new BasicOCSPRespBuilder(issuerCredWrapper.getResponderId());
+            BasicOCSPRespBuilder respBuilder = new BasicOCSPRespBuilder(this.issuerCredWrapper.getResponderId());
             respBuilder.setResponseExtensions(this.exts);
             respBuilder.addResponse(certId, certStatus);
 
-            // noinspection ConstantConditions
-            this.writeResponse(
-                context,
-                RESP_WRAPPER_BUILDER.build(OcspResponseStatusType.SUCCESSFUL.getTag(),
-                    respBuilder.build(issuerCredWrapper.getContentSigner(), ArrayUtils.toArray(credWrapper.getCertificateHolder()), new Date())).getEncoded());
+            BcContentSignerBuilder contentSignerBuilder = new BcRSAContentSignerBuilder(PhizOcspServerImpl.this.sigAlgId, PhizOcspServerImpl.this.digestAlgId);
+            contentSignerBuilder.setSecureRandom(PhizOcspServerImpl.this.secureRandom);
 
-            LOGGER.debug(PhizLogstashMarkers.append(PhizLogstashTags.SSL), String.format(
-                "Wrote OCSP response (status=%s) certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) response (status=%s).",
-                OcspResponseStatusType.SUCCESSFUL.name(), certSubjectDnName, certIssuerDnName, certSerialNum,
-                PhizCryptoUtils.findByType(OcspCertificateStatusType.class, ((certStatus != null) ? certStatus.getClass() : CertificateStatus.class))));
+            // noinspection ConstantConditions
+            this.writeResponse(context,
+                RESP_WRAPPER_BUILDER.build(OcspResponseStatusType.SUCCESSFUL.getTag(),
+                    respBuilder.build(
+                        contentSignerBuilder.build(PrivateKeyFactory.createKey(this.issuerCredWrapper.getCredential().getPrivateKey().getEncoded())),
+                        ArrayUtils.toArray(this.credWrapper.getCertificateHolder()), new Date()))
+                    .getEncoded());
+
+            LOGGER.debug(PhizLogstashMarkers.append(PhizLogstashTags.SSL),
+                String.format("Wrote OCSP response (status=%s) certificate (subjectDnName=%s, issuerDnName=%s, serialNum=%d) response (status=%s).",
+                    OcspResponseStatusType.SUCCESSFUL.name(), certSubjectDnName, certIssuerDnName, certSerialNum,
+                    PhizCryptoUtils.findByType(OcspCertificateStatusType.class, ((certStatus != null) ? certStatus.getClass() : CertificateStatus.class))));
         }
 
         private void writeResponse(ChannelHandlerContext context, HttpResponseStatus respMsgStatus) {
@@ -274,7 +281,6 @@ public class PhizOcspServerImpl extends AbstractPhizHttpServer implements PhizOc
     private SecureRandom secureRandom;
     private AlgorithmIdentifier sigAlgId;
     private AlgorithmIdentifier digestAlgId;
-    private DigestCalculator digestCalc;
     private BcContentSignerBuilder contentSignerBuilder;
     private boolean credsInitialized;
     private Map<X509Certificate, PhizOcspCredentialWrapper> issuerCredWrappers;
@@ -282,7 +288,7 @@ public class PhizOcspServerImpl extends AbstractPhizHttpServer implements PhizOc
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        this.digestCalc = PhizCryptoUtils.DIGEST_CALC_PROV.get((this.digestAlgId = PhizCryptoUtils.DIGEST_ALG_ID_FINDER.find(this.sigAlgId)));
+        this.digestAlgId = PhizCryptoUtils.DIGEST_ALG_ID_FINDER.find(this.sigAlgId);
 
         this.contentSignerBuilder = new BcRSAContentSignerBuilder(this.sigAlgId, this.digestAlgId);
         this.contentSignerBuilder.setSecureRandom(this.secureRandom);

@@ -1,4 +1,4 @@
-@NotNullByDefault
+@NonNullByDefault
 package gov.hhs.onc.phiz;
 
-import com.github.sebhoss.nullanalysis.NotNullByDefault;
+import org.eclipse.jdt.annotation.NonNullByDefault;

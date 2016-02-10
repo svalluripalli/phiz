@@ -7,13 +7,14 @@ public final class PhizProfiles {
     public final static String LOGGING_PREFIX = PREFIX + "logging.";
     public final static String MODE_PREFIX = PREFIX + "mode.";
 
-    public final static String WEB_CONTEXT = CONTEXT_PREFIX + "web";
+    public final static String FILE_SUFFIX = "file";
 
-    public final static String FILE_LOGGING = LOGGING_PREFIX + "file";
-    public final static String LOGSTASH_FILE_LOGGING = FILE_LOGGING + ".logstash";
+    public final static String CONTEXT_WEB = CONTEXT_PREFIX + "web";
 
-    public final static String DEV_MODE = MODE_PREFIX + "dev";
-    public final static String PROD_MODE = MODE_PREFIX + "prod";
+    public final static String LOGGING_LOGSTASH_FILE = LOGGING_PREFIX + "logstash." + FILE_SUFFIX;
+
+    public final static String MODE_DEV = MODE_PREFIX + "dev";
+    public final static String MODE_PROD = MODE_PREFIX + "prod";
 
     private PhizProfiles() {
     }

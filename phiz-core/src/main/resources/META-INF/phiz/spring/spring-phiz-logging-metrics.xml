@@ -1,23 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans
-    xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:lang="http://www.springframework.org/schema/lang"
     xmlns:metrics="http://www.ryantenney.com/schema/metrics"
     xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xmlns:util="http://www.springframework.org/schema/util"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.ryantenney.com/schema/metrics http://www.ryantenney.com/schema/metrics/metrics-3.0.xsd
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     <!--====================================================================================================
     = METRICS
@@ -39,69 +29,42 @@
     <!--====================================================================================================
     = METRIC REGISTERERS
     =====================================================================================================-->
-    <beans:bean id="metricRegisterer" class="com.ryantenney.metrics.spring.config.RegisterMetricBeanDefinitionParser$MetricRegisterer" abstract="true">
-        <beans:constructor-arg name="metricRegistry" ref="metricRegistry"/>
-    </beans:bean>
+    <!--suppress UnparsedCustomBeanInspection -->
+    <metrics:register metric-registry="metricRegistry">
+        <beans:bean metrics:name="bufferPool" class="com.codahale.metrics.jvm.BufferPoolMetricSet" parent="metricSet">
+            <beans:constructor-arg name="mBeanServer" value="#{ T(java.lang.management.ManagementFactory).platformMBeanServer }"/>
+        </beans:bean>
+    </metrics:register>
     
-    <beans:bean id="metricRegistererBufferPool" parent="metricRegisterer"
-        c:name="bufferPool">
-        <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.BufferPoolMetricSet" parent="metricSet"
-                c:mBeanServer="#{ T(java.lang.management.ManagementFactory).platformMBeanServer }"/>
-        </beans:constructor-arg>
-    </beans:bean>
+    <!--suppress UnparsedCustomBeanInspection -->
+    <metrics:register metric-registry="metricRegistry">
+        <beans:bean metrics:name="classLoading" class="com.codahale.metrics.jvm.ClassLoadingGaugeSet" parent="metricSet"/>
+    </metrics:register>
     
-    <beans:bean id="metricRegistererCachedThreadStates" parent="metricRegisterer"
-        c:name="cachedThreadStates">
-        <beans:constructor-arg name="metric">
-            <!--suppress SpringPlaceholdersInspection -->
-            <beans:bean class="com.codahale.metrics.jvm.CachedThreadStatesGaugeSet" parent="metricSet"
-                c:interval="${phiz.logging.metrics.metric.cached.thread.states.interval}"
-                c:unit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"/>
-        </beans:constructor-arg>
-    </beans:bean>
+    <!--suppress UnparsedCustomBeanInspection -->
+    <metrics:register metric-registry="metricRegistry">
+        <beans:bean metrics:name="fileDescRatio" class="com.codahale.metrics.jvm.FileDescriptorRatioGauge" parent="gauge"/>
+    </metrics:register>
     
-    <beans:bean id="metricRegistererClassLoading" parent="metricRegisterer"
-        c:name="classLoading">
-        <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.ClassLoadingGaugeSet" parent="metricSet"/>
-        </beans:constructor-arg>
-    </beans:bean>
+    <!--suppress UnparsedCustomBeanInspection -->
+    <metrics:register metric-registry="metricRegistry">
+        <beans:bean metrics:name="garbageColl" class="com.codahale.metrics.jvm.GarbageCollectorMetricSet" parent="metricSet"/>
+    </metrics:register>
     
-    <beans:bean id="metricRegistererFileDescRatio" parent="metricRegisterer"
-        c:name="fileDescRatio">
-        <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.FileDescriptorRatioGauge" parent="gauge"/>
-        </beans:constructor-arg>
-    </beans:bean>
+    <!--suppress UnparsedCustomBeanInspection -->
+    <metrics:register metric-registry="metricRegistry">
+        <beans:bean metrics:name="jvmAttr" class="com.codahale.metrics.JvmAttributeGaugeSet" parent="metricSet"/>
+    </metrics:register>
     
-    <beans:bean id="metricRegistererGarbageColl" parent="metricRegisterer"
-        c:name="garbageColl">
-        <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.GarbageCollectorMetricSet" parent="metricSet"/>
-        </beans:constructor-arg>
-    </beans:bean>
+    <!--suppress UnparsedCustomBeanInspection -->
+    <metrics:register metric-registry="metricRegistry">
+        <beans:bean metrics:name="memUsage" class="com.codahale.metrics.jvm.MemoryUsageGaugeSet" parent="metricSet"/>
+    </metrics:register>
     
-    <beans:bean id="metricRegistererJvmAttr" parent="metricRegisterer"
-        c:name="jvmAttr">
-        <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.JvmAttributeGaugeSet" parent="metricSet"/>
-        </beans:constructor-arg>
-    </beans:bean>
-    
-    <beans:bean id="metricRegistererMemUsage" parent="metricRegisterer"
-        c:name="memUsage">
-        <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.MemoryUsageGaugeSet" parent="metricSet"/>
-        </beans:constructor-arg>
-    </beans:bean>
-    
-    <beans:bean id="metricRegistererThreadStates" parent="metricRegisterer"
-        c:name="threadStates">
-        <beans:constructor-arg name="metric">
-            <beans:bean class="com.codahale.metrics.jvm.ThreadStatesGaugeSet" parent="metricSet"/>
-        </beans:constructor-arg>
-    </beans:bean>
+    <!--suppress UnparsedCustomBeanInspection -->
+    <metrics:register metric-registry="metricRegistry">
+        <beans:bean metrics:name="threadStates" class="com.codahale.metrics.jvm.ThreadStatesGaugeSet" parent="metricSet"/>
+    </metrics:register>
     
     <!--====================================================================================================
     = REPORTERS
@@ -116,7 +79,7 @@
     <!--====================================================================================================
     = PROFILE: LOGSTASH FILE LOGGING
     =====================================================================================================-->
-    <beans:beans profile="phiz.profile.logging.file.logstash">
+    <beans:beans profile="phiz.profile.logging.logstash.file">
         <!--====================================================================================================
         = REPORTERS
         =====================================================================================================-->

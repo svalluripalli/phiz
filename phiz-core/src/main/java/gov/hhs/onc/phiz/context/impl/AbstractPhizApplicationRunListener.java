@@ -6,11 +6,11 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 
 public abstract class AbstractPhizApplicationRunListener implements PhizApplicationRunListener {
-    protected SpringApplication app;
+    protected PhizApplication app;
     protected String[] args;
 
     public AbstractPhizApplicationRunListener(SpringApplication app, String[] args) {
-        this.app = app;
+        this.app = ((PhizApplication) app);
         this.args = args;
     }
 

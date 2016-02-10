@@ -1,20 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans
     profile="phiz.profile.context.web"
-    xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
-    xmlns:context="http://www.springframework.org/schema/context"
     xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xmlns:util="http://www.springframework.org/schema/util"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     <!--====================================================================================================
     = KEY STORES
@@ -71,12 +63,26 @@
         p:SSLSocketFactory="#{ sslContextWsClient.socketFactory }"/>
     
     <!--====================================================================================================
+    = WORK QUEUES
+    =====================================================================================================-->
+    <beans:bean id="workQueue" class="org.apache.cxf.workqueue.WorkQueue" abstract="true"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="workQueueDefault" class="gov.hhs.onc.phiz.web.ws.workqueue.impl.PhizWorkQueue" parent="workQueue"
+        c:corePoolSize="${phiz.ws.workqueue.pool.size.core}"
+        c:keepAliveTime="${phiz.ws.workqueue.keep.alive.time}"
+        c:maxPoolSize="${phiz.ws.workqueue.pool.size.max}"
+        c:maxQueueSize="${phiz.ws.workqueue.queue.size.max}"/>
+    
+    <!--====================================================================================================
     = CLIENT POLICIES
     =====================================================================================================-->
     <beans:bean id="clientPolicyHttp" class="org.apache.cxf.transports.http.configuration.HTTPClientPolicy" abstract="true"
         p:allowChunking="false"
+        p:asyncExecuteTimeoutRejection="true"
+        p:autoRedirect="false"
         p:cacheControl="no-cache, no-store, no-transform"
-        p:connection="CLOSE"/>
+        p:maxRetransmits="0"/>
     
     <!--====================================================================================================
     = CONDUITS
@@ -92,6 +98,8 @@
         <beans:property name="client">
             <!--suppress SpringPlaceholdersInspection -->
             <beans:bean parent="clientPolicyHttp"
+                p:asyncExecuteTimeout="${phiz.ws.client.exec.timeout}"
+                p:connection="${phiz.ws.client.conn.type}"
                 p:connectionTimeout="${phiz.ws.client.conn.timeout}"
                 p:receiveTimeout="${phiz.ws.client.receive.timeout}"/>
         </beans:property>

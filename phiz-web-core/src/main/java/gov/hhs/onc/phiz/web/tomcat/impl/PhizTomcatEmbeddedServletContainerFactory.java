@@ -81,8 +81,6 @@ public class PhizTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedSer
             SSLEngine engine = this.getSSLContext().createSSLEngine();
             engine.setUseClientMode(false);
 
-            this.getHandler().onCreateSSLEngine(engine);
-
             return engine;
         }
     }
@@ -217,8 +215,8 @@ public class PhizTomcatEmbeddedServletContainerFactory extends TomcatEmbeddedSer
 
     @Override
     public void setContextValves(Collection<? extends Valve> contextValves) {
-        super.setContextValves(((contextValves.size() > 1) ? contextValves.stream().sorted(AnnotationAwareOrderComparator.INSTANCE)
-            .collect(Collectors.toCollection(ArrayList<Valve>::new)) : contextValves));
+        super.setContextValves(((contextValves.size() > 1)
+            ? contextValves.stream().sorted(AnnotationAwareOrderComparator.INSTANCE).collect(Collectors.toCollection(ArrayList<Valve>::new)) : contextValves));
     }
 
     public LoginConfig getLoginConfig() {

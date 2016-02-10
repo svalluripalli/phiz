@@ -2,7 +2,7 @@ package gov.hhs.onc.phiz.web.tomcat.impl;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Timer;
-import com.ryantenney.metrics.annotation.Metric;
+import com.codahale.metrics.annotation.Metric;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletException;

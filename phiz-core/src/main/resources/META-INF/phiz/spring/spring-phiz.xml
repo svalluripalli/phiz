@@ -4,18 +4,12 @@
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
     xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:lang="http://www.springframework.org/schema/lang"
     xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xmlns:util="http://www.springframework.org/schema/util"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     
     <!--====================================================================================================
     = ASPECT ORIENTED PROGRAMMING
@@ -35,21 +29,15 @@
     <beans:bean id="methodInvoke" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean" abstract="true"/>
     
     <!--====================================================================================================
-    = CHARACTER SETS
-    =====================================================================================================-->
-    <beans:bean id="charset" class="java.nio.charset.Charset" abstract="true"/>
-    
-    <beans:bean id="charsetUtf8" parent="charset" factory-method="forName">
-        <beans:constructor-arg index="0" value="UTF-8"/>
-    </beans:bean>
-    
-    <!--====================================================================================================
     = TIME ZONES
     =====================================================================================================-->
     <beans:bean id="timeZone" class="java.util.TimeZone" abstract="true"/>
     
+    <beans:bean id="timeZoneDefault" parent="timeZone" factory-method="getDefault"/>
+    
     <beans:bean id="timeZoneUtc" parent="timeZone" factory-method="getTimeZone">
-        <beans:constructor-arg index="0" value="UTC"/>
+        <beans:constructor-arg index="0" type="java.lang.String" value="UTC"/>
+        <beans:constructor-arg index="1" type="boolean" value="false"/>
     </beans:bean>
     
     <!--====================================================================================================
@@ -70,7 +58,7 @@
     = PROPERTY SOURCES PLACEHOLDER CONFIGURERS
     =====================================================================================================-->
     <beans:bean id="propSourcesPlaceholderConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
-        p:fileEncoding="#{ charsetUtf8.name() }"
+        p:fileEncoding="#{ T(java.nio.charset.StandardCharsets).UTF_8.name() }"
         p:ignoreUnresolvablePlaceholders="true">
         <beans:property name="locations">
             <beans:bean class="gov.hhs.onc.phiz.utils.PhizResourceUtils$PhizResourceSet">
@@ -94,6 +82,27 @@
             </beans:set>
         </beans:property>
     </beans:bean>
+    
+    <!--====================================================================================================
+    = THREAD GROUPS
+    =====================================================================================================-->
+    <beans:bean id="threadGroup" class="java.lang.ThreadGroup">
+        <beans:constructor-arg index="0" type="java.lang.String" value="phiz"/>
+    </beans:bean>
+    
+    <!--====================================================================================================
+    = TASK EXECUTORS
+    =====================================================================================================-->
+    <beans:bean id="taskExec" class="org.springframework.core.task.TaskExecutor" abstract="true"/>
+    
+    <beans:bean id="taskExecThreadPool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="taskExec" abstract="true"
+        p:daemon="true"
+        p:queueCapacity="0"
+        p:threadGroup-ref="threadGroup"/>
+    
+    <beans:bean id="taskExecThreadPoolDynamic" parent="taskExecThreadPool" abstract="true"
+        p:allowCoreThreadTimeOut="true"
+        p:corePoolSize="0"/>
     
     <!--====================================================================================================
     = EVENT LISTENERS

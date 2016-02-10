@@ -74,7 +74,7 @@
         </dependency>
         <dependency>
             <groupId>com.google.code.findbugs</groupId>
-            <artifactId>annotations</artifactId>
+            <artifactId>jsr305</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.code.spring-crypto-utils</groupId>
@@ -106,6 +106,10 @@
         </dependency>
         <dependency>
             <groupId>io.dropwizard.metrics</groupId>
+            <artifactId>metrics-ehcache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-healthchecks</artifactId>
         </dependency>
         <dependency>
@@ -119,6 +123,10 @@
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.transaction</groupId>
+            <artifactId>jta</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.xml.bind</groupId>
@@ -209,6 +217,14 @@
             <artifactId>janino</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>
         </dependency>
@@ -285,12 +301,16 @@
             <artifactId>spring-tx</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-actuator</artifactId>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-loader</artifactId>
         </dependency>
         <!-- Test dependencies (inherited) -->
         <dependency>
@@ -301,11 +321,6 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-socks</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -334,11 +349,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -350,7 +360,7 @@
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
-                <version>3.0.4</version>
+                <version>3.1.5</version>
                 <dependencies>
                     <dependency>
                         <groupId>com.btmatthews.jaxb2_commons</groupId>
@@ -380,7 +390,7 @@
                     <dependency>
                         <groupId>org.apache.cxf.xjcplugins</groupId>
                         <artifactId>cxf-xjc-dv</artifactId>
-                        <version>3.0.3</version>
+                        <version>3.0.5</version>
                     </dependency>
                     <dependency>
                         <groupId>org.glassfish.jaxb</groupId>
@@ -400,12 +410,12 @@
                     <dependency>
                         <groupId>org.jvnet.jaxb2_commons</groupId>
                         <artifactId>jaxb2-basics</artifactId>
-                        <version>0.9.1</version>
+                        <version>0.11.0</version>
                     </dependency>
                     <dependency>
                         <groupId>org.jvnet.jaxb2_commons</groupId>
                         <artifactId>jaxb2-basics-annotate</artifactId>
-                        <version>1.0.1</version>
+                        <version>1.0.2</version>
                     </dependency>
                     <dependency>
                         <groupId>org.jvnet.jaxb2_commons</groupId>
@@ -420,8 +430,8 @@
                         </goals>
                         <configuration>
                             <additionalJvmArgs>
-                                -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 -XX:ParallelGCThreads=4 \
-                                -XX:ConcGCThreads=4 -Djavax.xml.accessExternalSchema=all -Dorg.apache.cxf.Logger=org.apache.cxf.common.logging.Slf4jLogger \
+                                -Xms128m -Xmx256m -XX:MetaspaceSize=64m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:MaxGCPauseMillis=50 \
+                                -Djavax.xml.accessExternalSchema=all -Dorg.apache.cxf.Logger=org.apache.cxf.common.logging.Slf4jLogger \
                                 -Dlogback.configurationFile="${project.build.cxfSourceDirectory}/logback-phiz-cxf-codegen.xml"
                             </additionalJvmArgs>
                             <defaultOptions>
@@ -581,11 +591,9 @@
                 <executions>
                     <execution>
                         <id>default-test</id>
-                        <configuration>
-                            <suiteXmlFiles combine.self="override">
-                                <suiteXmlFile>${project.build.testngDirectory}/testng-phiz.xml</suiteXmlFile>
-                            </suiteXmlFiles>
-                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>test-integration</id>
                     </execution>
                 </executions>
             </plugin>
@@ -626,15 +634,6 @@
                     <execution>
                         <id>process-test-components-it</id>
                         <phase>none</phase>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.kuali.maven.plugins</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>read-pom-properties</id>
                     </execution>
                 </executions>
             </plugin>

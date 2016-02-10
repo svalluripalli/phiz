@@ -185,6 +185,8 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
             }
 
             throw new HubClientFault("Unable to invoke IIS destination web service.", new HubClientFaultTypeImpl(destId, destUriStr), e);
+        } finally {
+            client.destroy();
         }
     }
 }

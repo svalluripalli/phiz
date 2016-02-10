@@ -1,20 +1,22 @@
 package gov.hhs.onc.phiz.logging.logstash.impl;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import java.nio.charset.Charset;
-import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.sebhoss.warnings.CompilerWarnings;
+import java.util.stream.Stream;
 import net.logstash.logback.composite.JsonProvider;
 import net.logstash.logback.composite.JsonProviders;
 import net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder;
 
 public class PhizLogstashEncoder extends LoggingEventCompositeJsonEncoder {
-    public void setEncodingCharset(Charset enc) {
-        this.setEncoding(enc.name());
+    public void setObjectMapper(ObjectMapper objMapper) {
+        this.getFormatter().getJsonFactory().setCodec(objMapper);
     }
 
-    public void setProviderItems(List<? extends JsonProvider<ILoggingEvent>> provs) {
+    @SuppressWarnings({ CompilerWarnings.UNCHECKED })
+    public void setProviderItems(JsonProvider<ILoggingEvent> ... provs) {
         JsonProviders<ILoggingEvent> provsContainer = this.getProviders();
 
-        provs.forEach(provsContainer::addProvider);
+        Stream.of(provs).forEach(provsContainer::addProvider);
     }
 }

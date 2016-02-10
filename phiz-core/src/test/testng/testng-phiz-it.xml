@@ -7,7 +7,7 @@
             </run>
         </groups>
         <packages>
-            <package name="gov.hhs.onc.phiz.*"/>
+            <package name="%{project.java.package}.*"/>
         </packages>
     </test>
 </suite>

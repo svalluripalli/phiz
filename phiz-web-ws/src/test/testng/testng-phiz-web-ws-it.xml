@@ -7,7 +7,7 @@
             </run>
         </groups>
         <packages>
-            <package name="gov.hhs.onc.phiz.web.ws.*"/>
+            <package name="%{project.java.package}.*"/>
         </packages>
         <classes>
             <class name="gov.hhs.onc.phiz.web.ws.impl.PhizWebWsSoapUiIntegrationTests$PhizWebWsSoapUiTestCaseIntegrationTestsFactory"/>

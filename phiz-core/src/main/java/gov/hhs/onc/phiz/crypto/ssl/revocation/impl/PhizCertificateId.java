@@ -20,7 +20,7 @@ public class PhizCertificateId extends CertificateID implements Comparable<PhizC
     }
 
     public PhizCertificateId(CertificateID certId) {
-        this(certId.toASN1Object());
+        this(certId.toASN1Primitive());
     }
 
     public PhizCertificateId(CertID certId) {

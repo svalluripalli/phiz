@@ -1,58 +1,39 @@
 package gov.hhs.onc.phiz.context.impl;
 
-import gov.hhs.onc.phiz.utils.PhizResourceUtils;
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.logging.LoggingApplicationListener;
-import org.springframework.context.ApplicationContextException;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.support.ResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternUtils;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.core.env.CompositePropertySource;
+import org.springframework.core.env.ConfigurableEnvironment;
 
-@Configuration("appConfiguration")
-public abstract class PhizApplication {
-    private final static String APP_SOURCE_RESOURCE_LOC_PATTERN = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + "META-INF/phiz/spring/spring-phiz*.xml";
+public class PhizApplication extends SpringApplication {
+    public final static String BEAN_NAME = "app";
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(PhizApplication.class);
+    private CompositePropertySource propSrc;
 
-    public static void main(String ... args) {
-        buildApplication().run(args);
+    public PhizApplication(Object ... srcs) {
+        super(srcs);
     }
 
-    public static SpringApplication buildApplication() {
-        ResourceLoader resourceLoader = new DefaultResourceLoader();
+    @Override
+    protected void postProcessApplicationContext(ConfigurableApplicationContext appContext) {
+        super.postProcessApplicationContext(appContext);
 
-        SpringApplication app =
-            new SpringApplicationBuilder(buildApplicationSources(resourceLoader)).addCommandLineProperties(false).showBanner(false).headless(true)
-                .resourceLoader(resourceLoader).application();
-        app.setListeners(app.getListeners().stream().filter((appListener -> !appListener.getClass().equals(LoggingApplicationListener.class)))
-            .collect(Collectors.toList()));
-
-        return app;
+        ((GenericApplicationContext) appContext).getBeanFactory().registerSingleton(BEAN_NAME, this);
     }
 
-    private static Object[] buildApplicationSources(ResourceLoader resourceLoader) {
-        try {
-            List<Object> appSources =
-                Stream.of(ResourcePatternUtils.getResourcePatternResolver(resourceLoader).getResources(APP_SOURCE_RESOURCE_LOC_PATTERN))
-                    .sorted(PhizResourceUtils.LOC_COMPARATOR).collect(Collectors.toList());
+    @Override
+    protected void configurePropertySources(ConfigurableEnvironment env, String[] args) {
+        super.configurePropertySources(env, args);
 
-            LOGGER.info(String.format("Resolved %d application source resource(s): %s", appSources.size(), StringUtils.join(appSources, "; ")));
+        env.getPropertySources().addLast(this.propSrc);
+    }
 
-            appSources.add(0, PhizApplication.class);
+    public CompositePropertySource getPropertySource() {
+        return this.propSrc;
+    }
 
-            return appSources.toArray();
-        } catch (IOException e) {
-            throw new ApplicationContextException(String.format("Unable to resolve application source resource(s): %s", APP_SOURCE_RESOURCE_LOC_PATTERN), e);
-        }
+    public void setPropertySource(CompositePropertySource propSrc) {
+        this.propSrc = propSrc;
     }
 }

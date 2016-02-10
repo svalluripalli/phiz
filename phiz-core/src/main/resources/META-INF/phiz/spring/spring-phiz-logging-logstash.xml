@@ -1,28 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans
-    xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
-    xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:lang="http://www.springframework.org/schema/lang"
     xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xmlns:util="http://www.springframework.org/schema/util"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
-    
-    <!--====================================================================================================
-    = JSON MODULES
-    =====================================================================================================-->
-    <beans:bean id="jsonModule" class="com.fasterxml.jackson.databind.Module" abstract="true"/>
-    
-    <beans:bean id="jsonModuleLogstash" class="gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashModule" parent="jsonModule" abstract="true"/>
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
     
     <!--====================================================================================================
     = JSON PROVIDERS
@@ -30,42 +13,44 @@
     <beans:bean id="jsonProv" class="net.logstash.logback.composite.JsonProvider" abstract="true"/>
     
     <!--====================================================================================================
-    = JSON FACTORY DECORATORS
+    = OBJECT MAPPERS
     =====================================================================================================-->
-    <beans:bean id="jsonFactoryDecorator" class="net.logstash.logback.decorate.JsonFactoryDecorator" abstract="true"/>
-    
-    <beans:bean id="jsonFactoryDecoratorLogstash" class="gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashJsonFactoryDecorator" parent="jsonFactoryDecorator"
-        abstract="true"/>
+    <beans:bean id="objMapperLogstash" parent="objMapperBase"
+        p:propertyNamingStrategy="SNAKE_CASE">
+        <beans:property name="features">
+            <beans:map merge="true">
+                <beans:entry key="#{ T(com.fasterxml.jackson.core.JsonGenerator.Feature).ESCAPE_NON_ASCII }" value="true"/>
+                <beans:entry key="#{ T(com.fasterxml.jackson.core.JsonGenerator.Feature).FLUSH_PASSED_TO_STREAM }" value="false"/>
+            </beans:map>
+        </beans:property>
+        <beans:property name="modules">
+            <beans:list>
+                <beans:bean class="com.codahale.metrics.json.HealthCheckModule" parent="module"/>
+                <beans:bean class="com.codahale.metrics.json.MetricsModule" parent="module"
+                    c:durationUnit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"
+                    c:rateUnit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"
+                    c:showSamples="true"/>
+                <beans:bean parent="moduleSimple"
+                    c:name="phiz-logging-metrics">
+                    <beans:constructor-arg name="serializers">
+                        <beans:list>
+                            <beans:ref bean="jsonSerializerMetricRegistry"/>
+                        </beans:list>
+                    </beans:constructor-arg>
+                </beans:bean>
+            </beans:list>
+        </beans:property>
+    </beans:bean>
     
     <!--====================================================================================================
     = ENCODERS
     =====================================================================================================-->
     <beans:bean id="encoderLogstash" class="gov.hhs.onc.phiz.logging.logstash.impl.PhizLogstashEncoder" parent="encoder" abstract="true"
-        p:encodingCharset-ref="charsetUtf8"
-        p:lineSeparator="#{ T(org.apache.commons.lang3.StringUtils).LF }">
-        <beans:property name="jsonFactoryDecorator">
-            <beans:bean parent="jsonFactoryDecoratorLogstash">
-                <beans:property name="modules">
-                    <beans:array>
-                        <beans:bean class="com.codahale.metrics.json.HealthCheckModule" parent="jsonModule"/>
-                        <beans:bean class="com.codahale.metrics.json.MetricsModule" parent="jsonModule"
-                            c:durationUnit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"
-                            c:rateUnit="#{ T(java.util.concurrent.TimeUnit).MILLISECONDS }"
-                            c:showSamples="true"/>
-                        <beans:bean parent="jsonModuleLogstash"
-                            p:moduleName="phiz-logstash">
-                            <beans:property name="serializers">
-                                <beans:list>
-                                    <beans:ref bean="jsonSerializerMetricRegistry"/>
-                                </beans:list>
-                            </beans:property>
-                        </beans:bean>
-                    </beans:array>
-                </beans:property>
-            </beans:bean>
-        </beans:property>
+        p:encoding="#{ T(java.nio.charset.StandardCharsets).UTF_8.name() }"
+        p:lineSeparator="#{ T(org.apache.commons.lang3.StringUtils).LF }"
+        p:objectMapper-ref="objMapperLogstash">
         <beans:property name="providerItems">
-            <beans:list>
+            <beans:array>
                 <beans:bean class="net.logstash.logback.composite.LogstashVersionJsonProvider" parent="jsonProv"/>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.CallerDataJsonProvider" parent="jsonProv"/>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.LoggerNameJsonProvider" parent="jsonProv"/>
@@ -86,20 +71,20 @@
                     p:throwableConverter-ref="throwableProxyConvRootCause"/>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.TagsJsonProvider" parent="jsonProv"/>
                 <beans:bean class="net.logstash.logback.composite.loggingevent.ThreadNameJsonProvider" parent="jsonProv"/>
-            </beans:list>
+            </beans:array>
         </beans:property>
     </beans:bean>
     
     <!--====================================================================================================
     = PROFILE: LOGSTASH FILE LOGGING
     =====================================================================================================-->
-    <beans:beans profile="phiz.profile.logging.file.logstash">
+    <beans:beans profile="phiz.profile.logging.logstash.file">
         <!--====================================================================================================
         = APPENDERS
         =====================================================================================================-->
         <!--suppress SpringPlaceholdersInspection -->
         <beans:bean id="appenderFileLogstash" parent="appenderFile" destroy-method="stop" init-method="start"
-            p:file="${phiz.logging.logstash.file.dir}/${phiz.logging.logstash.file.name}${phiz.logging.logstash.file.name.ext}"
+            p:file="${phiz.logging.logstash.file.dir}/${phiz.logging.logstash.file.name}.json"
             p:name="fileLogstash">
             <beans:property name="encoder">
                 <beans:bean parent="encoderLogstash" destroy-method="stop" init-method="start"/>

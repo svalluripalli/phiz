@@ -1,19 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans
-    xmlns:aop="http://www.springframework.org/schema/aop"
     xmlns:beans="http://www.springframework.org/schema/beans"
     xmlns:c="http://www.springframework.org/schema/c"
-    xmlns:context="http://www.springframework.org/schema/context"
     xmlns:p="http://www.springframework.org/schema/p"
-    xmlns:task="http://www.springframework.org/schema/task"
-    xmlns:util="http://www.springframework.org/schema/util"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="
-        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
-        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
-        http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd
-        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <!--====================================================================================================
+    = TASK EXECUTORS
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="taskExecTimeoutServer" parent="taskExecThreadPool"
+        p:corePoolSize="${phiz.server.timeout.task.exec.pool.size.core}"
+        p:maxPoolSize="${phiz.server.timeout.task.exec.pool.size.max}"
+        p:threadNamePrefix="#{ threadGroup.name }-http-service-server-"/>
+    
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="taskExecTimeoutServerReq" parent="taskExecThreadPoolDynamic"
+        p:keepAliveSeconds="${phiz.server.timeout.req.task.exec.keep.alive}"
+        p:maxPoolSize="${phiz.server.timeout.req.task.exec.pool.size.max}"
+        p:threadNamePrefix="#{ threadGroup.name }-timeout-server-req-"/>
     
     <!--====================================================================================================
     = CREDENTIALS
@@ -107,5 +114,7 @@
     <beans:bean id="timeoutServerImpl" class="gov.hhs.onc.phiz.test.ws.impl.PhizTimeoutServerImpl" parent="timeoutServer"
         p:host="${phiz.server.timeout.host.name}"
         p:port="${phiz.server.timeout.port.https}"
-        p:sslEngine="#{ sslContextTimeoutServer.createSSLEngine() }"/>
+        p:requestTaskExecutor-ref="taskExecTimeoutServerReq"
+        p:sslEngine="#{ sslContextTimeoutServer.createSSLEngine() }"
+        p:taskExecutor-ref="taskExecTimeoutServer"/>
 </beans:beans>

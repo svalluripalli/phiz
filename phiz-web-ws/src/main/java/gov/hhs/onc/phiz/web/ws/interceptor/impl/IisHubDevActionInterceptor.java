@@ -51,42 +51,43 @@ public class IisHubDevActionInterceptor extends AbstractPhizSoapInterceptor {
             return;
         }
 
-        Optional.ofNullable(Headers.getSetProtocolHeaders(msg).get(PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_NAME)).ifPresent(
-            (devActionValues) -> {
-                String devActionValue = devActionValues.get(0), devActionFaultMsg = String.format("Fault for IIS Hub development action: %s", devActionValue);
-                Exception devActionValueFaultCause = null;
+        Optional.ofNullable(Headers.getSetProtocolHeaders(msg).get(PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_NAME)).ifPresent((devActionValues) -> {
+            String devActionValue = devActionValues.get(0), devActionFaultMsg = String.format("Fault for IIS Hub development action: %s", devActionValue);
+            Exception devActionValueFaultCause = null;
 
-                switch (devActionValue) {
-                    case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_DEST_CONN_FAULT_VALUE:
-                        devActionValueFaultCause =
-                            new DestinationConnectionFault(devActionFaultMsg, new DestinationConnectionFaultTypeImpl(destId, this.iisDevDestUriStr));
-                        break;
+            switch (devActionValue) {
+                case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_DEST_CONN_FAULT_VALUE:
+                    devActionValueFaultCause =
+                        new DestinationConnectionFault(devActionFaultMsg, new DestinationConnectionFaultTypeImpl(destId, this.iisDevDestUriStr));
+                    break;
 
-                    case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_HUB_CLIENT_FAULT_VALUE:
-                        devActionValueFaultCause = new HubClientFault(devActionFaultMsg, new HubClientFaultTypeImpl(destId, this.iisDevDestUriStr));
-                        break;
+                case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_HUB_CLIENT_FAULT_VALUE:
+                    devActionValueFaultCause = new HubClientFault(devActionFaultMsg, new HubClientFaultTypeImpl(destId, this.iisDevDestUriStr));
+                    break;
 
-                    case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_MSG_TOO_LARGE_FAULT_VALUE:
-                        // noinspection ConstantConditions
-                        devActionValueFaultCause =
-                            new MessageTooLargeFault(devActionFaultMsg, new MessageTooLargeFaultTypeImpl(BigInteger.valueOf(PhizWsUtils.getProperty(msg,
-                                AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class).getContentLengthLong()), BigInteger.valueOf(0)));
-                        break;
+                case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_MSG_TOO_LARGE_FAULT_VALUE:
+                    // noinspection ConstantConditions
+                    devActionValueFaultCause = new MessageTooLargeFault(devActionFaultMsg,
+                        new MessageTooLargeFaultTypeImpl(
+                            BigInteger
+                                .valueOf(PhizWsUtils.getProperty(msg, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class).getContentLengthLong()),
+                            BigInteger.valueOf(0)));
+                    break;
 
-                    case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_SEC_FAULT_VALUE:
-                        devActionValueFaultCause = new SecurityFault(devActionFaultMsg, new SecurityFaultTypeImpl());
-                        break;
+                case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_SEC_FAULT_VALUE:
+                    devActionValueFaultCause = new SecurityFault(devActionFaultMsg, new SecurityFaultTypeImpl());
+                    break;
 
-                    case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_UNKNOWN_DEST_FAULT_VALUE:
-                        devActionValueFaultCause = new UnknownDestinationFault(devActionFaultMsg, new UnknownDestinationFaultTypeImpl(destId));
-                        break;
-                }
+                case PhizWsHttpHeaders.EXT_IIS_HUB_DEV_ACTION_UNKNOWN_DEST_FAULT_VALUE:
+                    devActionValueFaultCause = new UnknownDestinationFault(devActionFaultMsg, new UnknownDestinationFaultTypeImpl(destId));
+                    break;
+            }
 
-                if (devActionValueFaultCause != null) {
-                    msg.setContextualProperty(FaultListener.class.getName(), NO_OP_FAULT_LISTENER_INSTANCE);
+            if (devActionValueFaultCause != null) {
+                msg.put(FaultListener.class.getName(), NO_OP_FAULT_LISTENER_INSTANCE);
 
-                    throw SoapFault.createFault(new Fault(devActionValueFaultCause), msg.getVersion());
-                }
-            });
+                throw SoapFault.createFault(new Fault(devActionValueFaultCause), msg.getVersion());
+            }
+        });
     }
 }

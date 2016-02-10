@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="%{project.name} Tests Suite" verbose="1">
-    <test name="%{project.name} Tests">
+<suite name="%{project.name} Unit Tests Suite" verbose="1">
+    <test name="%{project.name} Unit Tests">
         <groups>
             <run>
                 <include name="phiz\.test\.all"/>
@@ -8,7 +8,7 @@
             </run>
         </groups>
         <packages>
-            <package name="gov.hhs.onc.phiz.*"/>
+            <package name="%{project.java.package}.*"/>
         </packages>
     </test>
 </suite>

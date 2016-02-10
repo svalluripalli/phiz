@@ -30,9 +30,9 @@
             </releases>
         </repository>
         <repository>
-            <id>eviware</id>
-            <name>SoapUI Repository</name>
-            <url>http://www.eviware.com/repository/maven2/</url>
+            <id>smartbearsoftware</id>
+            <name>SmartBear Software Repository</name>
+            <url>http://smartbearsoftware.com/repository/maven2</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -42,32 +42,6 @@
             </releases>
         </repository>
     </repositories>
-    
-    <pluginRepositories>
-        <pluginRepository>
-            <id>central</id>
-            <name>Maven Plugin Repository</name>
-            <url>https://repo1.maven.org/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </pluginRepository>
-        <pluginRepository>
-            <id>eviware</id>
-            <name>SoapUI Plugin Repository</name>
-            <url>http://www.soapui.org/repository/maven2</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <checksumPolicy>ignore</checksumPolicy>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </pluginRepository>
-    </pluginRepositories>
     
     <properties>
         <!-- Project properties -->
@@ -79,22 +53,13 @@
         <project.build.itSoapUiDirectory>${project.build.itDirectory}/soapui</project.build.itSoapUiDirectory>
         <!-- Project build test Debian properties -->
         <project.build.testDebShareWebappDataDirectory>${project.build.testDebDataDirectory}/${project.build.debShareWebappDataDirectoryPath}</project.build.testDebShareWebappDataDirectory>
+        <!-- Project Java properties -->
+        <project.java.package>${project.groupId}.web</project.java.package>
     </properties>
     
     <dependencyManagement>
         <dependencies>
             <!-- Compile dependencies -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-access</artifactId>
-                <version>1.1.2</version>
-            </dependency>
-            <dependency>
-                <groupId>com.google.inject</groupId>
-                <artifactId>guice</artifactId>
-                <version>3.0</version>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
@@ -106,32 +71,19 @@
                 <version>3.3</version>
             </dependency>
             <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlet</artifactId>
-                <version>3.1.1</version>
-            </dependency>
-            <dependency>
-                <groupId>io.dropwizard.metrics</groupId>
-                <artifactId>metrics-servlets</artifactId>
-                <version>3.1.1</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.el</groupId>
                 <artifactId>javax.el-api</artifactId>
                 <version>3.0.0</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>3.1.0</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>javax.servlet.jsp</groupId>
                 <artifactId>javax.servlet.jsp-api</artifactId>
                 <version>2.3.1</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>javax.servlet.jsp.jstl</groupId>
@@ -141,26 +93,17 @@
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
-                <version>8.0.21</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.tomcat.embed</groupId>
-                <artifactId>tomcat-embed-el</artifactId>
-                <version>8.0.21</version>
-                <scope>provided</scope>
+                <version>8.0.30</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-logging-log4j</artifactId>
-                <version>8.0.21</version>
-                <scope>provided</scope>
+                <version>8.0.30</version>
             </dependency>
             <dependency>
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.el</artifactId>
                 <version>3.0.0</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.glassfish.web</groupId>
@@ -178,33 +121,9 @@
                 </exclusions>
             </dependency>
             <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-tomcat</artifactId>
-                <version>1.2.3.RELEASE</version>
-                <scope>provided</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-core</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-el</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-logging-juli</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>org.apache.tomcat.embed</groupId>
-                        <artifactId>tomcat-embed-websocket</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-bom</artifactId>
-                <version>4.0.1.RELEASE</version>
+                <version>4.0.3.RELEASE</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -212,7 +131,7 @@
             <dependency>
                 <groupId>com.smartbear.soapui</groupId>
                 <artifactId>soapui</artifactId>
-                <version>5.1.2</version>
+                <version>5.2.1</version>
                 <scope>test</scope>
                 <exclusions>
                     <exclusion>
@@ -276,18 +195,6 @@
                         <artifactId>xmlParserAPIs</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>com.smartbear.soapui</groupId>
-                <artifactId>soapui-pro</artifactId>
-                <version>5.1.2</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.reflections</groupId>
-                <artifactId>reflections</artifactId>
-                <version>0.9.9</version>
-                <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -404,8 +311,8 @@
                                             <extraArguments>
                                                 <extraArgument>-Xss4m</extraArgument>
                                                 <extraArgument>-XX:MetaspaceSize=512m</extraArgument>
-                                                <extraArgument>-javaagent:%REPO_DIR%/aspectjweaver-1.8.5.jar</extraArgument>
-                                                <extraArgument>-javaagent:%REPO_DIR%/spring-instrument-4.1.6.RELEASE.jar</extraArgument>
+                                                <extraArgument>-javaagent:%REPO_DIR%/aspectjweaver-1.8.8.jar</extraArgument>
+                                                <extraArgument>-javaagent:%REPO_DIR%/spring-instrument-4.2.4.RELEASE.jar</extraArgument>
                                             </extraArguments>
                                             <initialMemorySize>1024M</initialMemorySize>
                                             <maxMemorySize>2048M</maxMemorySize>
@@ -435,22 +342,6 @@
                                         <type>jar</type>
                                     </artifact>
                                 </artifacts>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <plugin>
-                    <groupId>org.kuali.maven.plugins</groupId>
-                    <artifactId>properties-maven-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>read-pom-properties</id>
-                            <configuration>
-                                <locations combine.self="override">
-                                    <location>${project.basedir.all}/phiz-parent/pom.properties</location>
-                                    <location>${project.basedir.parent}/pom.properties</location>
-                                    <location>${project.basedir}/pom.properties</location>
-                                </locations>
                             </configuration>
                         </execution>
                     </executions>
@@ -488,17 +379,6 @@
                 <executions>
                     <execution>
                         <id>enforce-java-version</id>
-                        <inherited>false</inherited>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.kuali.maven.plugins</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <inherited>false</inherited>
-                <executions>
-                    <execution>
-                        <id>read-pom-properties</id>
                         <inherited>false</inherited>
                     </execution>
                 </executions>

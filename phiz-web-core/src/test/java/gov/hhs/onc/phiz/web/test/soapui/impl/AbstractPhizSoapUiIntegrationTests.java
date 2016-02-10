@@ -1,7 +1,7 @@
 package gov.hhs.onc.phiz.web.test.soapui.impl;
 
-import com.eviware.soapui.impl.wsdl.WsdlProjectPro;
-import com.eviware.soapui.impl.wsdl.WsdlTestCasePro;
+import com.eviware.soapui.impl.wsdl.WsdlProject;
+import com.eviware.soapui.impl.wsdl.testcase.WsdlTestCase;
 import com.eviware.soapui.impl.wsdl.testcase.WsdlTestRunContext;
 import gov.hhs.onc.phiz.utils.PhizStringUtils;
 import gov.hhs.onc.phiz.web.test.impl.AbstractPhizWebIntegrationTests;
@@ -61,16 +61,15 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
 
         @Factory
         public Object[] getTestCaseTests(ITestContext testContext) throws Exception {
-            String[] testCaseTestsTestGroups =
-                Stream
-                    .concat(Stream.of(AnnotationUtils.getAnnotations(this.testCaseTestsClass)),
-                        Stream.of(AnnotationUtils.getAnnotations(this.testCaseTestsTestMethod))).filter(anno -> (anno instanceof Test))
-                    .flatMap(anno -> Stream.of(((Test) anno).groups())).distinct().toArray(String[]::new);
+            String[] testCaseTestsTestGroups = Stream
+                .concat(Stream.of(AnnotationUtils.getAnnotations(this.testCaseTestsClass)),
+                    Stream.of(AnnotationUtils.getAnnotations(this.testCaseTestsTestMethod)))
+                .filter(anno -> (anno instanceof Test)).flatMap(anno -> Stream.of(((Test) anno).groups())).distinct().toArray(String[]::new);
 
-            if (Stream.of(testCaseTestsTestGroups).noneMatch(
-                testCaseTestsTestGroup -> Stream.of(testContext.getIncludedGroups()).anyMatch(testCaseTestsTestGroup::matches))
-                || Stream.of(testCaseTestsTestGroups).anyMatch(
-                    testCaseTestsTestGroup -> Stream.of(testContext.getExcludedGroups()).anyMatch(testCaseTestsTestGroup::matches))) {
+            if (Stream.of(testCaseTestsTestGroups)
+                .noneMatch(testCaseTestsTestGroup -> Stream.of(testContext.getIncludedGroups()).anyMatch(testCaseTestsTestGroup::matches))
+                || Stream.of(testCaseTestsTestGroups)
+                    .anyMatch(testCaseTestsTestGroup -> Stream.of(testContext.getExcludedGroups()).anyMatch(testCaseTestsTestGroup::matches))) {
                 return ArrayUtils.EMPTY_OBJECT_ARRAY;
             }
 
@@ -80,17 +79,13 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
                 }
             }.getTestContextExternal().getApplicationContext().getBean(PhizSoapUiTestCaseRunner.class);
 
-            WsdlProjectPro project = new WsdlProjectPro(testCaseRunner.getProjectFile());
+            WsdlProject project = new WsdlProject(testCaseRunner.getProjectFile());
             testCaseRunner.initProject(project);
 
-            List<WsdlTestCasePro> testCases =
-                project
-                    .getTestSuiteList()
-                    .stream()
-                    .filter(testSuite -> !testSuite.isDisabled())
-                    .flatMap(
-                        testSuite -> testSuite.getTestCaseList().stream().filter(testCase -> !testCase.isDisabled())
-                            .map(testCase -> ((WsdlTestCasePro) testCase))).collect(Collectors.toList());
+            List<WsdlTestCase> testCases = project.getTestSuiteList().stream().filter(testSuite -> !testSuite.isDisabled())
+                .flatMap(
+                    testSuite -> testSuite.getTestCaseList().stream().filter(testCase -> !testCase.isDisabled()).map(testCase -> ((WsdlTestCase) testCase)))
+                .collect(Collectors.toList());
 
             CountDownLatch projectRunLatch = new CountDownLatch(testCases.size());
             testCaseRunner.setProjectRunLatch(projectRunLatch);
@@ -106,7 +101,7 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
             projectRunThread.start();
 
             T[] testCaseTestsInstances = this.testCaseTestsArrayBuilder.apply(testCases.size());
-            WsdlTestCasePro testCase;
+            WsdlTestCase testCase;
             String[] testCaseExceptionClassNames;
 
             for (int a = 0; a < testCaseTestsInstances.length; a++) {
@@ -117,8 +112,8 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
                 testCaseTestsInstances[a].testCase = (testCase = testCases.get(a));
                 testCaseTestsInstances[a].testCaseOrder = a;
 
-                if (!ArrayUtils.isEmpty((testCaseExceptionClassNames =
-                    PhizStringUtils.tokenize(testCase.getPropertyValue(PhizSoapUiProperties.EXCEPTION_CLASSES_NAME))))) {
+                if (!ArrayUtils.isEmpty(
+                    (testCaseExceptionClassNames = PhizStringUtils.tokenize(testCase.getPropertyValue(PhizSoapUiProperties.EXCEPTION_CLASSES_NAME))))) {
                     testCaseTestsInstances[a].testCaseExceptionClasses = new Class<?>[testCaseExceptionClassNames.length];
 
                     for (int b = 0; b < testCaseExceptionClassNames.length; b++) {
@@ -139,7 +134,7 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
     protected PhizSoapUiTestCaseRunner testCaseRunner;
     protected FutureTask<Void> projectRunTask;
     protected CountDownLatch projectRunLatch;
-    protected WsdlTestCasePro testCase;
+    protected WsdlTestCase testCase;
     protected Class<?>[] testCaseExceptionClasses;
     protected WsdlTestRunContext testCaseRunContext;
     protected int testCaseOrder;
@@ -155,9 +150,9 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
                     this.testCase.getName(), StringUtils.join(this.testCaseExceptionClasses, ", ")));
             }
         } catch (Exception e) {
-            throw ((testCaseExceptionExpected && Stream.of(this.testCaseExceptionClasses).anyMatch(
-                testCaseExceptionClass -> testCaseExceptionClass.isAssignableFrom(e.getClass()))) ? new SkipException(String.format(
-                "Skipping SoapUI test case (name=%s) exception.", this.testCase.getName()), e) : e);
+            throw ((testCaseExceptionExpected
+                && Stream.of(this.testCaseExceptionClasses).anyMatch(testCaseExceptionClass -> testCaseExceptionClass.isAssignableFrom(e.getClass())))
+                    ? new SkipException(String.format("Skipping SoapUI test case (name=%s) exception.", this.testCase.getName()), e) : e);
         } finally {
             this.projectRunLatch.countDown();
 
@@ -176,7 +171,7 @@ public abstract class AbstractPhizSoapUiIntegrationTests extends AbstractPhizWeb
     }
 
     @Override
-    public WsdlTestCasePro getTestCase() {
+    public WsdlTestCase getTestCase() {
         return this.testCase;
     }
 
