@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Criterion;
@@ -44,6 +45,13 @@ public abstract class AbstractPhizDao<T extends Serializable, U extends PhizEnti
         }
 
         return ((List<U>) criteria.list());
+    }
+
+    @Override
+    public List<U> findByQuery(String hql) {
+        Query query = this.getSession().createQuery(hql);
+
+        return query.list();
     }
 
     @Nullable

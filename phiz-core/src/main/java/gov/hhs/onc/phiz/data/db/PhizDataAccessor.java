@@ -12,6 +12,8 @@ public interface PhizDataAccessor<T extends Serializable, U extends PhizEntity<T
 
     public List<U> findByCriteria(Criterion ... criterions);
 
+    public List<U> findByQuery(String hql);
+
     @Nullable
     public U findById(T id);
 }

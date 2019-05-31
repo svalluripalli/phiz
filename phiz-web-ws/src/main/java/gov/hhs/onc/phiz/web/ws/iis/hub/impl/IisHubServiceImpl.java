@@ -1,5 +1,6 @@
 package gov.hhs.onc.phiz.web.ws.iis.hub.impl;
 
+import gov.hhs.onc.phiz.destination.PhizAccessControlRegistry;
 import gov.hhs.onc.phiz.destination.PhizDestination;
 import gov.hhs.onc.phiz.destination.PhizDestinationRegistry;
 import gov.hhs.onc.phiz.net.PhizSchemes;
@@ -8,6 +9,7 @@ import gov.hhs.onc.phiz.web.ws.PhizWsHttpHeaders;
 import gov.hhs.onc.phiz.web.ws.feature.impl.PhizLoggingFeature;
 import gov.hhs.onc.phiz.web.ws.iis.hub.IisHubService;
 import gov.hhs.onc.phiz.web.ws.iis.impl.AbstractIisService;
+import gov.hhs.onc.phiz.web.ws.utils.AES;
 import gov.hhs.onc.phiz.web.ws.utils.PhizWsUtils;
 import gov.hhs.onc.phiz.ws.PhizWsAddressingActions;
 import gov.hhs.onc.phiz.ws.PhizWsNames;
@@ -36,6 +38,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.jws.WebService;
@@ -58,6 +61,7 @@ import org.apache.cxf.ws.addressing.ContextUtils;
 import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
 @SuppressWarnings({ "ValidExternallyBoundObject" })
 @WebService(portName = PhizWsNames.PORT_HUB, serviceName = PhizWsNames.SERVICE_HUB, targetNamespace = PhizXmlNs.IIS_HUB)
@@ -68,11 +72,17 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
     @Autowired
     private PhizDestinationRegistry destReg;
 
+    @Autowired
+    private PhizAccessControlRegistry accessControlReg;
+
     private String clientBeanName;
 
     public IisHubServiceImpl(String clientBeanName) {
         this.clientBeanName = clientBeanName;
     }
+
+    @Value("phiz.ws.client.password.secret")
+    private String secret;
 
     @Override
     public void submitSingleMessage(SubmitSingleMessageRequestType reqParams, HubRequestHeaderType hubReqHeader,
@@ -137,6 +147,13 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
     private Pair<SubmitSingleMessageResponseType, HubResponseHeaderType> submitSingleMessageInternal(SubmitSingleMessageRequestType reqParams,
         HubRequestHeaderType hubReqHeader) throws DestinationConnectionFault, HubClientFault, MessageTooLargeFault, SecurityFault, UnknownDestinationFault {
         String destId = hubReqHeader.getDestinationId();
+        String sourceId = reqParams.getFacilityID().getValue();
+
+        Boolean checkedDest = accessControlReg.checkDest(sourceId, destId);
+        if (!checkedDest) {
+            throw new UnknownDestinationFault("IIS destination ID is not allowed to connect.", new UnknownDestinationFaultTypeImpl(destId));
+        }
+
         PhizDestination dest = this.destReg.findById(destId);
 
         if (dest == null) {
@@ -145,7 +162,20 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
 
         WrappedMessageContext reqMsgContext = PhizWsUtils.getMessageContext(this.wsContext);
         SoapMessage reqMsg = ((SoapMessage) reqMsgContext.getWrappedMessage());
+
+
+
+        gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory factory = new gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory();
+
         URI destUri = dest.getUri();
+
+        Optional<String> optionalUsername = Optional.of(dest.getUsername());
+        optionalUsername.ifPresent(c -> {
+            reqParams.setUsername(factory.createSubmitSingleMessageRequestTypeUsername(c));
+            String password = AES.decrypt(dest.getPassword(), secret);
+            reqParams.setPassword(factory.createSubmitSingleMessageRequestTypePassword(password));
+        });
+
         String destUriStr =
             processDestinationUri(PhizWsUtils.getProperty(reqMsgContext, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class), destId, destUri);
         Client client = ((Client) this.beanFactory.getBean(this.clientBeanName, destUriStr));

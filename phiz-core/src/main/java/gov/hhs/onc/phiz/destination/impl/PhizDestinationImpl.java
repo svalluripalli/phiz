@@ -17,6 +17,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "destinations")
 public class PhizDestinationImpl extends AbstractPhizEntity<String> implements PhizDestination {
     private URI uri;
+    private String username;
+    private String password;
 
     public PhizDestinationImpl() {
     }
@@ -42,5 +44,27 @@ public class PhizDestinationImpl extends AbstractPhizEntity<String> implements P
     @Override
     public void setUri(URI uri) {
         this.uri = uri;
+    }
+
+    @Column(name = "username", nullable = true)
+    @Override
+    public String getUsername() {
+        return this.username;
+    }
+
+    @Override
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    @Column(name = "password", nullable = true)
+    @Override
+    public String getPassword() {
+        return this.password;
+    }
+
+    @Override
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

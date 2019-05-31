@@ -36,6 +36,9 @@ public abstract class AbstractPhizDataService<T extends Serializable, U extends 
         return this.dao.findByCriteria(criterions);
     }
 
+    @Override
+    public List<U> findByQuery(String hql) { return this.dao.findByQuery(hql); }
+
     @Nullable
     public U findById(T id) {
         return this.dao.findById(id);
