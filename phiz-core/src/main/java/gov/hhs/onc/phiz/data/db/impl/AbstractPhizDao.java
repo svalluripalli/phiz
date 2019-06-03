@@ -48,6 +48,7 @@ public abstract class AbstractPhizDao<T extends Serializable, U extends PhizEnti
     }
 
     @Override
+    @SuppressWarnings({ CompilerWarnings.UNCHECKED })
     public List<U> findByQuery(String hql) {
         Query query = this.getSession().createQuery(hql);
 
