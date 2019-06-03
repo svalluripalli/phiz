@@ -7,9 +7,19 @@
     = CACHE: DESTINATIONS
     =====================================================================================================-->
     <cache
-        name="gov.hhs.onc.phiz.destination.impl.PhizDestinationImpl"
-        logging="true"
-        maxElementsInMemory="100"
-        statistics="true"
-        timeToLiveSeconds="300"/>
+            name="gov.hhs.onc.phiz.destination.impl.PhizDestinationImpl"
+            logging="true"
+            maxElementsInMemory="100"
+            statistics="true"
+            timeToLiveSeconds="300"/>
+
+    <!--====================================================================================================
+    = CACHE: ACCESS_CONTROL
+    =====================================================================================================-->
+    <cache
+            name="gov.hhs.onc.phiz.destination.impl.PhizAccessControlImpl"
+            logging="true"
+            maxElementsInMemory="100"
+            statistics="true"
+            timeToLiveSeconds="300"/>
 </ehcache>
