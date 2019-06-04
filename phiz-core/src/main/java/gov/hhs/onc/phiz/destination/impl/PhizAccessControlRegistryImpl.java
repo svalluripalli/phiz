@@ -13,7 +13,7 @@ import java.util.List;
 public class PhizAccessControlRegistryImpl extends AbstractPhizDataService<Integer, PhizAccessControl, PhizAccessControlDao> implements PhizAccessControlRegistry {
 
     @Value("phiz.ws.iis.hub.dest.check")
-    private boolean enableDestCheck;
+    private String enableDestCheck;
 
     @Autowired
     public PhizAccessControlRegistryImpl(PhizAccessControlDao dao) {
@@ -22,7 +22,7 @@ public class PhizAccessControlRegistryImpl extends AbstractPhizDataService<Integ
 
     @Override
     public Boolean checkDest(String sourceId, String destId) {
-        if(enableDestCheck) {
+        if(enableDestCheck.equalsIgnoreCase("enable")) {
             List<PhizAccessControl> list = dao.findByQuery("FROM accessControl where accessControl.sourceId = '" + sourceId + "'"
                     + " and accessControl.destId = '" + destId + "'");
 
