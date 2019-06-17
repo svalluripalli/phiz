@@ -63,9 +63,11 @@ public final class PhizWsNames {
     public final static String BINDING_HUB = IIS_HUB_PREFIX + BINDING_SUFFIX;
 
     public final static String SERVICE = IIS_PREFIX + SERVICE_SUFFIX;
+    public final static String SERVICE_2011 = "client_Service";
     public final static String SERVICE_HUB = IIS_HUB_PREFIX + SERVICE_SUFFIX;
 
     public final static String PORT = IIS_PREFIX + PORT_SUFFIX;
+    public final static String PORT_2011 = "client_Port_Soap12";
     public final static String PORT_HUB = IIS_HUB_PREFIX + PORT_SUFFIX;
 
     private PhizWsNames() {

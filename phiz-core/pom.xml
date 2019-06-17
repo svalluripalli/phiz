@@ -437,7 +437,6 @@
                             <defaultOptions>
                                 <bindingFiles>
                                     <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb.xjb</bindingFile>
-                                    <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb-cdc-iis.xjb</bindingFile>
                                 </bindingFiles>
                                 <extraargs>
                                     <extraarg>-exceptionSuper</extraarg>
@@ -462,6 +461,7 @@
                             <wsdlOptions>
                                 <wsdlOption>
                                     <bindingFiles>
+                                        <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb-cdc-iis.xjb</bindingFile>
                                         <bindingFile>${project.build.jaxwsSourceDirectory}/jaxws-cdc-iis.xjb</bindingFile>
                                     </bindingFiles>
                                     <extraargs>
@@ -470,8 +470,10 @@
                                     </extraargs>
                                     <wsdl>${project.build.wsdlSourceDirectory}/cdc-iis.wsdl</wsdl>
                                 </wsdlOption>
+
                                 <wsdlOption>
                                     <bindingFiles>
+                                        <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb-cdc-iis.xjb</bindingFile>
                                         <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb-cdc-iis-hub.xjb</bindingFile>
                                         <bindingFile>${project.build.jaxwsSourceDirectory}/jaxws-cdc-iis-hub.xjb</bindingFile>
                                     </bindingFiles>
@@ -480,6 +482,18 @@
                                         <extraarg>META-INF/phiz/wsdl/cdc-iis-hub.wsdl</extraarg>
                                     </extraargs>
                                     <wsdl>${project.build.wsdlSourceDirectory}/cdc-iis-hub.wsdl</wsdl>
+                                </wsdlOption>
+
+                                <wsdlOption>
+                                    <bindingFiles>
+                                        <bindingFile>${project.build.jaxwsSourceDirectory}/jaxb-cdc-iis-2011.xjb</bindingFile>
+                                        <bindingFile>${project.build.jaxwsSourceDirectory}/jaxws-cdc-iis-2011.xjb</bindingFile>
+                                    </bindingFiles>
+                                    <extraargs>
+                                        <extraarg>-wsdlLocation</extraarg>
+                                        <extraarg>META-INF/phiz/wsdl/cdc-iis-2011.wsdl</extraarg>
+                                    </extraargs>
+                                    <wsdl>${project.build.wsdlSourceDirectory}/cdc-iis-2011.wsdl</wsdl>
                                 </wsdlOption>
                             </wsdlOptions>
                         </configuration>

@@ -60,9 +60,11 @@ public final class PhizWsQnames {
     public final static QName BINDING_HUB = new QName(PhizXmlNs.IIS_HUB, PhizWsNames.BINDING_HUB, PhizXmlNs.IIS_HUB_PREFIX);
 
     public final static QName SERVICE = new QName(PhizXmlNs.IIS, PhizWsNames.SERVICE, PhizXmlNs.IIS_PREFIX);
+    public final static QName SERVICE_2011 = new QName(PhizXmlNs.IIS_2011, PhizWsNames.SERVICE_2011, PhizXmlNs.IIS_2011_PREFIX);
     public final static QName SERVICE_HUB = new QName(PhizXmlNs.IIS_HUB, PhizWsNames.SERVICE_HUB, PhizXmlNs.IIS_HUB_PREFIX);
 
     public final static QName PORT = new QName(PhizXmlNs.IIS, PhizWsNames.PORT, PhizXmlNs.IIS_PREFIX);
+    public final static QName PORT_2011 = new QName(PhizXmlNs.IIS_2011, PhizWsNames.PORT_2011, PhizXmlNs.IIS_2011_PREFIX);
     public final static QName PORT_HUB = new QName(PhizXmlNs.IIS_HUB, PhizWsNames.PORT_HUB, PhizXmlNs.IIS_HUB_PREFIX);
 
     private PhizWsQnames() {

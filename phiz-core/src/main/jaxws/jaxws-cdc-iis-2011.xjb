@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxws:bindings
+        jaxb:extensionBindingPrefixes="annox inherit xjc"
+        version="2.0"
+        wsdlLocation="../wsdl/cdc-iis-2011.wsdl"
+        xmlns:annox="http://annox.dev.java.net"
+        xmlns:inherit="http://jaxb2-commons.dev.java.net/basic/inheritance"
+        xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+        xmlns:jaxws="http://java.sun.com/xml/ns/jaxws"
+        xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+        xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!--====================================================================================================
+    = GLOBAL
+    =====================================================================================================-->
+    <jaxws:bindings node="wsdl:definitions">
+        <jaxws:enableWrapperStyle>false</jaxws:enableWrapperStyle>
+        <jaxws:package name="gov.hhs.onc.phiz.ws.v2011.iis"/>
+    </jaxws:bindings>
+
+    <!--====================================================================================================
+    = PORT TYPES
+    =====================================================================================================-->
+    <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IIS_PortType']">
+        <jaxws:class name="gov.hhs.onc.phiz.ws.v2011.iis.IisPortType"/>
+    </jaxws:bindings>
+
+    <!--====================================================================================================
+    = PARAMETERS
+    =====================================================================================================-->
+    <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IIS_PortType']/wsdl:operation[@name='connectivityTest']">
+        <jaxws:parameter part="wsdl:definitions/wsdl:message[@name='connectivityTest_Message']/wsdl:part[@name='parameters']" name="reqParams"/>
+        <jaxws:parameter part="wsdl:definitions/wsdl:message[@name='connectivityTestResponse_Message']/wsdl:part[@name='parameters']" name="respParams"/>
+    </jaxws:bindings>
+
+    <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IIS_PortType']/wsdl:operation[@name='submitSingleMessage']">
+        <jaxws:parameter part="wsdl:definitions/wsdl:message[@name='submitSingleMessage_Message']/wsdl:part[@name='parameters']" name="reqParams"/>
+        <jaxws:parameter part="wsdl:definitions/wsdl:message[@name='submitSingleMessageResponse_Message']/wsdl:part[@name='parameters']"
+                         name="respParams"/>
+    </jaxws:bindings>
+
+    <!--====================================================================================================
+    = FAULTS
+    =====================================================================================================-->
+    <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IIS_PortType']/wsdl:operation/wsdl:fault[@name='MessageTooLargeFault']">
+        <jaxws:class name="gov.hhs.onc.phiz.ws.v2011.iis.MessageTooLargeFault"/>
+    </jaxws:bindings>
+
+    <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IIS_PortType']/wsdl:operation/wsdl:fault[@name='SecurityFault']">
+        <jaxws:class name="gov.hhs.onc.phiz.ws.v2011.iis.SecurityFault"/>
+    </jaxws:bindings>
+
+    <jaxws:bindings node="wsdl:definitions/wsdl:portType[@name='IIS_PortType']/wsdl:operation/wsdl:fault[@name='UnsupportedOperationFault']">
+        <jaxws:class name="gov.hhs.onc.phiz.ws.v2011.iis.UnsupportedOperationFault"/>
+    </jaxws:bindings>
+</jaxws:bindings>

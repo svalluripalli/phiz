@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jaxb:bindings
+    jaxb:extensionBindingPrefixes="annox inherit xjc"
+    jaxb:version="2.1"
+    xmlns:annox="http://annox.dev.java.net"
+    xmlns:inherit="http://jaxb2-commons.dev.java.net/basic/inheritance"
+    xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+    xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    
+    <jaxb:bindings schemaLocation="../schema/cdc-iis-2011.xsd">
+        <jaxb:schemaBindings>
+            <jaxb:package name="gov.hhs.onc.phiz.ws.v2011.iis"/>
+        </jaxb:schemaBindings>
+    </jaxb:bindings>
+ </jaxb:bindings>
