@@ -138,4 +138,17 @@
         p:serviceClass="gov.hhs.onc.phiz.ws.iis.IisPortType"
         p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE }"
         p:wsdlLocation="${phiz.ws.iis.dev.wsdl.loc}"/>
+
+    <!--====================================================================================================
+    = CLIENTS: IIS 2001
+    =====================================================================================================-->
+    <!--suppress SpringPlaceholdersInspection -->
+    <beans:bean id="client2011Iis" parent="clientJaxWs" lazy-init="true" scope="prototype"
+                p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT_2011 }"
+                p:serviceClass="gov.hhs.onc.phiz.ws.v2011.iis.IisPortType"
+                p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE_2011 }"
+                p:wsdlLocation="${phiz.ws.iis.dev.wsdl.loc}"/>
+
+
+
 </beans:beans>
