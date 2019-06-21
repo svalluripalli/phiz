@@ -1,5 +1,6 @@
 package gov.hhs.onc.phiz.web.ws.iis.hub.impl;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import gov.hhs.onc.phiz.destination.PhizAccessControlRegistry;
 import gov.hhs.onc.phiz.destination.PhizDestination;
 import gov.hhs.onc.phiz.destination.PhizDestinationRegistry;
@@ -43,6 +44,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import javax.jws.WebService;
 import javax.servlet.http.HttpServletRequest;
+import javax.swing.text.html.Option;
 import javax.xml.ws.Holder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -62,6 +64,9 @@ import org.apache.cxf.ws.addressing.JAXWSAConstants;
 import org.apache.cxf.ws.addressing.Names;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+
+import com.github.dozermapper.core.DozerBeanMapperBuilder;
+import com.github.dozermapper.core.Mapper;
 
 @SuppressWarnings({ "ValidExternallyBoundObject" })
 @WebService(portName = PhizWsNames.PORT_HUB, serviceName = PhizWsNames.SERVICE_HUB, targetNamespace = PhizXmlNs.IIS_HUB)
@@ -101,7 +106,7 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         return clientExchange;
     }
 
-    private static void initializeClientRequestContext(Map<String, Object> clientReqContext, SoapMessage reqMsg) {
+    private static void initializeClientRequestContext(Map<String, Object> clientReqContext, SoapMessage reqMsg, Optional<String> clientVersion) {
         clientReqContext.put(
             Message.PROTOCOL_HEADERS,
             Headers
@@ -113,7 +118,11 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
                         PhizWsHttpHeaders.EXT_IIS_HUB_PREFIX))).collect(Collectors.toMap(Entry::getKey, Entry::getValue)));
 
         AddressingProperties clientReqAddrProps = new AddressingProperties(Names.WSA_NAMESPACE_NAME);
-        clientReqAddrProps.setAction(ContextUtils.getAttributedURI(PhizWsAddressingActions.SUBMIT_SINGLE_MSG_REQ));
+        if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011")) {
+            clientReqAddrProps.setAction(ContextUtils.getAttributedURI(PhizWsAddressingActions.SUBMIT_SINGLE_MSG_REQ_2011));
+        } else {
+            clientReqAddrProps.setAction(ContextUtils.getAttributedURI(PhizWsAddressingActions.SUBMIT_SINGLE_MSG_REQ));
+        }
         clientReqAddrProps.setMessageID(ContextUtils.retrieveMAPs(reqMsg, false, false).getMessageID());
         clientReqContext.put(JAXWSAConstants.CLIENT_ADDRESSING_PROPERTIES, clientReqAddrProps);
     }
@@ -149,12 +158,17 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         String destId = hubReqHeader.getDestinationId();
         String sourceId = reqParams.getFacilityID().getValue();
 
-        Boolean checkedDest = accessControlReg.checkDest(sourceId, destId);
+        Boolean checkedDest = true;
+        if(accessControlReg.checkSource(sourceId)) {
+            checkedDest = accessControlReg.checkDest(sourceId, destId);
+        }
+
         if (!checkedDest) {
             throw new UnknownDestinationFault("IIS destination ID is not allowed to connect.", new UnknownDestinationFaultTypeImpl(destId));
         }
 
         PhizDestination dest = this.destReg.findById(destId);
+        Optional<String> clientVersion = Optional.ofNullable(dest.getVersion());
 
         if (dest == null) {
             throw new UnknownDestinationFault("IIS destination ID is not registered.", new UnknownDestinationFaultTypeImpl(destId));
@@ -162,8 +176,6 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
 
         WrappedMessageContext reqMsgContext = PhizWsUtils.getMessageContext(this.wsContext);
         SoapMessage reqMsg = ((SoapMessage) reqMsgContext.getWrappedMessage());
-
-
 
         gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory factory = new gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory();
 
@@ -178,19 +190,37 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
 
         String destUriStr =
             processDestinationUri(PhizWsUtils.getProperty(reqMsgContext, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class), destId, destUri);
-        Client client = ((Client) this.beanFactory.getBean(this.clientBeanName, destUriStr));
 
-        initializeClientRequestContext(client.getRequestContext(), reqMsg);
+        Client client = ((Client) this.beanFactory.getBean(this.clientBeanName, destUriStr));
+        if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011")) {
+            client = ((Client) this.beanFactory.getBean(this.clientBeanName + "2011", destUriStr));
+        }
+
+        initializeClientRequestContext(client.getRequestContext(), reqMsg, clientVersion);
 
         ClientCallback clientReqCallback = new ClientCallback();
         Exchange clientExchange = buildClientExchange(reqMsg);
 
         try {
             try {
-                client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP),
-                    new Object[] { reqParams }, clientExchange);
+                if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011")) {
+                    Mapper mapper = DozerBeanMapperBuilder.buildDefault();
+                    gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageRequestType reqParams2011 =
+                            mapper.map(reqParams, gov.hhs.onc.phiz.ws.v2011.iis.impl.SubmitSingleMessageRequestTypeImpl.class);
 
-                return new ImmutablePair<>(((SubmitSingleMessageResponseType) clientReqCallback.get()[0]), new HubResponseHeaderTypeImpl(destId, destUriStr));
+                    client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP_2011),
+                            new Object[]{reqParams2011}, clientExchange);
+
+                    SubmitSingleMessageResponseType resParams =
+                            mapper.map(clientReqCallback.get()[0], gov.hhs.onc.phiz.ws.iis.impl.SubmitSingleMessageResponseTypeImpl.class);
+
+                    return new ImmutablePair<>(resParams, new HubResponseHeaderTypeImpl(destId, destUriStr));
+                } else {
+                    client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP),
+                            new Object[]{reqParams}, clientExchange);
+
+                    return new ImmutablePair<>(((SubmitSingleMessageResponseType) clientReqCallback.get()[0]), new HubResponseHeaderTypeImpl(destId, destUriStr));
+                }
             } catch (ExecutionException e) {
                 throw clientReqCallback.getException();
             }
