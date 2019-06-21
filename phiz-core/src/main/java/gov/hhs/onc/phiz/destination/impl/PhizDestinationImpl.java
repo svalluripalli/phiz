@@ -19,6 +19,7 @@ public class PhizDestinationImpl extends AbstractPhizEntity<String> implements P
     private URI uri;
     private String username;
     private String password;
+    private String version;
 
     public PhizDestinationImpl() {
     }
@@ -66,5 +67,16 @@ public class PhizDestinationImpl extends AbstractPhizEntity<String> implements P
     @Override
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    @Column(name = "dest_version", nullable = true)
+    @Override
+    public String getVersion() {
+        return this.version;
+    }
+
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

@@ -21,10 +21,25 @@ public class PhizAccessControlRegistryImpl extends AbstractPhizDataService<Integ
     }
 
     @Override
+    public Boolean checkSource(String sourceId) {
+        if(enableDestCheck.equalsIgnoreCase("enable")) {
+            List<PhizAccessControl> list = dao.findByQuery("FROM accessControl as acl where acl.sourceId = '" + sourceId + "'");
+
+            if (list.size() > 0) {
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public Boolean checkDest(String sourceId, String destId) {
         if(enableDestCheck.equalsIgnoreCase("enable")) {
-            List<PhizAccessControl> list = dao.findByQuery("FROM accessControl where accessControl.sourceId = '" + sourceId + "'"
-                    + " and accessControl.destId = '" + destId + "'");
+
+
+            List<PhizAccessControl> list = dao.findByQuery("FROM accessControl as acl where acl.sourceId = '" + sourceId + "'"
+                    + " and acl.destId = '" + destId + "'");
 
             if (list.size() > 0) {
                 return true;
