@@ -27,6 +27,7 @@ public final class PhizWsQnames {
     public final static QName CONN_TEST_RESP_MSG_HUB = new QName(PhizXmlNs.IIS_HUB, PhizWsNames.CONN_TEST_RESP_MSG, PhizXmlNs.IIS_HUB_PREFIX);
 
     public final static QName SUBMIT_SINGLE_MSG_OP = new QName(PhizXmlNs.IIS, PhizWsNames.SUBMIT_SINGLE_MSG_OP, PhizXmlNs.IIS_PREFIX);
+    public final static QName SUBMIT_SINGLE_MSG_OP_2011 = new QName(PhizXmlNs.IIS_2011, PhizWsNames.SUBMIT_SINGLE_MSG_OP_2011, PhizXmlNs.IIS_2011_PREFIX);
     public final static QName SUBMIT_SINGLE_MSG_OP_HUB = new QName(PhizXmlNs.IIS_HUB, PhizWsNames.SUBMIT_SINGLE_MSG_OP, PhizXmlNs.IIS_HUB_PREFIX);
 
     public final static QName SUBMIT_SINGLE_MSG_REQ = new QName(PhizXmlNs.IIS, PhizWsNames.SUBMIT_SINGLE_MSG_REQ, PhizXmlNs.IIS_PREFIX);

@@ -9,6 +9,7 @@ public final class PhizWsNames {
     public final static String IIS_HUB_PREFIX = IIS_PREFIX + HUB_PREFIX;
 
     public final static String PORT_TYPE_SUFFIX = "PortType";
+    public final static String PORT_TYPE_2011_SUFFIX = "_PortType";
     public final static String BINDING_SUFFIX = "BindingSoap12";
     public final static String REQ_SUFFIX = "Request";
     public final static String RESP_SUFFIX = "Response";
@@ -26,6 +27,7 @@ public final class PhizWsNames {
     public final static String HL7_MSG = "Hl7" + MSG_SUFFIX;
 
     public final static String PORT_TYPE = IIS_PREFIX + PORT_TYPE_SUFFIX;
+    public final static String PORT_TYPE_2011 = IIS_PREFIX + PORT_TYPE_2011_SUFFIX;
     public final static String PORT_TYPE_HUB = IIS_HUB_PREFIX + PORT_TYPE_SUFFIX;
 
     public final static String CONN_TEST_OP = "ConnectivityTest";
@@ -36,8 +38,10 @@ public final class PhizWsNames {
     public final static String CONN_TEST_RESP_MSG = CONN_TEST_RESP + MSG_SUFFIX;
 
     public final static String SUBMIT_SINGLE_MSG_OP = "SubmitSingleMessage";
+    public final static String SUBMIT_SINGLE_MSG_OP_2011 = "submitSingleMessage";
 
     public final static String SUBMIT_SINGLE_MSG_REQ = SUBMIT_SINGLE_MSG_OP + REQ_SUFFIX;
+    public final static String SUBMIT_SINGLE_MSG_REQ_2011 = "submitSingleMessage";
     public final static String SUBMIT_SINGLE_MSG_REQ_MSG = SUBMIT_SINGLE_MSG_REQ + MSG_SUFFIX;
     public final static String SUBMIT_SINGLE_MSG_RESP = SUBMIT_SINGLE_MSG_OP + RESP_SUFFIX;
     public final static String SUBMIT_SINGLE_MSG_RESP_MSG = SUBMIT_SINGLE_MSG_RESP + MSG_SUFFIX;
