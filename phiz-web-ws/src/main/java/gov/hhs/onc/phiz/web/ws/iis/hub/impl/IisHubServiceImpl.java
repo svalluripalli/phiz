@@ -1,6 +1,5 @@
 package gov.hhs.onc.phiz.web.ws.iis.hub.impl;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import gov.hhs.onc.phiz.destination.PhizAccessControlRegistry;
 import gov.hhs.onc.phiz.destination.PhizDestination;
 import gov.hhs.onc.phiz.destination.PhizDestinationRegistry;
