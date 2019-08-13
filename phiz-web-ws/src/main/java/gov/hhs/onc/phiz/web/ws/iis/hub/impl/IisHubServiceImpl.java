@@ -167,11 +167,11 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         }
 
         PhizDestination dest = this.destReg.findById(destId);
-        Optional<String> clientVersion = Optional.ofNullable(dest.getVersion());
-
         if (dest == null) {
             throw new UnknownDestinationFault("IIS destination ID is not registered.", new UnknownDestinationFaultTypeImpl(destId));
         }
+
+        Optional<String> clientVersion = Optional.ofNullable(dest.getVersion());
 
         WrappedMessageContext reqMsgContext = PhizWsUtils.getMessageContext(this.wsContext);
         SoapMessage reqMsg = ((SoapMessage) reqMsgContext.getWrappedMessage());
@@ -180,7 +180,7 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
 
         URI destUri = dest.getUri();
 
-        Optional<String> optionalUsername = Optional.of(dest.getUsername());
+        Optional<String> optionalUsername = Optional.ofNullable(dest.getUsername());
         optionalUsername.ifPresent(c -> {
             reqParams.setUsername(factory.createSubmitSingleMessageRequestTypeUsername(c));
             String password = AES.decrypt(dest.getPassword(), secret);
