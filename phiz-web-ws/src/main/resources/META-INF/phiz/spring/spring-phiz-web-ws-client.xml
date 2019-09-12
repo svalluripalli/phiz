@@ -143,7 +143,7 @@
     = CLIENTS: IIS 2001
     =====================================================================================================-->
     <!--suppress SpringPlaceholdersInspection -->
-    <beans:bean id="client2011Iis" parent="clientJaxWs" lazy-init="true" scope="prototype"
+    <beans:bean id="clientIis2011" parent="clientJaxWs" lazy-init="true" scope="prototype"
                 p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT_2011 }"
                 p:serviceClass="gov.hhs.onc.phiz.ws.v2011.iis.IisPortType"
                 p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE_2011 }"
