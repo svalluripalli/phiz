@@ -170,6 +170,11 @@ public class PhizRevocationChecker extends AbstractPhizPathChecker {
     @SuppressWarnings({ CompilerWarnings.UNCHECKED })
     protected void checkInternal(X509Certificate cert, String certSubjectDnNameStr, String certIssuerDnNameStr, BigInteger certSerialNum)
         throws CertPathValidatorException {
+
+        if (!this.optional) {
+            return;
+        }
+
         URL ocspResponderUrl;
 
         try {
