@@ -147,8 +147,6 @@
                 p:endpointName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).PORT_2011 }"
                 p:serviceClass="gov.hhs.onc.phiz.ws.v2011.iis.IisPortType"
                 p:serviceName="#{ T(gov.hhs.onc.phiz.ws.PhizWsQnames).SERVICE_2011 }"
-                p:wsdlLocation="${phiz.ws.iis.dev.wsdl.loc}"/>
-
-
+                p:wsdlLocation="${phiz.ws.v2011.iis.dev.wsdl.loc}"/>
 
 </beans:beans>
