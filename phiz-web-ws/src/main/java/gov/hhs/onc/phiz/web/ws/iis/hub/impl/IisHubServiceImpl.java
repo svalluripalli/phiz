@@ -205,13 +205,15 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
                 if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011")) {
                     Mapper mapper = DozerBeanMapperBuilder.buildDefault();
                     gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageRequestType reqParams2011 =
-                            mapper.map(reqParams, gov.hhs.onc.phiz.ws.v2011.iis.impl.SubmitSingleMessageRequestTypeImpl.class);
+                            new gov.hhs.onc.phiz.ws.v2011.iis.impl.SubmitSingleMessageRequestTypeImpl(reqParams.getUsername(), reqParams.getPassword(), reqParams.getFacilityID(), reqParams.getHl7Message());
 
                     client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP_2011),
                             new Object[]{reqParams2011}, clientExchange);
 
+                    gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageResponseType resParams2011 = (gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageResponseType) clientReqCallback.get()[0];
+
                     SubmitSingleMessageResponseType resParams =
-                            mapper.map(clientReqCallback.get()[0], gov.hhs.onc.phiz.ws.iis.impl.SubmitSingleMessageResponseTypeImpl.class);
+                            new gov.hhs.onc.phiz.ws.iis.impl.SubmitSingleMessageResponseTypeImpl(resParams2011.getReturn());
 
                     return new ImmutablePair<>(resParams, new HubResponseHeaderTypeImpl(destId, destUriStr));
                 } else {
