@@ -28,6 +28,8 @@
     = OBJECT FACTORIES
     =====================================================================================================-->
     <beans:bean id="objFactoryIis" class="gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory"/>
+
+    <beans:bean id="objFactoryIis2011" class="gov.hhs.onc.phiz.ws.v2011.iis.impl.ObjectFactory"/>
     
     <beans:bean id="objFactoryIisHub" class="gov.hhs.onc.phiz.ws.iis.hub.impl.ObjectFactory"/>
 </beans:beans>
