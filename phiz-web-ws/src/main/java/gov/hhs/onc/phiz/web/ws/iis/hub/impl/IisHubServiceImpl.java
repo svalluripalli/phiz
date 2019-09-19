@@ -190,7 +190,14 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         String destUriStr =
             processDestinationUri(PhizWsUtils.getProperty(reqMsgContext, AbstractHTTPDestination.HTTP_REQUEST, HttpServletRequest.class), destId, destUri);
 
-        Client client = ((Client) this.beanFactory.getBean(this.clientBeanName, destUriStr));
+        gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageRequestType reqParams2011 = null;
+
+        if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011")) {
+            reqParams2011 =
+                    new gov.hhs.onc.phiz.ws.v2011.iis.impl.SubmitSingleMessageRequestTypeImpl(reqParams.getUsername(), reqParams.getPassword(), reqParams.getFacilityID(), reqParams.getHl7Message());
+        }
+
+            Client client = ((Client) this.beanFactory.getBean(this.clientBeanName, destUriStr));
         if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011")) {
             client = ((Client) this.beanFactory.getBean(this.clientBeanName + "2011", destUriStr));
         }
@@ -202,11 +209,7 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
 
         try {
             try {
-                if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011")) {
-                    Mapper mapper = DozerBeanMapperBuilder.buildDefault();
-                    gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageRequestType reqParams2011 =
-                            new gov.hhs.onc.phiz.ws.v2011.iis.impl.SubmitSingleMessageRequestTypeImpl(reqParams.getUsername(), reqParams.getPassword(), reqParams.getFacilityID(), reqParams.getHl7Message());
-
+                if (clientVersion.isPresent() && clientVersion.get().equalsIgnoreCase("2011") && reqParams2011 != null) {
                     client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP_2011),
                             new Object[]{reqParams2011}, clientExchange);
 
