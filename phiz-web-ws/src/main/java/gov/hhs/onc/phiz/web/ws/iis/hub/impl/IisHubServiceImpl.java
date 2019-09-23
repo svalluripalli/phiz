@@ -215,11 +215,18 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
                     gov.hhs.onc.phiz.ws.v2011.iis.ObjectFactory v2011Factory = new gov.hhs.onc.phiz.ws.v2011.iis.ObjectFactory();
 
                     gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageRequestType reqParams2011 = v2011Factory.createSubmitSingleMessageRequestType();
-                    reqParams2011.setUsername(v2011Factory.createSubmitSingleMessageRequestTypeUsername(reqParams.getUsername().getValue()));
-                    reqParams2011.setPassword(v2011Factory.createSubmitSingleMessageRequestTypePassword(reqParams.getPassword().getValue()));
-                    reqParams2011.setFacilityID(v2011Factory.createSubmitSingleMessageRequestTypeFacilityID(reqParams.getFacilityID().getValue()));
-
-                    reqParams2011.setHl7Message(v2011Factory.createSubmitSingleMessageRequestTypeHl7Message(reqParams.getHl7Message()));
+                    if(reqParams.isSetUsername()) {
+                        reqParams2011.setUsername(v2011Factory.createSubmitSingleMessageRequestTypeUsername(reqParams.getUsername().getValue()));
+                    }
+                    if(reqParams.isSetPassword()) {
+                        reqParams2011.setPassword(v2011Factory.createSubmitSingleMessageRequestTypePassword(reqParams.getPassword().getValue()));
+                    }
+                    if(reqParams.isSetFacilityID()) {
+                        reqParams2011.setFacilityID(v2011Factory.createSubmitSingleMessageRequestTypeFacilityID(reqParams.getFacilityID().getValue()));
+                    }
+                    if(reqParams.isSetHl7Message()) {
+                        reqParams2011.setHl7Message(v2011Factory.createSubmitSingleMessageRequestTypeHl7Message(reqParams.getHl7Message()));
+                    }
 
                     client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP_2011),
                             new Object[]{reqParams2011}, clientExchange);
