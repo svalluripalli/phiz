@@ -41,30 +41,30 @@
     =====================================================================================================-->
     <xsd:complexType name="soapFaultType">
         <xsd:sequence>
-            <xsd:element name="Code" type="xsd:integer" minOccurs="1"/>
-            <xsd:element name="Reason" type="xsd:string" minOccurs="1"/>
-            <xsd:element name="Detail" type="xsd:string" minOccurs="1"/>
+            <xsd:element name="Code" type="xsd:integer" minOccurs="0" nillable="true"/>
+            <xsd:element name="Reason" type="xsd:string" minOccurs="0" nillable="true"/>
+            <xsd:element name="Detail" type="xsd:string" minOccurs="0" nillable="true"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="UnsupportedOperationFault2011Type">
         <xsd:sequence>
-            <xsd:element name="Code" type="xsd:integer" minOccurs="1"/>
+            <xsd:element name="Code" type="xsd:integer" minOccurs="0" nillable="true"/>
             <xsd:element name="Reason" fixed="UnsupportedOperation"/>
-            <xsd:element name="Detail" type="xsd:string" minOccurs="1"/>
+            <xsd:element name="Detail" type="xsd:string" minOccurs="0" nillable="true"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="SecurityFault2011Type">
         <xsd:sequence>
-            <xsd:element name="Code" type="xsd:integer" minOccurs="1"/>
+            <xsd:element name="Code" type="xsd:integer" minOccurs="0" nillable="true"/>
             <xsd:element name="Reason" fixed="Security"/>
-            <xsd:element name="Detail" type="xsd:string" minOccurs="1"/>
+            <xsd:element name="Detail" type="xsd:string" minOccurs="0" nillable="true"/>
         </xsd:sequence>
     </xsd:complexType>
     <xsd:complexType name="MessageTooLargeFault2011Type">
         <xsd:sequence>
-            <xsd:element name="Code" type="xsd:integer" minOccurs="1"/>
+            <xsd:element name="Code" type="xsd:integer" minOccurs="0" nillable="true"/>
             <xsd:element name="Reason" fixed="MessageTooLarge"/>
-            <xsd:element name="Detail" type="xsd:string" minOccurs="1"/>
+            <xsd:element name="Detail" type="xsd:string" minOccurs="0" nillable="true"/>
         </xsd:sequence>
     </xsd:complexType>
 
