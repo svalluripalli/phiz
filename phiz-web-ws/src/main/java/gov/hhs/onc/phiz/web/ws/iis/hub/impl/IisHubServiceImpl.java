@@ -64,6 +64,8 @@ import org.apache.cxf.ws.addressing.Names;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import javax.xml.bind.JAXBElement;
+
 import com.github.dozermapper.core.DozerBeanMapperBuilder;
 import com.github.dozermapper.core.Mapper;
 
@@ -181,10 +183,17 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         URI destUri = dest.getUri();
 
         Optional<String> optionalUsername = Optional.ofNullable(dest.getUsername());
-        optionalUsername.ifPresent(c -> {
-            reqParams.setUsername(factory.createSubmitSingleMessageRequestTypeUsername(c));
-            String password = AES.decrypt(dest.getPassword(), secret);
-            reqParams.setPassword(factory.createSubmitSingleMessageRequestTypePassword(password));
+        optionalUsername.ifPresent(u -> {
+            if (!u.isEmpty()) {
+                reqParams.setUsername(factory.createSubmitSingleMessageRequestTypeUsername(u));
+            }
+        });
+
+        Optional<String> optionalPassword = Optional.ofNullable(dest.getUsername());
+        optionalPassword.ifPresent(p -> {
+            if (!p.isEmpty()) {
+                reqParams.setPassword(factory.createSubmitSingleMessageRequestTypePassword(p));
+            }
         });
 
         String destUriStr =
@@ -209,7 +218,8 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
                     reqParams2011.setUsername(v2011Factory.createSubmitSingleMessageRequestTypeUsername(reqParams.getUsername().getValue()));
                     reqParams2011.setPassword(v2011Factory.createSubmitSingleMessageRequestTypePassword(reqParams.getPassword().getValue()));
                     reqParams2011.setFacilityID(v2011Factory.createSubmitSingleMessageRequestTypeFacilityID(reqParams.getFacilityID().getValue()));
-                    reqParams2011.setHl7Message(reqParams.getHl7Message());
+
+                    reqParams2011.setHl7Message(v2011Factory.createSubmitSingleMessageRequestTypeHl7Message(reqParams.getHl7Message()));
 
                     client.invoke(clientReqCallback, client.getEndpoint().getBinding().getBindingInfo().getOperation(PhizWsQnames.SUBMIT_SINGLE_MSG_OP_2011),
                             new Object[]{reqParams2011}, clientExchange);
