@@ -151,6 +151,21 @@ public class PhizTrustManager extends X509ExtendedTrustManager implements BeanFa
 
                 X509Certificate issuerCert = PhizCertificatePathUtils.findRootCertificate(certs[0], certBuilderParams);
 
+                if(issuerCert == null) {
+                    LOGGER
+                            .info(
+                                    PhizLogstashMarkers.append(PhizLogstashTags.SSL, event),
+                                    String
+                                            .format(
+                                                    "Unable to get SSL %s root certificate from component (class=%s) during certificate chain (subjectDnNames=[%s], issuerDnNames=[%s], serialNums=[%s]) trust checking (authType=%s).",
+                                                    loc.getId(), component.getClass().getName(), certSubjectDnNamesStr, certIssuerDnNamesStr, certSerialNumsStr, authType));
+
+                    throw new CertificateException(String
+                            .format(
+                                    "Unable to get SSL %s root certificate from component (class=%s) during certificate chain (subjectDnNames=[%s], issuerDnNames=[%s], serialNums=[%s]) trust checking (authType=%s).",
+                                    loc.getId(), component.getClass().getName(), certSubjectDnNamesStr, certIssuerDnNamesStr, certSerialNumsStr, authType));
+                }
+
                 certBuilderParams.addCertPathChecker(((PhizConstraintsChecker) this.beanFactory.getBean(this.constraintsCheckerBeanName, loc, issuerCert)));
 
                 certBuilderParams.addCertPathChecker(((PhizRevocationChecker) this.beanFactory.getBean(this.revocationCheckerBeanName, loc, issuerCert)));
