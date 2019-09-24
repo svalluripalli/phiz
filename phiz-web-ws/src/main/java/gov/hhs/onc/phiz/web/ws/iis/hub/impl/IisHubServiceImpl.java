@@ -178,21 +178,19 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
         WrappedMessageContext reqMsgContext = PhizWsUtils.getMessageContext(this.wsContext);
         SoapMessage reqMsg = ((SoapMessage) reqMsgContext.getWrappedMessage());
 
-        gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory factory = new gov.hhs.onc.phiz.ws.iis.impl.ObjectFactory();
-
         URI destUri = dest.getUri();
 
         Optional<String> optionalUsername = Optional.ofNullable(dest.getUsername());
         optionalUsername.ifPresent(u -> {
             if (!u.isEmpty()) {
-                reqParams.setUsername(factory.createSubmitSingleMessageRequestTypeUsername(u));
+                reqParams.setUsername(this.objFactory.createSubmitSingleMessageRequestTypeUsername(u));
             }
         });
 
-        Optional<String> optionalPassword = Optional.ofNullable(dest.getUsername());
+        Optional<String> optionalPassword = Optional.ofNullable(dest.getPassword());
         optionalPassword.ifPresent(p -> {
             if (!p.isEmpty()) {
-                reqParams.setPassword(factory.createSubmitSingleMessageRequestTypePassword(p));
+                reqParams.setPassword(this.objFactory.createSubmitSingleMessageRequestTypePassword(p));
             }
         });
 
@@ -233,7 +231,7 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
 
                     gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageResponseType resParams2011 = (gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageResponseType) clientReqCallback.get()[0];
 
-                    SubmitSingleMessageResponseType resParams = objFactory.createSubmitSingleMessageResponseType();
+                    SubmitSingleMessageResponseType resParams = this.objFactory.createSubmitSingleMessageResponseType();
 
                     if(resParams2011.isSetReturn()) {
                         resParams.setHl7Message(resParams2011.getReturn());
@@ -251,7 +249,9 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
             }
         } catch (DestinationConnectionFault | HubClientFault | MessageTooLargeFault | SecurityFault | UnknownDestinationFault e) {
             throw e;
-        } catch (Throwable e) {
+        }
+
+        catch (Throwable e) {
             Throwable rootCause = PhizExceptionUtils.getRootCause(e);
 
             if (rootCause instanceof UnknownHostException) {
