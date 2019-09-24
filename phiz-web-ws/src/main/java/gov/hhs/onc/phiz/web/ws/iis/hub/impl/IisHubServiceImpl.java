@@ -233,8 +233,11 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
 
                     gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageResponseType resParams2011 = (gov.hhs.onc.phiz.ws.v2011.iis.SubmitSingleMessageResponseType) clientReqCallback.get()[0];
 
-                    SubmitSingleMessageResponseType resParams =
-                            new gov.hhs.onc.phiz.ws.iis.impl.SubmitSingleMessageResponseTypeImpl(resParams2011.getReturn());
+                    SubmitSingleMessageResponseType resParams = objFactory.createSubmitSingleMessageResponseType();
+
+                    if(resParams2011.isSetReturn()) {
+                        resParams.setHl7Message(resParams2011.getReturn());
+                    }
 
                     return new ImmutablePair<>(resParams, new HubResponseHeaderTypeImpl(destId, destUriStr));
                 } else {
