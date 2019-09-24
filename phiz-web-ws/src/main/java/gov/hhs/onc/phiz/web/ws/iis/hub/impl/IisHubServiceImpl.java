@@ -234,7 +234,7 @@ public class IisHubServiceImpl extends AbstractIisService implements IisHubPortT
                     SubmitSingleMessageResponseType resParams = this.objFactory.createSubmitSingleMessageResponseType();
 
                     if(resParams2011.isSetReturn()) {
-                        resParams.setHl7Message(resParams2011.getReturn());
+                        resParams.setHl7Message(resParams2011.getReturn().getValue());
                     }
 
                     return new ImmutablePair<>(resParams, new HubResponseHeaderTypeImpl(destId, destUriStr));
