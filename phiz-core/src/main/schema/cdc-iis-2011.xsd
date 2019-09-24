@@ -32,7 +32,7 @@
     </xsd:complexType>
     <xsd:complexType name="submitSingleMessageResponseType">
         <xsd:sequence>
-            <xsd:element name="return" type="xsd:string" minOccurs="1" maxOccurs="1" nillable="true"/>
+            <xsd:element name="return" type="xsd:string" minOccurs="0" maxOccurs="1" nillable="true"/>
         </xsd:sequence>
     </xsd:complexType>
 
